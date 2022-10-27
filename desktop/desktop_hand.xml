@@ -11,16 +11,15 @@
 	</panel>
 
 	<windowclass name="desktop_hand">
-		<noclose />
+		<noclose/>
 		<sizelimits>
 			<dynamic />
-			<minimum width="450" height="150" />
+			<minimum width="450" height="180" />
 		</sizelimits>
 		<script file="desktop/scripts/desktop_hand.lua" />
 		<sheetdata>
 			<genericcontrol name="frame">
-				<invisible />
-				<frame>groupbox</frame>
+				<frame>partysheet</frame>
 				<anchored>
 					<top offset="0"/>
 					<bottom offset="0" />
@@ -34,29 +33,73 @@
 				<columns width="150">
 					<fillwidth />
 				</columns>
-				<invisible />
 				<anchored>
-					<top offset="7"/>
-					<bottom offset="-7" />
-					<left offset="7" />
-					<right offset="-7" />
+					<left />
+					<right />
+					<top />
+					<bottom />
 				</anchored>
 			</windowlist>
+			<genericcontrol name="discard">
+				<script>
+					function onDrop(x, y, dragdata)
+						if dragdata.isType("shortcut") then
+							local sClass, sRecord = dragdata.getShortcutData();
+
+							if sClass == "card" then
+								window.onDropCardOnDelete(sRecord);
+								return true;
+							end
+						end
+					end
+				</script>
+				<icon>button_discard</icon>
+				<anchored height="40" width="40">
+					<bottom offset="-10" />
+					<right offset="-10" />
+				</anchored>
+			</genericcontrol>
 		</sheetdata>
 	</windowclass>
 
 	<windowclass name="desktop_card">
 		<margins control="0,0,0,0" />
 		<script>
+			local bPopped = false;
+			
+			function onInit()
+				highlight.setEnabled(false);
+			end
+
 			function setCardSize(nWidth, nHeight)
 				image.setAnchoredWidth(nWidth);
 				image.setAnchoredHeight(nHeight);
+			end
+			
+			function onHover(hover)
+				if hover and not bPopped then
+					highlight.setVisible(true);
+					bPopped = true;
+				elseif not hover and bPopped then
+					highlight.setVisible(false);
+					bPopped = false;
+				end
 			end
 		</script>
 		<sheetdata>
 			<token_card name="image">
 				<script file="desktop/scripts/desktop_card.lua" />
 			</token_card>
+			<genericcontrol name="highlight">
+				<frame>cardhighlight</frame>
+				<anchored to="image">
+					<top offset="0"/>
+					<bottom offset="0" />
+					<left offset="0" />
+					<right offset="0" />
+				</anchored>
+				<invisible />
+			</genericcontrol>
 		</sheetdata>
 	</windowclass>
 

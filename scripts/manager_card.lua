@@ -372,12 +372,6 @@ function onDropCard(draginfo, vDestination, sExtra)
 	local vDestination = DeckedOutUtilities.validateNode(vDestination, "vDestination");
 	if not vDestination then return end
 
-	-- Little hack so that if we pass in charsheet.*.cards as the destination
-	-- it still works
-	if vDestination.getName() == CardManager.PLAYER_HAND_PATH then
-		vDestination = vDestination.getParent();
-	end
-
 	-- Only handle shortcut drops
 	if not draginfo.isType("shortcut") then
 		return;
@@ -398,9 +392,20 @@ function onDropCard(draginfo, vDestination, sExtra)
 
 	-- Check if a the source of the card is the same as the destination
 	-- and if it is, bail
-	local rActor = ActorManager.resolveActor(vDestination)
-	if rActor and CardManager.isActorHoldingCard(sRecord, rActor) then
+	local sourceParentNode = DB.getChild(sRecord, "..");
+	if sourceParentNode.getNodeName() == vDestination.getNodeName() then
 		return;
+	end
+
+	-- local rActor = ActorManager.resolveActor(vDestination)
+	-- if rActor and CardManager.isActorHoldingCard(sRecord, rActor) then
+	-- 	return;
+	-- end
+
+	-- Little hack so that if we pass in charsheet.*.cards as the destination
+	-- it still works
+	if vDestination.getName() == CardManager.PLAYER_HAND_PATH then
+		vDestination = vDestination.getParent();
 	end
 
 	sDestPath = vDestination.getNodeName();

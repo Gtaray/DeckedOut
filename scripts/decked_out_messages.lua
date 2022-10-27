@@ -31,11 +31,14 @@ function printCardPlayedMessage(tEventArgs, tEventTrace)
 	if not vCard then return end
 
 	local bFacedown = tEventArgs.bFacedown == "true";
+	local sCardSource = CardManager.getCardSource(vCard);
+	if sCardSource == "storage" then return end
 
 	-- In this case, everything is public so the two messages can be the same
 	local msg = {};
 	msg.type = DeckedOutMessages.OOB_MSGTYPE_PRINTCARDPLAYED;
 	msg.sender = sCardSource;
+
 
 	local sTextRes = "";
 	if bFacedown then

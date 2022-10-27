@@ -1,7 +1,7 @@
 HAND_MARGINS = {
-	["top"] = 7,
+	["top"] = 30,
 	["right"] = 7,
-	["bottom"] = 7,
+	["bottom"] = 0,
 	["left"] = 7,
 }
 CARD_PADDING = 0;
@@ -17,7 +17,7 @@ end
 function update()
 	local nWidth, nHeight = getCardSize();
 
-	setColumnWidth(nWidth + CARD_PADDING);
+	setColumnWidth(nWidth + (CARD_PADDING * 2));
 
 	for k,window in ipairs(getWindows()) do
 		window.setCardSize(nWidth, nHeight);

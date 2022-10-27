@@ -2,6 +2,8 @@ local fConfigureSidebarTheming = nil;
 local fOnShortcutDropOnPortrait = nil;
 
 function onInit()
+	Interface.onDesktopInit = onDesktopInit;
+
 	fConfigureSidebarTheming = DesktopManager.configureSidebarTheming;
 	DesktopManager.configureSidebarTheming = configureSidebarTheming;
 
@@ -12,6 +14,12 @@ function onInit()
 	DesktopManager.toggleHandVisibility = toggleHandVisibility;
 	DesktopManager.openCardList = openCardList;
 	DesktopManager.promptCardAmount = promptCardAmount;
+end
+
+function onDesktopInit()
+	if Session.IsHost then 
+		DesktopManager.setHandVisibility(CardManager.getNumberOfCardsInHand("gm") > 0);
+	end
 end
 
 function configureSidebarTheming()
@@ -63,10 +71,7 @@ function toggleHandVisibility(bShow)
 
 	local window = Interface.findWindow("desktop_hand", "");
 	if window then
-		window.frame.setVisible(bShow);
-		window.frame.setEnabled(bShow);
-		window.hand.setVisible(bShow);
-		window.hand.setEnabled(bShow);
+		window.updateVisibility(bShow);
 	end
 end
 

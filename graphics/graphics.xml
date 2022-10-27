@@ -15,4 +15,13 @@
 	<icon name="discard_hand" file="graphics/radial/discard_hand.png" />
 	<icon name="deal" file="graphics/radial/deal.png" />
 	<icon name="deal_multiple" file="graphics/radial/deal.png" />
+
+	<!-- Misc -->
+	<icon name="button_discard" file="graphics/radial/icon_delete.png" />
+
+	<!-- Frames -->
+	<framedef name="cardhighlight">
+		<bitmap file="graphics/frames/calendarhighlight.png"/>
+		<offset>5,5,5,5</offset>
+	</framedef>
 </root>

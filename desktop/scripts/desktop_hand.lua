@@ -34,12 +34,6 @@ function onMenuSelection(selection, subselection)
 	end
 end
 
-function onFirstLayout()
-	if Session.IsHost then
-		DesktopManager.setHandVisibility(hand.getWindowCount() > 0);
-	end
-end
-
 function onIdentityStateChange(sIdentity, sUsername, sStateName, vState)	
 	-- if for some reason the GM is here, bail
 	if Session.IsHost then
@@ -76,8 +70,30 @@ function onDrop(x, y, draginfo)
 	end
 end
 
-function onSizeChanged()
+function onDropCardOnDelete(vCard)
+	vCard = DeckedOutUtilities.validateCard(vCard);
+	if not vCard then return end
+
+	-- Either we're the host and the card is in the gm hand
+	-- Or we're a client and whose identity matches the card source
+	if Session.IsHost and CardManager.isCardOwnedByGm(vCard) then
+		CardManager.discardCard(vCard);
+		return true;
+	elseif User.getCurrentIdentity() == CardManager.getCardSource(vCard) then
+		CardManager.discardCard(vCard);
+		return true;
+	end
+end
+
+function onSizeChanged(bIgnore)
 	updateHand();
+end
+
+function updateVisibility(bShow)
+	setEnabled(bShow);
+	frame.setVisible(bShow);
+	hand.setVisible(bShow);
+	discard.setVisible(bShow);
 end
 
 function getIdentity()

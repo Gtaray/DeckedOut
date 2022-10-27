@@ -35,11 +35,11 @@ function onCardDroppedInChat(draginfo)
 		return;	
 	end
 
-	-- Update the draginfo link to the new item in storage
 	local tEventTrace = {}; -- New up a trace, as this is guaranteed to be the first event
-	vCard = CardStorage.addCardToStorage(sRecord, tEventTrace)
 
-	DeckedOutEvents.raiseOnCardPlayedEvent(vCard.getNodeName(), DeckedOutUtilities.getFacedownHotkey(), tEventTrace)
+	-- We specifically don't want to copy cards to storage here, since the message
+	-- handler will will copy it to chat. We only want to raise the event
+	DeckedOutEvents.raiseOnCardPlayedEvent(sRecord, DeckedOutUtilities.getFacedownHotkey(), tEventTrace)
 	return true;
 end
 

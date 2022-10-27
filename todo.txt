@@ -1,28 +1,39 @@
 TODO LIST: 
-* Redo hand screen graphics
-* Hovering over a card in hand makes it pop up a little bit (or get slightly larger)
+* Redo deal multi prompt window
+* re-implement 'play and discard' hotkey
 * Hand actions
-	* [x] Discard
-	* [x] Discard hand
-	* [x] Show in Chat
-	* [x] Place face down in chat
 	* [ ] Discard at random
 	* [ ] Play at random
 	* [ ] Give to other person at random
-* Option to toggle whether cards are dealt face down or face up
-* Option for whether cards are played facedown or faceup by default
-* Option for Gm to see card faces or card back when dragging from deck
-* Option toggle for letting players drop cards in their hand
-* Option toggle for automatically showing/hiding hand when switching characters? So rare this probably doesn't matter
-* Dropping cards on CT entries and map tokens for characters gives cards
+* Add per deck configuration
+	* [ ] Toggle whether dealt cards should be hidden from GM (both the drag token and the message in chat)
+	* [ ] Toggle whether cards are played face up for face down by default (for drag/drop and doubleclick)
+	* [ ] Toggle whether the GM can see cards played facedown in chat
+	* [ ] Toggle whether dropping a card from a deck into chat automatically discards the card (as if it were played and discarded)
+	* [ ] Toggle whether dropping a card from a hand into chat automatically discards the card (as if it were played and discarded)
+* Dropping cards on entities gives cards
+	* [ ] CT entries
+	* [ ] Tokens on maps
+	* [ ] Character sheets
 
 STRETCH GOALS
 * Toggle option to display username or character name in chat when trading/showing/placing cards
 * Tooltips when hovering over cards in hand
 	* Even more stretch, make the tooltip only appear when the size of the tokenfield is really small
 * Figure out what the heck is going on with the hand icon when dynamically setting anchor points
+* Option toggle for automatically showing/hiding hand when switching characters? So rare this probably doesn't matter
 
 DONE
+* Option toggle for letting players drop cards in their hand
+* Redo hand screen graphics
+* Hovering over a card in hand makes it pop up a little bit (or get slightly larger)
+	* Changing it's size or anchor points are... complicated and buggy. Going to stick to a simple highlight frame for now.
+* Figure out how to lock the hand in a location. Panels are dumb. Also I'm dumb. WINDOW.setEnabled, not control.setEnabled
+* Hand actions
+	* [x] Discard
+	* [x] Discard hand
+	* [x] Show in Chat
+	* [x] Place face down in chat
 * OOB handler for when players drop cards from their hand onto other PCs
 * Add way to view the discard pile of a deck
 * Add check so when decks in the deckbox are deleted, cards from that deck are removed from all hands
@@ -49,6 +60,7 @@ DONE
 * Overhaul of chat messages for various 
 * Fix the issue where players can't discard their own cards because they can't copy into the discard pile. MORE OOBS
 * Make decks in the deckbox public so everyone can see cards that are dropped in chat
+* Fix issue where Hand blocks the UI even if it's "closed"
 
 ABANDONED
 * The Card Table
