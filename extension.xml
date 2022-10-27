@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root version="3.3" release="1.0">
+	<announcement text="Loaded Decked Out v0.1" font="emotefont" />
+	<properties>
+		<name>Feature: Decked Out</name>
+		<version>0.1</version>
+		<author>George Taray</author>
+		<description>Adds decks of cards</description>
+		<ruleset>
+			<name>CoreRPG</name>
+		</ruleset>
+	</properties>
+	<base>
+		<includefile source="campaign/record_deck.xml" />
+		<includefile source="campaign/record_card.xml" />
+		<includefile source="common/deck_templates.xml" />
+		<includefile source="common/deck_templates.xml" />
+
+		<includefile source="graphics/graphics.xml" />
+
+		<includefile source="desktop/desktop_hand.xml" />
+
+		<includefile source="deckbox/deckbox.xml" />
+
+		<includefile source="utility/cardlist_viewer.xml" />
+		<includefile source="utility/utility_dialog_dealcards.xml" />
+
+		<!-- <includefile source="graphics/graphics_cards.xml" /> -->
+
+		<includefile source="strings/cards_strings.xml" />
+
+		<script name="DeckedOutEvents" file="scripts/decked_out_events.lua" />
+		<script name="DeckedOutMessages" file="scripts/decked_out_messages.lua" />
+		<script name="DeckedOutUtilities" file="scripts/decked_out_utilities.lua" />
+		
+		<script name="LibraryData_Cards" file="scripts/data_library_cards.lua" />
+		<script name="CardManager" file="scripts/manager_card.lua" />
+		<script name="DeckManager" file="scripts/manager_deck.lua" />
+		<script name="CardStorage" file="scripts/manager_storage.lua" />
+		<script name="DesktopManagerDO" file="scripts/manager_desktop_do.lua" />
+	</base>
+</root>

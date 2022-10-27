@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+	<!-- Sidebar -->
+	<icon name="sidebar_action_hand" file="graphics/sidebar/sidebar_hand.png" />
+	<icon name="sidebar_icon_deck" file="graphics/sidebar/sidebar_deck.png" />
+
+	<!-- Radial -->
+	<icon name="deck" file="graphics/radial/deck_list.png" />
+	<icon name="discard" file="graphics/radial/discard_pile.png" />
+	<icon name="view_hand" file="graphics/radial/view_hand.png" />
+	<icon name="reshuffle_hand" file="graphics/radial/discard_hand.png" />
+	<icon name="play_faceup" file="graphics/radial/play_faceup.png" />
+	<icon name="play_facedown" file="graphics/radial/play_facedown.png" />
+	<icon name="discard_card" file="graphics/radial/discard.png" />
+	<icon name="discard_hand" file="graphics/radial/discard_hand.png" />
+	<icon name="deal" file="graphics/radial/deal.png" />
+	<icon name="deal_multiple" file="graphics/radial/deal.png" />
+</root>

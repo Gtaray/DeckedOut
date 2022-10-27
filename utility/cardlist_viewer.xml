@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+	<windowclass name="cardlist_viewer">
+		<margins control="10,10,10,10" />
+		<frame>partysheet</frame>
+		<placement>
+			<size width="500" height="500" />
+		</placement>
+		<sizelimits>
+			<minimum width="300" height="400" />
+			<dynamic />
+		</sizelimits>
+		<script>
+			function setTitle(sTitle)
+				if (sTitle or "") == "" then
+					return;
+				end
+				title.setValue(string.format(Interface.getString("cardlist_title_formatted"), sTitle));
+			end
+			function setSource(sNodeName)
+				local sourcenode = getDatabaseNode().getChild(sNodeName);
+				if not sourcenode then
+					Debug.console("ERROR: cardlist_viewer.setSource(): " .. sNodeName .. " was not found.");
+					return
+				end
+
+				cards.setDatabaseNode(sourcenode);
+			end
+		</script>
+		<sheetdata>
+			<windowtitlebar name="title">
+				<resource>cardlist_title</resource>
+			</windowtitlebar>
+
+			<windowlist name="cards">
+				<anchored>
+					<top offset="45" />
+					<left offset="20" />
+					<bottom offset="-10"/>
+					<right offset="0"/>
+				</anchored>
+				<class>cardlist_viewer_item</class>
+				<datasource>.cards</datasource>
+				<columns width="105" fillwidth="true" />
+			</windowlist>
+
+			<resize_partysheet />
+			<close_partysheet />
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="cardlist_viewer_item">
+		<margins control="0,0,0,2" />
+		<sheetdata>
+			<discardable_card_gm name="image">
+				<nodrag />
+				<anchored height="140" width="100">
+					<top />
+					<left />
+				</anchored>
+			</discardable_card_gm>
+		</sheetdata>
+	</windowclass>
+</root>

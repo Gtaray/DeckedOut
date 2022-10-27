@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+	<panel name="handpanel">
+		<anchored height="150" width="450">
+			<bottom offset="-35" />
+			<right parent="shortcutsanchor" anchor="left" />
+		</anchored>
+		<class>desktop_hand</class>
+		<dynamic />
+		<locked />
+	</panel>
+
+	<windowclass name="desktop_hand">
+		<noclose />
+		<sizelimits>
+			<dynamic />
+			<minimum width="450" height="150" />
+		</sizelimits>
+		<script file="desktop/scripts/desktop_hand.lua" />
+		<sheetdata>
+			<genericcontrol name="frame">
+				<invisible />
+				<frame>groupbox</frame>
+				<anchored>
+					<top offset="0"/>
+					<bottom offset="0" />
+					<left offset="0" />
+					<right offset="0" />
+				</anchored>
+			</genericcontrol>
+			<windowlist name="hand">
+				<script file="desktop/scripts/handlist.lua" />
+				<class>desktop_card</class>
+				<columns width="150">
+					<fillwidth />
+				</columns>
+				<invisible />
+				<anchored>
+					<top offset="7"/>
+					<bottom offset="-7" />
+					<left offset="7" />
+					<right offset="-7" />
+				</anchored>
+			</windowlist>
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="desktop_card">
+		<margins control="0,0,0,0" />
+		<script>
+			function setCardSize(nWidth, nHeight)
+				image.setAnchoredWidth(nWidth);
+				image.setAnchoredHeight(nHeight);
+			end
+		</script>
+		<sheetdata>
+			<token_card name="image">
+				<script file="desktop/scripts/desktop_card.lua" />
+			</token_card>
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="shortcuts" merge="join">
+		<sheetdata>
+			<buttoncontrol name="button_hand">
+				<frame name="sidebar_dock_entry_icon" />
+				<anchored to="button_visibility" position="above" height="40" />
+				<script>
+					function onButtonPress()
+						DesktopManager.toggleHandVisibility(getValue() == 1);
+					end
+				</script>
+				<state />
+				<state />
+			</buttoncontrol>
+			<genericcontrol name="button_hand_icon">
+				<anchored to="button_hand" position="insidetopleft" offset="5,5" width="30" height="30" />
+				<icon>sidebar_action_hand</icon>
+				<disabled />
+			</genericcontrol>
+		</sheetdata>
+	</windowclass>
+</root>

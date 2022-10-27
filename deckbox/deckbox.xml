@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+	<windowclass name="deckbox">
+		<frame>partysheet</frame>
+		<placement>
+			<size width="770" height="580" />
+		</placement>
+		<sizelimits>
+			<minimum width="770" height="580" />
+			<dynamic />
+		</sizelimits>
+		<softclose />
+		<sheetdata>
+			<windowtitlebar name="title">
+				<resource>deckbox_title</resource>
+			</windowtitlebar>
+			<anchor_title_partysheet name="contentanchor" />
+
+			<sub_ps name="main">
+				<class>deckbox_main</class>
+				<activate />
+				<anchored>
+					<bottom offset="-20" />
+				</anchored>
+			</sub_ps>
+
+			<resize_partysheet />
+			<close_partysheet />
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="deckbox_main">
+		<script file="deckbox/scripts/deckbox.lua" />
+		<sheetdata>
+			<!-- List of all opened decks -->
+			<windowlist name="decks">
+				<anchored>
+					<top offset="5"/>
+					<left />
+					<right />
+				</anchored>
+				<class>deckbox_deck</class>
+				<datasource>.decks</datasource>
+			</windowlist>
+
+			<!-- Drop decks here to open -->
+			<frame_deckbox name="dropframe">
+				<script>
+					function onDrop(x, y, dragdata)
+						if dragdata.isType("shortcut") then
+							local sClass, sRecord = dragdata.getShortcutData();
+
+							if sClass == "deck" then
+								window.loadDeck(sRecord);
+								return true;
+							end
+						end
+					end
+				</script>
+				<anchored height="400">
+					<top parent="decks" anchor="bottom" offset="5" />
+					<left />
+					<right />
+				</anchored>
+			</frame_deckbox>
+
+			<stringcontrol name="label_droptext">
+				<anchored to="dropframe" height="40">
+					<top offset="180"/>
+					<left />
+					<right />
+				</anchored>
+				<multilinespacing>20</multilinespacing>
+				<center />
+				<font>list-empty</font>
+				<static textres="deckbox_opendeck" />
+			</stringcontrol>
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="deckbox_deck">
+		<frame>groupbox</frame>
+		<margins control="0,0,0,15" />
+		<script file="deckbox/scripts/deckbox_deck.lua" />
+		<sheetdata>
+			<stringfield name="name">
+				<anchored height="22" width="180">
+					<top offset="10" />
+					<left offset="15" />
+				</anchored>
+				<center />
+				<font>reference-b-large</font>
+			</stringfield>
+
+			<deckback name="back">
+				<anchored>
+					<top parent="name" anchor="bottom" offset="5" />
+					<left offset="15" />
+				</anchored>
+				<script file="common/scripts/leftClickOpensRadial_gm.lua" />
+			</deckback>
+
+			<!-- CARD COUNTS -->
+			<label name="label_cardcount">
+				<anchored to="name" width="30" offset="10" position="right" merge="replace" />
+				<static textres="deckbox_label_cardcount" />
+			</label>
+			<simplestringc name="cardcount">
+				<anchored to="label_cardcount" width="60" position="right" offset="5" />
+				<script file="deckbox/scripts/cardcount.lua" />
+				<target>cards</target>
+				<readonly />
+			</simplestringc>
+			<label name="label_discardcount">
+				<anchored to="cardcount" width="45" offset="15" position="right" merge="replace" />
+				<static textres="deckbox_label_discardcount" />
+			</label>
+			<simplestringc name="discardcount">
+				<anchored to="label_discardcount" width="60" position="right" offset="5" />
+				<script file="deckbox/scripts/cardcount.lua" />
+				<target>discard</target>
+				<readonly />
+			</simplestringc>
+
+			<genericcontrol name="columnanchor">
+				<anchored to="back" height="0" width="200">
+					<top offset="-5" />
+					<left offset="10" anchor="right" />
+				</anchored>
+				<disabled />
+			</genericcontrol>
+
+			<!-- DEALING -->
+			<header_deckbox name="header_dealing">
+				<static textres="deckbox_label_deal" />
+				<center />
+			</header_deckbox>
+			<button_column_deckbox name="button_dealonetocharacters">
+				<script>
+					function onButtonPress()
+						local node = window.getDatabaseNode();
+						DeckManager.dealCardsToActiveIdentities(node, 1);
+					end
+				</script>
+				<anchored to="columnanchor" height="20" width="100" merge="replace">
+					<top anchor="bottom" relation="relative" offset="10" />
+					<left offset="10" />
+				</anchored>
+				<state textres="deckbox_button_deal_one_to_charaters" />
+				<tooltip textres="deckbox_tooltip_deal_one_to_characters" />
+			</button_column_deckbox>
+			<button_column_deckbox name="button_dealmultitocharacters">
+				<script>
+					function onButtonPress()
+						DesktopManager.promptCardAmount(onCardAmountSelected);
+					end
+
+					function onCardAmountSelected(nAmount)
+						local node = window.getDatabaseNode();
+						DeckManager.dealCardsToActiveIdentities(node, nAmount);
+					end
+				</script>
+				<anchored merge="replace" height="20">
+					<top parent="button_dealonetocharacters" />
+					<left parent="button_dealonetocharacters" anchor="right" offset="10" />
+					<right parent="columnanchor" anchor="right" offset="-10" />
+				</anchored>
+				<state textres="deckbox_button_deal_multi_to_characters" />
+				<tooltip textres="deckbox_tooltip_deal_multi_to_characters" />
+			</button_column_deckbox>
+			<button_column_deckbox name="button_dealonetogm">
+				<script>
+					function onButtonPress()
+						DeckManager.dealCard(window.getDatabaseNode(), "gm");
+					end
+				</script>
+				<anchored to="columnanchor" height="20" width="100" merge="replace">
+					<top anchor="bottom" relation="relative" offset="10" />
+					<left offset="10" />
+				</anchored>
+				<state textres="deckbox_button_deal_one_to_gm" />
+				<tooltip textres="deckbox_tooltip_deal_one_to_gm" />
+			</button_column_deckbox>
+			<button_column_deckbox name="button_dealmultitogm">
+				<script>
+					function onButtonPress()
+						DesktopManager.promptCardAmount(onCardAmountSelected);
+					end
+					function onCardAmountSelected(nAmount)
+						DeckManager.dealCards(window.getDatabaseNode(), "gm", nAmount);
+					end
+				</script>
+				<anchored merge="replace" height="20">
+					<top parent="button_dealonetogm" />
+					<left parent="button_dealonetogm" anchor="right" offset="10" />
+					<right parent="columnanchor" anchor="right" offset="-10" />
+				</anchored>
+				<state textres="deckbox_button_deal_multi_to_gm" />
+				<tooltip textres="deckbox_tooltip_deal_multi_to_gm" />
+			</button_column_deckbox>
+
+			<!-- DISCARDING -->
+			<header_deckbox name="header_discarding">
+				<static textres="deckbox_label_discarding" />
+				<center />
+			</header_deckbox>
+			<button_column_deckbox name="button_discardpchands">
+				<script>
+					function onButtonPress()
+						local node = window.getDatabaseNode();
+						for sIdentity in pairs(DB.getChildren("charsheet")) do
+							CardManager.discardCardsInHandFromDeck(node, sIdentity);
+						end
+					end
+				</script>
+				<state textres="deckbox_button_discard_character_hands" />
+				<tooltip textres="deckbox_tooltip_discard_character_hands" />
+			</button_column_deckbox>
+			<button_column_deckbox name="button_discardallhands">
+				<script>
+					function onButtonPress()
+						local node = window.getDatabaseNode();
+						for sIdentity in pairs(DB.getChildren("charsheet")) do
+							CardManager.discardCardsInHandFromDeck(node, sIdentity);
+						end
+						CardManager.discardCardsInHandFromDeck(node, "gm");
+					end
+				</script>
+				<state textres="deckbox_button_discard_all_hands" />
+				<tooltip textres="deckbox_tooltip_discard_all_hands" />
+			</button_column_deckbox>
+
+			<!-- SHUFFLING -->
+			<header_deckbox name="header_shuffling">
+				<static textres="deckbox_label_shuffling" />
+				<center />
+			</header_deckbox>
+			<button_column_deckbox name="button_shufflediscard">
+				<script>
+					function onButtonPress()
+						DeckManager.moveDiscardPileIntoDeck(window.getDatabaseNode());
+					end
+				</script>
+				<state textres="deckbox_button_shuffle_discard" />
+				<tooltip textres="deckbox_tooltip_shuffle_discard" />
+			</button_column_deckbox>
+
+			<!-- CHARACTERS -->
+			<windowlist name="characters">
+				<margins control="5,5,5,5" />
+				<datasource>charsheet</datasource>
+				<class>deckbox_deck_character</class>
+				<sortby>
+					<field>name</field>
+				</sortby>
+				<columns>
+					<width>120</width>
+					<fillwidth />
+				</columns>
+				<anchored>
+					<top parent="columnanchor" offset="10" />
+					<left parent="columnanchor" anchor="right" offset="10" />
+					<right anchor="right" />
+				</anchored>
+			</windowlist>
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="deckbox_deck_character">
+		<margins control="0,0,0,2"/>
+		<sheetdata>
+			<portrait_deckbox_base>
+				<anchored height="50" width="50">
+					<top />
+					<left />
+				</anchored>
+			</portrait_deckbox_base>
+			<portrait_deckbox name="portrait">
+				<anchored height="50" width="50">
+					<top />
+					<left />
+				</anchored>
+			</portrait_deckbox>
+			<simplestringc name="cardcount">
+				<anchored to="portrait" width="40" position="right" offset="5" />
+				<script file="deckbox/scripts/character_cardcount.lua" />
+				<readonly />
+			</simplestringc>
+		</sheetdata>
+	</windowclass>
+</root>

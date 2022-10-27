@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+	<string name="sidebar_tooltip_active_cards">Open Hand of Cards</string>
+	<string name="sidebar_tooltip_active_deckbox">Open Deckbox</string>
+
+	<string name="library_recordtype_label_card">Cards</string>
+	<string name="library_recordtype_empty_card">&#171; New Card &#187;</string>
+	<string name="library_recordtype_label_deck">Decks</string>
+	<string name="library_recordtype_empty_deck">&#171; New Deck &#187;</string>
+
+	<string name="deckbox_title">Deckbox</string>
+	<string name="deckbox_label_cardcount">Deck</string>
+	<string name="deckbox_label_discardcount">Discard</string>
+	<string name="deckbox_format_cardcount">%s</string>
+	<string name="deckbox_format_character_cardcount_one">1 card</string>
+	<string name="deckbox_format_character_cardcount">%s cards</string>
+	<string name="deckbox_opendeck">Drop decks here to\nload them for use.</string>
+
+	<string name="deckbox_label_deal">Dealing</string>
+	<string name="deckbox_button_deal_one_to_charaters">Deal 1 to PCs</string>
+	<string name="deckbox_button_deal_multi_to_characters">Multi</string>
+	<string name="deckbox_button_deal_one_to_gm">Deal 1 to GM</string>
+	<string name="deckbox_button_deal_multi_to_gm">Multi</string>
+
+	<string name="deckbox_label_discarding">Discarding</string>
+	<string name="deckbox_button_discard_character_hands">Discard Cards in all PCs' Hands</string>
+	<string name="deckbox_button_discard_all_hands">Discard Cards in All Hands</string>
+
+	<string name="deckbox_label_shuffling">Shuffling</string>
+	<string name="deckbox_button_shuffle_discard">Shuffle Discard back into Deck</string>
+
+	<string name="deckbox_tooltip_deal_one_to_characters">Deal one card to all active characters (does not deal to characters that aren't being played currently)</string>
+	<string name="deckbox_tooltip_deal_multi_to_characters">Deal multiple card to all active characters (does not deal to characters that aren't being played currently)</string>
+	<string name="deckbox_tooltip_deal_one_to_gm">Deal one card to the GM</string>
+	<string name="deckbox_tooltip_deal_multi_to_gm">Deal multiple card to the GM</string>
+	<string name="deckbox_tooltip_discard_character_hands">Send all characters' cards from this deck to this deck's discard pile</string>
+	<string name="deckbox_tooltip_discard_all_hands">Send all cards in all hands from this deck to this deck's discard pile (includes the GM)</string>
+	<string name="deckbox_tooltip_shuffle_discard">Shuffle the discard pile back into the deck</string>
+
+	<!-- DECKBOX MENU ITEMS -->
+	<string name="deckbox_menu_close_deck">Delete Deck</string>
+	<string name="deckbox_menu_view_deck_cards">View all cards in this deck</string>
+	<string name="deckbox_menu_view_discard_cards">View all cards in the discard pile</string>
+	<string name="deckbox_menu_deal_one_to_character">Deal one card to this character</string>
+	<string name="deckbox_menu_deal_multi_to_character">Deal multiple cards to this character</string>
+	<string name="deckbox_menu_discard_characters_hand">Discard all cards from this deck in this character's hand</string>
+	<string name="deckbox_menu_reshuffle_characters_hand">Reshuffle all cards from this deck in this character's hand back into the deck</string>
+	<string name="deckbox_menu_view_pc_cards_in_hand">View all cards in this character's hand</string>
+
+	<!-- HAND MENU ITEMS -->
+	<string name="hand_menu_discard_hand">Discard hand</string>
+
+	<!-- CARD MENU ITEMS -->
+	<string name="card_menu_discard_card">Discard card</string>
+	<string name="card_menu_play_face_down">Put card in chat face down</string>
+	<string name="card_menu_play_face_up">Show card in chat</string>
+	<string name="hand_menu_discard_hand">Discard whole hand</string>
+	<string name="hand_menu_discard_hand_confirm">Are you sure you want to delete your whole hand?</string>
+
+	<string name="deck_label_cardback">Card Back</string>
+	<string name="deck_label_cards">Cards</string>
+	<string name="deck_emptycardback">Drop token here to set\nthe deck's card back.</string>
+	<string name="deck_emptycards">Drop tokens here to\nadd to the deck.</string>
+
+	<string name="cardlist_title">Card List</string>
+	<string name="cardlist_title_formatted">Card List - %s</string>
+
+	<string name="dealcards_dialog_title">Deal Cards</string>
+	<string name="dealcards_dialog_label_amount"># of Cards</string>
+	<string name="dealcards_dialog_button_accept">Deal</string>
+
+	<!-- Chat messages -->
+	<string name="chat_msg_card_played_faceup">%s played %s</string>
+	<string name="chat_msg_card_played_facedown">%s placed %s facedown</string>
+	<string name="chat_msg_card_discarded_faceup">%s discarded %s</string>
+	<string name="chat_msg_card_discarded_facedown">%s discarded %s facedown</string>
+	<string name="chat_msg_discarded_hand">%s discarded %s hand</string>
+	<string name="chat_msg_give_card_faceup">%s gave %s to %s</string>
+	<string name="chat_msg_give_card_facedown">%s gave %s to %s facedown</string>
+	<string name="chat_msg_deal_card">%s dealt %s to %s</string>
+	<string name="chat_msg_deal_multiple_cards">%s dealt %s %s to %s</string>
+	<string name="chat_msg_group_deal">%s dealt %s %s to everyone</string>
+	<string name="chat_msg_hand_put_back_in_deck">%s shuffled %s hand back into %s</string>
+	<string name="chat_msg_not_enough_cards_in_deck">There are not enough cards in %s to deal</string>
+</root>

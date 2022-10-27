@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+	<windowclass name="deck">
+		<frame>recordsheet</frame>
+		<placement>
+			<size width="320" height="457" />
+		</placement>
+		<sizelimits>
+			<minimum width="320" height="457" />
+			<dynamic />
+		</sizelimits>
+		<minimize>minimized_item</minimize>
+		<sharable />
+		<tooltip field="name" />
+		<script file="common/scripts/record_window.lua" />
+		<sheetdata>
+			<sub_record_header name="header">
+				<class>deck_header</class>
+			</sub_record_header>
+
+			<frame_record_content name="contentframe" />
+
+			<subwindow_record name="main">
+				<class>deck_main</class>
+				<activate />
+			</subwindow_record>
+
+			<close_recordsheet />
+			<resize_recordsheet />
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="deck_header">
+		<margins control="0,0,0,7" />
+		<script file="common/scripts/record_header.lua" />
+		<sheetdata>
+			<link_record_header name="link" />
+			
+			<anchor_record_header_right name="rightanchor" />
+			<icon_record_locked />
+			<button_record_locked />
+
+			<string_record_name name="name" />
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="deck_main">
+		<script file="campaign/scripts/record_deck_main.lua" />
+		<margins control="0,0,0,2" />
+		<sheetdata>			
+			<anchor_column name="columnanchor" />
+			<header_column name="header_cardback">
+				<static textres="deck_label_cardback" />
+				<center />
+			</header_column>
+			<token_column name="back" />
+			<emptytoken>
+				<anchored to="back" />
+				<target>back</target>
+			</emptytoken>
+			<emptytoken_label name="back_label">
+				<anchored to="back" />
+				<target>back</target>
+			</emptytoken_label>
+
+			<header_column name="header_cards">
+				<static textres="deck_label_cards" />
+				<center />
+			</header_column>
+
+			<windowlist name="cards">
+				<frame name="fieldlight" offset="6,6,6,6"/>
+				<script>
+					function onDrop(x, y, dragdata)
+						local token = dragdata.getTokenData();
+						if token then
+							addEntry(token, dragdata.getStringData());
+						end
+					end
+					function addEntry(sToken, sFileName)
+						local w = createWindow();
+						w.image.setValue(sToken);
+
+						local sName = sFileName:match("([^.]*).");
+						w.name.setValue(sName);
+					end
+				</script>
+				<anchored>
+					<top parent="columnanchor" anchor="bottom" relation="relative" offset="7" />
+					<left offset="5"/>
+					<bottom offset="-5" />
+					<right offset="-13" />
+				</anchored>
+				<columns width="180" fillwidth="true" />
+				<class>card_item</class>
+				<datasource>.cards</datasource>
+				<empty textres="deck_emptycards" font="list-empty" />
+			</windowlist>
+			<scrollbar>
+				<anchored to="cards" />
+				<target>cards</target>
+			</scrollbar>	
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="card_item">
+		<margins control="0,0,0,5" />
+		<sheetdata>
+			<hs name="name" />
+			<dragable_card_gm name="image">
+				<nodrag />
+				<anchored height="252" width="180">
+					<top />
+					<left />
+				</anchored>
+			</dragable_card_gm>
+			<button_idelete name="idelete">
+				<script>
+					function onInit()
+						setVisible(true);
+					end
+				</script>
+				<anchored to="image">
+					<top offset="2" />
+					<right offset="-2" />
+				</anchored>
+				<gmvisibleonly />
+			</button_idelete>
+		</sheetdata>
+	</windowclass>
+</root>

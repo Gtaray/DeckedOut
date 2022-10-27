@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+	<windowclass name="dealcards_dialog">
+		<frame>referencelist</frame>
+		<placement>
+			<size width="300" height="250" />
+		</placement>
+		<sizelimits>
+			<minimum width="300" height="250" />
+			<dynamic />
+		</sizelimits>
+		<nodelete />
+		<script file="utility/scripts/dialog_dealcards.lua"/>
+		<sheetdata>
+			<windowtitlebar name="reftitle">
+				<resource>dealcards_dialog_title</resource>
+			</windowtitlebar>
+
+			<frame_char name="frame">
+				<anchored>
+					<top offset="40"/>
+					<bottom offset="-55" />
+					<left offset="15" />
+					<right offset="-15" />
+				</anchored>
+			</frame_char>
+			<anchor_column name="columnanchor">
+				<anchored to="frame" height="0">
+					<left anchor="left" offset="15" />
+					<right anchor="right" offset="-15" />
+					<top anchor="top" offset="5" />
+				</anchored>
+			</anchor_column>
+
+			<label_column name="amount_label">
+				<anchored>
+					<left parent="columnanchor" anchor="left" />
+				</anchored>
+				<static textres="dealcards_dialog_label_amount" />
+			</label_column>
+			<number_column name="amount">
+				<anchored>
+					<left offset="137" />
+				</anchored>
+				<default>1</default>
+				<min>1</min>
+			</number_column>
+
+			<button_text name="accept">
+				<script>
+					function onButtonPress()
+						window.accept();
+						window.closeWindow();
+					end
+				</script>
+				<anchored height="22" width="60">
+					<bottom parent="" anchor="bottom" offset="-25" />
+					<right parent="" anchor="right" offset="-25" />
+				</anchored>
+				<textres>dealcards_dialog_button_accept</textres>
+			</button_text>
+		</sheetdata>
+	</windowclass>
+</root>

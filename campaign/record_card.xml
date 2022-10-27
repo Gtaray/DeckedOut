@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+	<windowclass name="card">
+		<frame>recordsheet</frame>
+		<placement>
+			<size width="320" height="457" />
+		</placement>
+		<minimize>minimized_item</minimize>
+		<sharable />
+		<tooltip field="name" />
+		<script file="common/scripts/record_window.lua" />
+		<sheetdata>
+			<sub_record_header name="header">
+				<class>card_header</class>
+			</sub_record_header>
+
+			<frame_record_content name="contentframe" />
+
+			<subwindow_record name="main">
+				<class>card_main</class>
+				<activate />
+			</subwindow_record>
+
+			<close_recordsheet />
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="card_header">
+		<margins control="0,0,0,7" />
+		<script file="common/scripts/record_header.lua" />
+		<sheetdata>
+			<link_record_header name="link" />
+			
+			<anchor_record_header_right name="rightanchor" />
+			<icon_record_locked />
+			<button_record_locked />
+
+			<string_record_name name="name" />
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="card_main">
+		<margins control="0,0,0,2" />
+		<script file="campaign/scripts/record_card_main.lua" />
+		<sheetdata>			
+			<anchor_column name="columnanchor" />
+			<token_column name="image">
+				<nodrag />
+				<script file="common/scripts/onCardDrag_gm.lua" />
+				<anchored width="250" height="350" />
+			</token_column>
+		</sheetdata>
+	</windowclass>
+</root>
