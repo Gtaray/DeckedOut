@@ -171,9 +171,10 @@ function raiseOnCardAddedToHandEvent(sCardNode, sIdentity, tEventTrace)
 end
 
 -- vCard: card discarded
+-- sSender: identity (or 'gm') of the character that is doing the discarding
 -- bFacedown: optional. If present, specifes that cards were discarded sight unseen
-function raiseOnDiscardFromHandEvent(sCardNode, bFacedown, tEventTrace)
-	local tArgs = { sCardNode = sCardNode };
+function raiseOnDiscardFromHandEvent(sCardNode, sSender, bFacedown, tEventTrace)
+	local tArgs = { sCardNode = sCardNode, sSender = sSender };
 	if bFacedown then
 		tArgs.bFacedown = "true";
 	end

@@ -31,10 +31,6 @@ function printCardPlayedMessage(tEventArgs, tEventTrace)
 	if not vCard then return end
 
 	local bFacedown = tEventArgs.bFacedown == "true";
-	local sCardSource = CardManager.getCardSource(vCard);
-	if (not sCardSource) or sCardSource == "storage" then
-		return;
-	end
 
 	-- In this case, everything is public so the two messages can be the same
 	local msg = {};
@@ -72,6 +68,7 @@ end
 -- DISCARDING CARDS
 -----------------------------------------------------
 function printCardDiscardedMessage(tEventArgs, tEventTrace)
+	if not DeckedOutUtilities.validateIdentity(tEventArgs.sSender) then return end
 	vCard = DeckedOutUtilities.validateCard(tEventArgs.sCardNode);
 	if not vCard then return end
 
@@ -81,14 +78,10 @@ function printCardDiscardedMessage(tEventArgs, tEventTrace)
 	end
 
 	local bFacedown = tEventArgs.bFacedown == "true";
-	local sCardSource = CardManager.getCardSource(vCard);
-	if (not sCardSource) or sCardSource == "storage" then
-		return;
-	end
 
 	local msg = {};
 	msg.type = DeckedOutMessages.OOB_MSGTYPE_PRINTCARDDISCARDED;
-	msg.sender = sCardSource;
+	msg.sender = tEventArgs.sSender;
 
 	local sTextRes = "";
 	if bFacedown then

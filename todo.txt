@@ -1,8 +1,6 @@
 TODO LIST: 
-* Make decks in the deckbox public so everyone can see cards that are dropped in chat
 * Redo hand screen graphics
 * Hovering over a card in hand makes it pop up a little bit (or get slightly larger)
-* Fix the issue where players can't discard their own cards because they can't copy into the discard pile. MORE OOBS
 * Hand actions
 	* [x] Discard
 	* [x] Discard hand
@@ -11,20 +9,12 @@ TODO LIST:
 	* [ ] Discard at random
 	* [ ] Play at random
 	* [ ] Give to other person at random
-* Add chat messages to important card actions
-	[x] Playing card faceup/facedown - OOB
-	[x] Discarding card faceup/facedown - OOB
-	[x] Discarding hand - No OOB
-	[x] character Giving a card to another person - OOB
-	[x] GM dealing card - OOB
-	[x] GM dealing multiple cards - No OOB
 * Option to toggle whether cards are dealt face down or face up
-* Toggle option for whether cards are played facedown or faceup by default
-* Toggle option for Gm to see card faces or card back when dragging from deck
+* Option for whether cards are played facedown or faceup by default
+* Option for Gm to see card faces or card back when dragging from deck
 * Option toggle for letting players drop cards in their hand
 * Option toggle for automatically showing/hiding hand when switching characters? So rare this probably doesn't matter
 * Dropping cards on CT entries and map tokens for characters gives cards
-* Implement registerCallback functions for various events in decked_out.lua
 
 STRETCH GOALS
 * Toggle option to display username or character name in chat when trading/showing/placing cards
@@ -47,6 +37,18 @@ DONE
 * Add CardStorage, and intercept cards dropped in chat so that links are preserved even as cards move around
 * Drag and drop onto portraits
 * First pass at radial options
+* Add chat messages to important card actions
+	[x] Playing card faceup/facedown - OOB
+	[x] Discarding card faceup/facedown - OOB
+	[x] Discarding hand - No OOB
+	[x] character Giving a card to another person - OOB
+	[x] GM dealing card - OOB
+	[x] GM dealing multiple cards - No OOB
+* Implement registerCallback functions for various events in decked_out.lua
+* Full on eventing system
+* Overhaul of chat messages for various 
+* Fix the issue where players can't discard their own cards because they can't copy into the discard pile. MORE OOBS
+* Make decks in the deckbox public so everyone can see cards that are dropped in chat
 
 ABANDONED
 * The Card Table

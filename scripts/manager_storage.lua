@@ -35,7 +35,6 @@ end
 -----------------------------------------------------
 -- HELPERS
 -----------------------------------------------------
-
 function isCardInStorage(vCard)
 	local vCard = DeckedOutUtilities.validateCard(vCard);
 	if not vCard then return end

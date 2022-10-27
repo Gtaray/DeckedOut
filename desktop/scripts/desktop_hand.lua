@@ -28,7 +28,8 @@ function onMenuSelection(selection, subselection)
 	if selection == 8 and subselection == 8 then
 		local sIdentity = self.getIdentity()
 		if sIdentity then
-			CardManager.discardHand(sIdentity);
+			-- Pass in empty list for tEventTrace since this is guaranteed to be the first place we have an event chain
+			CardManager.discardHand(sIdentity, {});
 		end
 	end
 end

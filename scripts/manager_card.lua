@@ -51,22 +51,28 @@ end
 
 -- Discards the given card from wherever it is located.
 -- The actual discarding has to be done on the host since clients don't have access to the deckbox (where the discard pile is)
-function discardCard(vCard, bFacedown, tEventTrace)
+-- sIdentity is optional, and should only be present if a player is discarding a card, because the GM has to do the actual disarding, this param is how custody is preserved
+function discardCard(vCard, bFacedown, sIdentity, tEventTrace)
 	vCard = DeckedOutUtilities.validateCard(vCard);
 	if not vCard then return end
 
 	-- If a client is here, we need an OOB.
 	if not Session.IsHost then
-		sendDiscardMsg(vCard, bFacedown, tEventTrace);
+		sendDiscardMsg(vCard, bFacedown, User.getCurrentIdentity(), tEventTrace);
 		return;
 	end
 
 	local vDeck = DeckedOutUtilities.validateDeck(CardManager.getDeckIdFromCard(vCard));
 	if not vDeck then return end
 
+	-- If for some reason identity is nil, set to GM, since only the GM can get to this point in the functions
+	if (sIdentity or "") == "" then
+		sIdentity = "gm";
+	end
+
 	tEventTrace = DeckedOutEvents.addEventTrace(tEventTrace, DeckedOutEvents.DECKEDOUT_EVENT_CARD_DISCARDED);
 	local card = CardManager.moveCard(vCard, DeckManager.getDiscardNode(vDeck), tEventTrace);
-	DeckedOutEvents.raiseOnDiscardFromHandEvent(card.getNodeName(), bFacedown, tEventTrace);
+	DeckedOutEvents.raiseOnDiscardFromHandEvent(card.getNodeName(), sIdentity, bFacedown, tEventTrace);
 end
 
 -- Given an identity (either a user identity or 'gm'), this discards that users entire hand
@@ -76,7 +82,7 @@ function discardHand(sIdentity, tEventTrace)
 	tEventTrace = DeckedOutEvents.raiseOnHandDiscardedEvent(sIdentity, "", tEventTrace);
 
 	for k,card in pairs(CardManager.getHandNode(sIdentity).getChildren()) do
-		CardManager.discardCard(card, true, tEventTrace);
+		CardManager.discardCard(card, true, sIdentity, tEventTrace);
 	end
 end
 
@@ -176,13 +182,18 @@ end
 -- DISCARD
 ------------------------------------------
 
-function sendDiscardMsg(vCard, bFacedown, tEventTrace)
+function sendDiscardMsg(vCard, bFacedown, sIdentity, tEventTrace)
 	local msg = {};
 	msg.type = CardManager.OOB_MSGTYPE_DISCARD;
 	msg.sCardRecord = vCard.getNodeName();
-	for k,v in ipairs(tEventTrace) do
-		msg["trace_" .. k] = v;
+	msg.sSender = sIdentity;
+
+	if tEventTrace and #tEventTrace > 0 then
+		for k,v in ipairs(tEventTrace or {}) do
+			msg["trace_" .. k] = v;
+		end
 	end
+
 	Comm.deliverOOBMessage(msg, "");
 end
 
@@ -194,17 +205,16 @@ function handleDiscard(msgOOB)
 
 	local tEventTrace = {};
 	local i = 1;
-	local key = "";
-	repeat
+	local key = "trace_" .. i;
+	local value = msgOOB[key];
+	while value ~= nil do
+		tEventTrace[i] = value;
+		i = i + 1;
 		key = "trace_" .. i;
-		local value = msg[key]
-		if trace then
-			tEventTrace[key] = value;
-			i = i + 1;
-		end
-	until value == nil
+		value = msgOOB[key];
+	end
 
-	CardManager.discardCard(msgOOB.sCardRecord, msgOOB.bFacedown == "true", tEventTrace);
+	CardManager.discardCard(msgOOB.sCardRecord, msgOOB.bFacedown == "true", msgOOB.sSender, tEventTrace);
 end
 
 ------------------------------------------
