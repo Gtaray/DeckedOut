@@ -29,6 +29,43 @@
 	<string name="deckbox_label_shuffling">Shuffling</string>
 	<string name="deckbox_button_shuffle_discard">Shuffle Discard back into Deck</string>
 
+	<!-- DECKBOX SETTINGS -->
+	<string name="deckbox_settings_title">Settings - %s</string>
+	<string name="deckbox_settings_header_card_visibility">Action Visibility</string>
+	<string name="deckbox_settings_label_deal_visibility">Who can see cards that are dealt?</string>
+	<string name="deckbox_settings_option_recipient">The player receiving the card</string>
+	<string name="deckbox_settings_option_gm_and_recipient">The GM and player receiving the card</string>
+
+	<string name="deckbox_settings_label_play_visibility">Who can see cards that are played?</string>
+	<string name="deckbox_settings_option_player">The player playing the card</string>
+	<string name="deckbox_settings_option_gm_and_player">The GM and player playing the card</string>
+
+	<string name="deckbox_settings_label_discard_visibility">Who can see cards that are discarded?</string>
+	<string name="deckbox_settings_option_discarder">The player discarding the card</string>
+	<string name="deckbox_settings_option_gm_and_discarder">The GM and player discarding the card</string>
+
+	<string name="deckbox_settings_label_give_visibility">Who can see cards that are given?</string>
+	<string name="deckbox_settings_option_giver">The players giving and receiving the card</string>
+	<string name="deckbox_settings_option_gm_and_giver">The GM and players giving and receiving the card</string>
+
+	<string name="deckbox_settings_label_gm_sees_facedown">Can the GM see cards played facedown?</string>
+
+	<string name="deckbox_settings_header_autoplay">Auto Play and Discard</string>
+	<string name="deckbox_settings_label_autoplay_from_hand">Automatically discard cards played from hands?</string>
+	<string name="deckbox_settings_label_autoplay_from_deck">Automatically discard cards played from decks?</string>
+
+	<string name="deckbox_settings_header_misc">Miscellaneous</string>
+	<string name="deckbox_settings_label_action_on_image">Action taken when cards are dropped onto images</string>
+	<string name="deckbox_settings_option_image_action_noaction">No action</string>
+	<string name="deckbox_settings_option_image_action_play">Play card</string>
+	<string name="deckbox_settings_option_image_action_playanddiscard">Play and discard card</string>
+
+	<string name="deckbox_settings_option_gm">The GM</string>
+	<string name="deckbox_settings_option_everyone">Everyone</string>
+	<string name="deckbox_setting_option_yes">Yes</string>
+	<string name="deckbox_setting_option_no">No</string>
+
+	<!-- DECKBOX TOoLTIPS -->
 	<string name="deckbox_tooltip_deal_one_to_characters">Deal one card to all active characters (does not deal to characters that aren't being played currently)</string>
 	<string name="deckbox_tooltip_deal_multi_to_characters">Deal multiple card to all active characters (does not deal to characters that aren't being played currently)</string>
 	<string name="deckbox_tooltip_deal_one_to_gm">Deal one card to the GM</string>

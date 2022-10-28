@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+	<windowclass name="deckbox_settings">
+		<frame>recordsheet</frame>
+		<placement>
+			<size width="700" height="400" />
+		</placement>
+		<script file="deckbox/scripts/deckbox_settings.lua" />
+		<sheetdata>
+			<windowtitlebar name="title">
+				<resource>deckbox_settings_title</resource>
+			</windowtitlebar>
+
+			<frame_record_content name="contentframe">
+				<anchored>
+					<top parent="" anchor="top" offset="55" />
+				</anchored>
+			</frame_record_content>
+
+			<subwindow_record name="main">
+				<class>deckbox_settings_main</class>
+				<activate />
+			</subwindow_record>
+
+			<scrollbar_record>
+				<target>main</target>
+			</scrollbar_record>
+
+			<close_recordsheet />
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="deckbox_settings_main">
+		<sheetdata>
+			<anchor_column name="columnanchor" />
+
+			<header_column name="header_card_visibility">
+				<static textres="deckbox_settings_header_card_visibility" />
+				<center />
+			</header_column>
+
+			<setting_label name="deal_vis_label">
+				<static textres="deckbox_settings_label_deal_visibility" />
+			</setting_label>
+			<combobox_setting name="deal_vis" source="settings.dealvisibility">
+				<parameter>DECK_SETTING_DEAL_VISIBILITY</parameter>
+			</combobox_setting>
+
+			<setting_label name="play_vis_label">
+				<static textres="deckbox_settings_label_play_visibility" />
+			</setting_label>
+			<combobox_setting name="play_vis" source="settings.playvisibility">
+				<parameter>DECK_SETTING_PLAY_VISIBILITY</parameter>
+			</combobox_setting>
+
+			<setting_label name="discard_vis_label">
+				<static textres="deckbox_settings_label_discard_visibility" />
+			</setting_label>
+			<combobox_setting name="discard_vis" source="settings.discardvisibility">
+				<parameter>DECK_SETTING_DISCARD_VISIBILITY</parameter>
+			</combobox_setting>
+
+			<setting_label name="give_vis_label">
+				<static textres="deckbox_settings_label_give_visibility" />
+			</setting_label>
+			<combobox_setting name="give_vis" source="settings.givevisibility">
+				<parameter>DECK_SETTING_GIVE_VISIBILITY</parameter>
+			</combobox_setting>
+
+			<setting_label name="gm_sees_facedown_label">
+				<static textres="deckbox_settings_label_gm_sees_facedown" />
+			</setting_label>
+			<combobox_setting name="gm_sees_facedown" source="settings.gmseesfacedowncards">
+				<parameter>DECK_SETTING_GM_SEE_FACEDOWN_CARDS</parameter>
+			</combobox_setting>
+
+			<header_column name="header_card_autoplay">
+				<static textres="deckbox_settings_header_autoplay" />
+				<center />
+			</header_column>
+
+			<setting_label name="autoplay_from_hand_label">
+				<static textres="deckbox_settings_label_autoplay_from_hand" />
+			</setting_label>
+			<combobox_setting name="autoplay_from_hand" source="settings.autoplayfromhand">
+				<parameter>DECK_SETTING_AUTO_PLAY_FROM_HAND</parameter>
+			</combobox_setting>
+
+			<setting_label name="autoplay_from_deck_label">
+				<static textres="deckbox_settings_label_autoplay_from_deck" />
+			</setting_label>
+			<combobox_setting name="autoplay_from_deck" source="settings.autoplayfromdeck">
+				<parameter>DECK_SETTING_AUTO_PLAY_FROM_DECK</parameter>
+			</combobox_setting>
+
+			<header_column name="header_misc">
+				<static textres="deckbox_settings_header_misc" />
+				<center />
+			</header_column>
+			
+			<setting_label name="action_on_image_label">
+				<static textres="deckbox_settings_label_action_on_image" />
+			</setting_label>
+			<combobox_setting name="action_on_image" source="settings.imagedropaction">
+				<parameter>DECK_SETTING_ACTION_ON_IMAGE_DROP</parameter>
+			</combobox_setting>
+		</sheetdata>
+	</windowclass>
+</root>

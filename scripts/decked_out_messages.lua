@@ -38,7 +38,7 @@ function printCardPlayedMessage(tEventArgs, tEventTrace)
 	local msg = {};
 	msg.type = DeckedOutMessages.OOB_MSGTYPE_PRINTCARDPLAYED;
 	msg.sender = sCardSource;
-
+	msg.action = "play";
 
 	local sTextRes = "";
 	if bFacedown then
@@ -85,6 +85,7 @@ function printCardDiscardedMessage(tEventArgs, tEventTrace)
 	local msg = {};
 	msg.type = DeckedOutMessages.OOB_MSGTYPE_PRINTCARDDISCARDED;
 	msg.sender = tEventArgs.sSender;
+	msg.action = "discard";
 
 	local sTextRes = "";
 	if bFacedown then
@@ -166,6 +167,7 @@ function printCardGivenMessage(tEventArgs, tEventTrace)
 	msg.sender = tEventArgs.sGiver;
 	msg.receiver = tEventArgs.sReceiver;
 	msg.card_link = vCard.getNodeName();
+	msg.action = "give";
 	if bFacedown then
 		msg.text = Interface.getString("chat_msg_give_card_facedown");
 		msg.hide_card = "true";
@@ -215,6 +217,7 @@ function printCardDealtMessage(tEventArgs, tEventTrace)
 	msg.sender = "gm"; 
 	msg.receiver = tEventArgs.sReceiver;
 	msg.card_link = vCard.getNodeName();
+	msg.action = "deal";
 	
 	msg.text = Interface.getString("chat_msg_deal_card");
 	msg.text = string.format(msg.text, "[SENDER]", "[CARDNAME]", "[PRONOUN]");
@@ -351,24 +354,64 @@ function resolvePronouns(sSender, sReceiver, sMessageId, sDefault)
 	return sDefault;
 end
 
+-- Returns true if the card is visible, and false if not visible
+function resolveCardVisibility(msg, sSenderName, sReceiverName, sMessageId)
+	local sSetting = nil;
+
+	local vDeck = CardManager.getDeckNodeFromCard(msg.card_link);
+	if not vDeck then return true end -- Would be weird if this happened
+
+	if msg.action == "deal" then
+		sSetting = DeckManager.getDeckSetting(vDeck, DeckManager.DECK_SETTING_DEAL_VISIBILITY);
+	elseif msg.action == "play" then
+		sSetting = DeckManager.getDeckSetting(vDeck, DeckManager.DECK_SETTING_PLAY_VISIBILITY);
+	elseif msg.action == "give" then
+		sSetting = DeckManager.getDeckSetting(vDeck, DeckManager.DECK_SETTING_GIVE_VISIBILITY);
+	elseif msg.action == "discard" then
+		sSetting = DeckManager.getDeckSetting(vDeck, DeckManager.DECK_SETTING_DISCARD_VISIBILITY);
+	end
+
+	-- If no action is present, then return false. i.e Card is not hidden
+	if not sSetting then
+		return true;
+	end
+
+	-- If only the person giving/receiving a card should see the card
+	-- Then we only return true when the sender is 'you'
+	if sSetting == "actor" then
+		-- Dealing cards is the one edge case, because the GM is always the sender
+		if msg.action == "deal" then
+			return sReceiverName == "you";
+		end
+		return sSenderName == "you" or sReceiverName == "you";
+	elseif sSetting == "gmandactor" then
+		return sMessageIdentity == "gm" or sSenderName == "you" or sReceiverName == "you";
+	end
+
+	-- If we get here and sSetting is not everyone, then something went wrong
+	if sSetting ~= "everyone" then
+		Debug.console("ERROR: Deck setting for action '" .. msg.action .. "' was set to " .. sSetting .. " when 'everyone' was expected");
+	end
+	return sSetting == "everyone";
+end
+
 function formatChatMessage(msgOOB, sMessageId)
 	local sText = msgOOB.text;
-	local bHideCard = msgOOB.hide_card == "true";
 	local sSenderName = resolveIdentityName(msgOOB.sender, sMessageId);
 	local sReceiverName = resolveIdentityName(msgOOB.receiver, sMessageId);
+	local bShowCard = false
 
 	local sPronoun = resolvePronouns(msgOOB.sender, msgOOB.receiver, sMessageId, sReceiverName);
 
 	local sCardName = nil;
 	if msgOOB.card_link then
 		sCardName = CardManager.getCardName(msgOOB.card_link);
+		bShowCard = resolveCardVisibility(msgOOB, sSenderName, sReceiverName, sMessageId)
+		
+		if not bShowCard then
+			sCardName = "a card";
+		end
 	end
-	if sSenderName == "you" or sReceiverName == "you" or sMessageId == "gm" then
-		-- Set this value so we can easily check it when creating the message data		
-		bHideCard = false;
-	elseif bHideCard then
-		sCardName = "a card";
-	end	
 	
 	if sSenderName then
 		sText = sText:gsub("%[SENDER%]", sSenderName);
@@ -386,12 +429,14 @@ function formatChatMessage(msgOOB, sMessageId)
 	-- Capitalize the first letter of the text
 	sText = (sText:gsub("^%l", string.upper))
 
-	return sText, bHideCard;
+	return sText, bShowCard;
 end
 
 
 function buildCardMessage(msgOOB, sRecipientIdentity)
 	local msg = {};
+
+	-- TODO: Add an extra icon here based on msg.action
 	if msgOOB.sender == "gm" then
 		msg.icon = "portrait_gm_token";
 	else
@@ -401,8 +446,8 @@ function buildCardMessage(msgOOB, sRecipientIdentity)
 		end
 	end
 
-	local sText, bHideCard = formatChatMessage(msgOOB, sRecipientIdentity);
-	if bHideCard == false and msgOOB.card_link then
+	local sText, bShowCard = formatChatMessage(msgOOB, sRecipientIdentity);
+	if bShowCard and msgOOB.card_link then
 		msg.shortcuts = {}
 		table.insert(msg.shortcuts, { description = sText, class = "card", recordname = msgOOB.card_link });
 	end

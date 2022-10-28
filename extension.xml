@@ -24,6 +24,7 @@
 		<includefile source="desktop/desktop_hand.xml" />
 
 		<includefile source="deckbox/deckbox.xml" />
+		<includefile source="deckbox/deckbox_settings.xml" />
 
 		<includefile source="utility/cardlist_viewer.xml" />
 		<includefile source="utility/utility_dialog_dealcards.xml" />

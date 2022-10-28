@@ -168,4 +168,21 @@
 			<script file="deckbox/scripts/portrait_deckbox.lua" />
 		</portrait_deckbox_base>
 	</template>
+
+	<template name="setting_label">
+		<label_column>
+			<anchored width="300" />
+		</label_column>
+	</template>
+	<template name="combobox_setting">
+		<comboboxc>
+			<script file="deckbox/scripts/combobox_setting.lua" />
+			<anchored height="20">
+				<top parent="columnanchor" anchor="bottom" relation="relative" offset="7" />
+				<left offset="320" />
+				<right offset="-5" />
+			</anchored>
+			<listdirection>down</listdirection>
+		</comboboxc>
+	</template>
 </root>

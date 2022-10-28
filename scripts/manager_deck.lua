@@ -2,29 +2,6 @@ DECK_CARDS_PATH = "cards";
 DECK_DISCARD_PATH = "discard";
 DECK_SETTINGS_PATH = "settings";
 
--- Settings
--- Who can see cards that are being dealt: recipient, recipient and GM, everyone
--- Default: recipient and GM
-DECK_SETTING_DEAL_VISIBILITY = "dealvisibility";
--- Who can see cards that are being played: player, player and GM, everyone
--- Default: player and GM
-DECK_SETTING_PLAY_VISIBILITY = "playvisibility";
--- Who can see cards that are being discarded: discarder, discarder and GM, everyone
--- Default: discarder and GM
-DECK_SETTING_DISCARD_VISIBILITY = "discardvisibility";
--- Who can see cards that are being given: giver and receiver, giver and receiver and gm, everyone
--- Default: giver and receiver and gm
-DECK_SETTING_GIVE_VISIBILITY = "discardvisibility";
--- Can the GM see what cards are being face down: yes or no
--- Default: yes
-DECK_SETTING_GM_SEE_FACEDOWN_CARDS = "gmseesfacedowncards";
--- Should cards played from a hand be automatically discarded: yes or no
--- Default: no
-DECK_SETTING_AUTO_PLAY_FROM_HAND = "autoplayfromhand";
--- Should cards played from a deck be automatically discarded: yes or no
--- Default: yes
-DECK_SETTING_AUTO_PLAY_FROM_DECK = "autoplayfromdiscard";
-
 function onInit()
 	DB.addHandler("charsheet.*", "onDelete", onCharacterDeleted);
 end
@@ -115,17 +92,21 @@ function setDeckSetting(vDeck, sKey, sValue, tEventTrace)
 	end
 
 	local settings = DeckManager.getDeckSettingsNode(vDeck);
-	settings = DeckedOutUtilities.validateNode(setting, "settingsNode");
+	settings = DeckedOutUtilities.validateNode(settings, "deck.settings");
 	if not settings then return end
+
+	local node = DB.getChild(settings, sKey);
+	node = DeckedOutUtilities.validateNode(node, "settingNode");
+	if not node then return end
 
 	local tEventTrace = DeckedOutEvents.raiseOnDeckSettingChangedEvent(
 		vDeck.getNodeName(), 
 		sKey, 
-		setting.getValue(),
+		node.getValue(),
 		sValue,
 		tEventTrace);
 
-	setting.setValue(sValue);
+		node.setValue(sValue);
 end
 
 
@@ -253,15 +234,110 @@ end
 ------------------------------------------
 -- DECK SETTINGS
 ------------------------------------------
+-- These setting values need to match the settings.* source nodes for all settings
+DECK_SETTING_DEAL_VISIBILITY = "dealvisibility";
+-- Who can see cards that are being played: player, player and GM, everyone
+-- Default: player and GM
+DECK_SETTING_PLAY_VISIBILITY = "playvisibility";
+-- Who can see cards that are being discarded: discarder, discarder and GM, everyone
+-- Default: discarder and GM
+DECK_SETTING_DISCARD_VISIBILITY = "discardvisibility";
+-- Who can see cards that are being given: giver and receiver, giver and receiver and gm, everyone
+-- Default: giver and receiver and gm
+DECK_SETTING_GIVE_VISIBILITY = "givevisibility";
+-- Can the GM see what cards are being face down: yes or no
+-- Default: yes
+DECK_SETTING_GM_SEE_FACEDOWN_CARDS = "gmseesfacedowncards";
+-- Should cards played from a hand be automatically discarded: yes or no
+-- Default: no
+DECK_SETTING_AUTO_PLAY_FROM_HAND = "autoplayfromhand";
+-- Should cards played from a deck be automatically discarded: yes or no
+-- Default: yes
+DECK_SETTING_AUTO_PLAY_FROM_DECK = "autoplayfromdeck";
+-- Should cards dropped onto an image be auto played and disarded? No action, Play, play and discard
+-- Default: play
+DECK_SETTING_ACTION_ON_IMAGE_DROP = "imagedropaction";
+
+local _tSettingOptions = {
+	[DECK_SETTING_DEAL_VISIBILITY] = {
+		default = "gmandactor",
+		options = {
+			{ sTextRes = "deckbox_settings_option_recipient", sValue = "actor" },
+			{ sTextRes = "deckbox_settings_option_gm_and_recipient", sValue = "gmandactor" },
+			{ sTextRes = "deckbox_settings_option_everyone", sValue = "everyone" }
+		}
+	},
+	[DECK_SETTING_PLAY_VISIBILITY] = {
+		default = "gmandactor",
+		options = {
+			{ sTextRes = "deckbox_settings_option_player", sValue = "actor" },
+			{ sTextRes = "deckbox_settings_option_gm_and_player", sValue = "gmandactor" },
+			{ sTextRes = "deckbox_settings_option_everyone", sValue = "everyone" }
+		}
+	},
+	[DECK_SETTING_DISCARD_VISIBILITY] = {
+		default = "gmandactor",
+		options = {
+			{ sTextRes = "deckbox_settings_option_discarder", sValue = "actor" },
+			{ sTextRes = "deckbox_settings_option_gm_and_discarder", sValue = "gmandactor" },
+			{ sTextRes = "deckbox_settings_option_everyone", sValue = "everyone" }
+		}
+	},
+	[DECK_SETTING_GIVE_VISIBILITY] = {
+		default = "gmandactor",
+		options = {
+			{ sTextRes = "deckbox_settings_option_giver", sValue = "actor" },
+			{ sTextRes = "deckbox_settings_option_gm_and_giver", sValue = "gmandactor" },
+			{ sTextRes = "deckbox_settings_option_everyone", sValue = "everyone" }
+		}
+	},
+	[DECK_SETTING_GM_SEE_FACEDOWN_CARDS] = {
+		default = "yes",
+		options = {
+			{ sTextRes = "deckbox_setting_option_yes", sValue = "yes" },
+			{ sTextRes = "deckbox_setting_option_no", sValue = "no" },
+		}
+	},
+	[DECK_SETTING_AUTO_PLAY_FROM_HAND] = {
+		default = "no",
+		options = {
+			{ sTextRes = "deckbox_setting_option_yes", sValue = "yes" },
+			{ sTextRes = "deckbox_setting_option_no", sValue = "no" },
+		}
+	},
+	[DECK_SETTING_AUTO_PLAY_FROM_DECK] = {
+		default = "yes",
+		options = {
+			{ sTextRes = "deckbox_setting_option_yes", sValue = "yes" },
+			{ sTextRes = "deckbox_setting_option_no", sValue = "no" },
+		}
+	},
+	[DECK_SETTING_ACTION_ON_IMAGE_DROP] = {
+		default = "play",
+		options = {
+			{ sTextRes = "deckbox_settings_option_image_action_noaction", sValue = "noaction" },
+			{ sTextRes = "deckbox_settings_option_image_action_play", sValue = "play" },
+			{ sTextRes = "deckbox_settings_option_image_action_playanddiscard", sValue = "playanddiscard" }
+		}
+	},
+}
+
+function getSettingOptions()
+	return _tSettingOptions;
+end
+
+function getSettingOption(sKey) 
+	return _tSettingOptions[sKey];
+end
+
 function getDeckSetting(vDeck, sKey)
 	vDeck = DeckedOutUtilities.validateDeck(vDeck);
 	if not vDeck then return end
 
-	local settings = DeckManager.getDeckSettingsNode(vDeck);
-	settings = DeckedOutUtilities.validateNode(setting, "settingsNode");
+	local settings = DeckedOutUtilities.validateNode(DeckManager.getDeckSettingsNode(vDeck), "settings");
 	if not settings then return end
 
-	return setting.getValue();
+	return DB.getValue(settings, sKey, "");
 end
 
 function getDeckSettingsNode(vDeck)

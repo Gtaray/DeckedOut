@@ -122,6 +122,25 @@
 				<readonly />
 			</simplestringc>
 
+			<!-- SETTINGS -->
+			<buttoncontrol name="settings">
+				<script>
+					function onInit()
+						setColor(DesktopManager.getSidebarDockIconColor());
+					end
+					function onButtonPress()
+						Interface.openWindow("deckbox_settings", window.getDatabaseNode())
+					end
+				</script>
+				<icon normal="sidebar_icon_link_options" />
+				<pressed offset="1,1" />
+				<anchored height="30" width="30">
+					<top offset="10" />
+					<right offset="-10" />
+				</anchored>
+			</buttoncontrol>
+
+			<!-- DEALING -->
 			<genericcontrol name="columnanchor">
 				<anchored to="back" height="0" width="200">
 					<top offset="-5" />
@@ -130,7 +149,6 @@
 				<disabled />
 			</genericcontrol>
 
-			<!-- DEALING -->
 			<header_deckbox name="header_dealing">
 				<static textres="deckbox_label_deal" />
 				<center />

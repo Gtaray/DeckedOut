@@ -12,5 +12,13 @@ function loadDeck(sRecord)
 			DB.setValue(v, "deckname", "string", sDeckName);
 			DB.setValue(v, "deckid", "string", sDeckId);
 		end
+
+		local settings = newDeckNode.createChild("settings");
+
+		for key,option in pairs(DeckManager.getSettingOptions()) do
+			if option.default then
+				DB.setValue(settings, key, "string", option.default)
+			end
+		end
 	end
 end

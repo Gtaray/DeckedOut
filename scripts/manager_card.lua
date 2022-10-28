@@ -267,7 +267,7 @@ function getDeckNodeFromCard(vCard)
 	vCard = DeckedOutUtilities.validateCard(vCard);
 	if not vCard then return end
 
-	return DB.findNode(CardManager.getDeckIdFromCard(vCard));
+	return DeckedOutUtilities.validateDeck(CardManager.getDeckIdFromCard(vCard));
 end
 
 function getDeckNameFromCard(vCard)
@@ -357,7 +357,16 @@ function onDragFromDeck(vDeck, draginfo)
 	vDeck = DeckedOutUtilities.validateDeck(vDeck);
 	if not vDeck then return end
 
-	CardManager.onDragCard(DeckManager.drawCard(vDeck), draginfo);
+	local vCard = DeckedOutUtilities.validateCard(DeckManager.drawCard(vDeck));
+	if not vCard then return end
+
+	CardManager.onDragCard(vCard, draginfo);
+
+	if DeckManager.getDeckSetting(vDeck, DeckManager.DECK_SETTING_DEAL_VISIBILITY) == "actor" then
+		-- If only the person receiving the card should see the card, then we replace the image
+		-- That's dragged with the back image
+		draginfo.setTokenData(CardManager.getCardBack(vCard));
+	end
 end
 
 function onDragCard(vCard, draginfo)
