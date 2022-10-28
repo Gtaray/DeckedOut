@@ -1,12 +1,9 @@
 TODO LIST: 
-
-* Figure out how to handle card tokens being on the map and ALSO in a person's hand
-	* Potential solution: Add a new location similar to storage where tokens get moved to if they're on an image. The data is in the deckbox, but the tokens are on a map.
 * Add tooltip to trash bin in hand
-* Allow deck list and discard pile to be viewed concurrently
 * Display icons in chat for card actions	
 	* Message data can have multiple icons, so this is basically easy
 * Make consistent the locations for various radial menu options (discard, view card list, deal, etc)
+* Clean up the Deck windowclass (it still looks pre-alpha)
 * re-implement 'play and discard' hotkey
 * Hand actions
 	* [ ] Discard at random (can also be used for 'play at random')
@@ -19,6 +16,7 @@ TODO LIST:
 	* [ ] Toggle whether the GM can see cards played facedown in chat
 	* [ ] Toggle whether dropping a card from a deck into chat automatically discards the card (as if it were played and discarded)
 	* [ ] Toggle whether dropping a card from a hand into chat automatically discards the card (as if it were played and discarded)
+	* [ ] Toggle whether dropping a card from a deck onto an image automatically discards the card (as if it were played and discarded)
 
 ICONS
 Radial
@@ -43,6 +41,9 @@ Icons
 	Decks (icon next to "Decks" in the sidebar)
 
 STRETCH GOALS
+* Figure out how to handle card tokens being on the map and ALSO in a person's hand
+	* Potential solution: Add a new location similar to storage where tokens get moved to if they're on an image. The data is in the deckbox, but the tokens are on a map.
+	* Cards should also be able to be face down on the map, with a radial menu to flip face up
 * Cards can exist in someone's hand face down
 * Trigger me Timbers support
 * Toggle option to display username or character name in chat when trading/showing/placing cards
@@ -52,6 +53,7 @@ STRETCH GOALS
 * Option toggle for automatically showing/hiding hand when switching characters? So rare this probably doesn't matter
 
 DONE
+* Allow deck list and discard pile to be viewed concurrently
 * BUG: Dropping a card in the hotkey bar, then moving that card elsewhere, then clicking on the link again creates a dead card in the deck that can't be removed
 	* Fixed by making cards dropped in the hotkeybar link point to a card in storage. 
 	* This means that cards in the hotkey bar can't be moved around

@@ -90,26 +90,21 @@ end
 ------------------------------------------
 -- OTHER WINDOW FUNCTIONS
 ------------------------------------------
-function openCardList(vDeck, sSource)
-	local sDeckNodePath = vDeck.getNodeName();
-	local sTitle = "";
-	if (sSource or "") == "" then
-		sSource = "cards";
-	end
-
-	local window = Interface.openWindow("cardlist_viewer", vDeck);
-
-	if StringManager.startsWith(sDeckNodePath, "charlist") then
-		sTitle = DB.getValue(vDeck.getChild(".."), "name", "");
-	else
-		sTitle = DB.getValue(vDeck, "name", "");
-	end
-
-	if sSource == "discard" then
+function openCardList(vSourceNode)
+	local sTitle = DB.getValue(vSourceNode.getParent(), "name", "");
+	if vSourceNode.getName() == DeckManager.DECK_DISCARD_PATH then
 		sTitle = sTitle .. " (Discard)"
 	end
 
-	window.setSource(sSource);
+	local window = Interface.openWindow("cardlist_viewer", vSourceNode);
+
+	-- if StringManager.startsWith(vSourceNode.getNodeName(), "charsheet") then
+	-- 	sTitle = DB.getValue(vSourceNode.getParent(), "name", "");
+	-- else
+	-- 	sTitle = DB.getValue(vSourceNode, "name", "");
+	-- end
+
+	-- window.setSource(sSource);
 	window.setTitle(sTitle);
 end
 

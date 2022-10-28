@@ -22,7 +22,7 @@ function onMenuSelection(selection)
 	elseif selection == 5 then
 		CardManager.putCardsFromDeckInHandBackIntoDeck(getDeckNode(), getIdentity());
 	elseif selection == 6 then
-		DesktopManager.openCardList(window.getDatabaseNode());
+		DesktopManager.openCardList(CardManager.getHandNode(getIdentity()));
 	end
 end
 

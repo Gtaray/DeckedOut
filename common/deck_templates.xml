@@ -49,9 +49,9 @@
 						return;
 					end
 					if selection == 3 then
-						DesktopManager.openCardList(window.getDatabaseNode());
+						DesktopManager.openCardList(DeckManager.getCardsNode(window.getDatabaseNode()));
 					elseif selection == 4 then
-						DesktopManager.openCardList(window.getDatabaseNode(), "discard");
+						DesktopManager.openCardList(DeckManager.getDiscardNode(window.getDatabaseNode()));
 					end
 				end
 				function onDragStart(button, x, y, draginfo)

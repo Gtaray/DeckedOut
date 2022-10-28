@@ -11,6 +11,9 @@
 			<dynamic />
 		</sizelimits>
 		<script>
+			function onInit()
+				cards.setDatabaseNode(getDatabaseNode());
+			end
 			function setTitle(sTitle)
 				if (sTitle or "") == "" then
 					return;
@@ -40,7 +43,6 @@
 					<right offset="0"/>
 				</anchored>
 				<class>cardlist_viewer_item</class>
-				<datasource>.cards</datasource>
 				<columns width="105" fillwidth="true" />
 			</windowlist>
 
