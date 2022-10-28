@@ -1,11 +1,10 @@
+---@meta
+
 GM_HAND_PATH = "gmhand";
 PLAYER_HAND_PATH = "cards";
 
 OOB_MSGTYPE_DROPCARD = "dropcard";
 OOB_MSGTYPE_DISCARD = "discard"
-
----@class CardManager
----@field moveCard
 
 function onInit()
 	OOBManager.registerOOBMsgHandler(CardManager.OOB_MSGTYPE_DROPCARD, handleCardDrop);
