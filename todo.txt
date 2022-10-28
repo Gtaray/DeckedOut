@@ -1,4 +1,11 @@
 TODO LIST: 
+
+* Figure out how to handle card tokens being on the map and ALSO in a person's hand
+	* Potential solution: Add a new location similar to storage where tokens get moved to if they're on an image. The data is in the deckbox, but the tokens are on a map.
+* Add tooltip to trash bin in hand
+* Allow deck list and discard pile to be viewed concurrently
+* Display icons in chat for card actions	
+	* Message data can have multiple icons, so this is basically easy
 * Make consistent the locations for various radial menu options (discard, view card list, deal, etc)
 * re-implement 'play and discard' hotkey
 * Hand actions
@@ -14,26 +21,26 @@ TODO LIST:
 	* [ ] Toggle whether dropping a card from a hand into chat automatically discards the card (as if it were played and discarded)
 
 ICONS
-	Radial
-		Deal one card to one person
-		Deal multiple cards to one person
-		Deal one card to multiple people
-		Deal multiple cards to multiple people
-		View card list
-		View discard pile
-		View hand
-		Discard one card from your hand
-		Discard entire hand
-		Discard one card at random
-		Reshuffle back into deck
-		Play card from your hand face up
-		Play card from your hand face down
-		Give another player a random card from your hand
-	Icons
-		Discard pile (this is currently the trash can icon, can probably be the same as the "view discard pile" radial icon)
-		Deck list (can probably be the same as the "view card list" radial icon)
-		Open Deckbox (for the toolbar tray in the upper right corner)
-		Decks (icon next to "Decks" in the sidebar)
+Radial
+	Deal one card to one person
+	Deal multiple cards to one person
+	Deal one card to multiple people
+	Deal multiple cards to multiple people
+	View card list
+	View discard pile
+	View hand
+	Discard one card from your hand
+	Discard entire hand
+	Discard one card at random
+	Reshuffle back into deck
+	Play card from your hand face up
+	Play card from your hand face down
+	Give another player a random card from your hand
+Icons
+	Discard pile (this is currently the trash can icon, can probably be the same as the "view discard pile" radial icon)
+	Deck list (can probably be the same as the "view card list" radial icon)
+	Open Deckbox (for the toolbar tray in the upper right corner)
+	Decks (icon next to "Decks" in the sidebar)
 
 STRETCH GOALS
 * Cards can exist in someone's hand face down
@@ -45,6 +52,10 @@ STRETCH GOALS
 * Option toggle for automatically showing/hiding hand when switching characters? So rare this probably doesn't matter
 
 DONE
+* BUG: Dropping a card in the hotkey bar, then moving that card elsewhere, then clicking on the link again creates a dead card in the deck that can't be removed
+	* Fixed by making cards dropped in the hotkeybar link point to a card in storage. 
+	* This means that cards in the hotkey bar can't be moved around
+* Dropping a card onto a map drops a token
 * OnDeckCreated and OnDeckDeleted events
 * Dropping cards on entities gives cards
 	* [x] CT entries

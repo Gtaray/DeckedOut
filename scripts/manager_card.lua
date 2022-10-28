@@ -22,11 +22,12 @@ function moveCard(vCard, vDestination, tEventTrace)
 	vDestination = DeckedOutUtilities.validateNode(vDestination, "vDestination");
 	if not vDestination then return end
 
+	local sOldCardNode = vCard.getNodeName();
 	local newNode = DB.createChild(vDestination);
 	DB.copyNode(vCard, newNode);
 	vCard.delete();
 
-	tEventTrace = DeckedOutEvents.raiseOnCardMovedEvent(newNode.getNodeName(), tEventTrace);
+	tEventTrace = DeckedOutEvents.raiseOnCardMovedEvent(newNode.getNodeName(), sOldCardNode, tEventTrace);
 
 	return newNode;
 end

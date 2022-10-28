@@ -14,17 +14,22 @@ DECKEDOUT_EVENT_HAND_PUT_BACK_IN_DECK = "handputbackindeck"
 DECKEDOUT_EVENT_DECK_CREATED = "deckcreated";
 DECKEDOUT_EVENT_DECK_DELETED = "deckdeleted";
 
+DECKEDOUT_EVENT_IMAGE_CARD_ADDED = "cardaddedtoimage"; -- Currently not used
+DECKEDOUT_EVENT_IMAGE_CARD_DELETED = "carddeletedfromimage"; -- Currently not used
+
 DECKEDOUT_EVENT_DECK_SETTING_CHANGED = "decksettingchanged";
 
 OOB_MSGTYPE_DECKEDOUTEVENT = "deckedoutevent";
 
-
-
 function onInit()
-	DeckedOutEvents.registerEvent(DeckedOutEvents.DECKEDOUT_EVENT_DECK_DELETED, { fCallback = deleteCardsFromDecksThatAreDeleted, target="host" })
+	DeckedOutEvents.registerEvent(DeckedOutEvents.DECKEDOUT_EVENT_DECK_DELETED, { fCallback = deleteCardsFromDecksThatAreDeleted, target="host" });
+
 	OOBManager.registerOOBMsgHandler(OOB_MSGTYPE_DECKEDOUTEVENT, DeckedOutEvents.raiseEventHandler);
 	ChatManager.registerDropCallback("shortcut", DeckedOutEvents.onCardDroppedInChat);
+	ImageManager.registerDropCallback("shortcut", DeckedOutEvents.onCardDroppedOnImage);
+
 	Token.onDrop = DeckedOutEvents.onCardDroppedOnToken;
+	Interface.onHotkeyDrop = DeckedOutEvents.onCardDroppedOnHotkey;
 
 	DB.addHandler("deckbox.decks.*", "onDelete", onDeckDeleted);
 	DB.addHandler("deckbox.decks.*", "onAdd", onDeckAdded);
@@ -33,35 +38,6 @@ end
 function onClose()
 	DB.removeHandler("deckbox.decks.*", "onDelete", onDeckDeleted);
 	DB.removeHandler("deckbox.decks.*", "onAdd", onDeckAdded);
-end
-
-function onCardDroppedInChat(draginfo)
-	local sClass,sRecord = draginfo.getShortcutData();
-	-- Only handle card drops
-	if sClass ~= "card" then
-		return;
-	end
-
-	-- If the card is already in card storage, then don't do anything
-	if CardStorage.doesCardComeFromStorage(sRecord) then
-		return;	
-	end
-
-	local tEventTrace = {}; -- New up a trace, as this is guaranteed to be the first event
-
-	-- We specifically don't want to copy cards to storage here, since the message
-	-- handler will will copy it to chat. We only want to raise the event
-	DeckedOutEvents.raiseOnCardPlayedEvent(sRecord, DeckedOutUtilities.getFacedownHotkey(), tEventTrace)
-	return true;
-end
-
-function onCardDroppedOnToken(tokenCT, draginfo)
-	local nodeCT = CombatManager.getCTFromToken(tokenCT);
-	if not nodeCT then
-		return false;
-	end
-
-	return CardManager.onDropCard(draginfo, nodeCT);
 end
 
 function onDeckDeleted(nodeDeck)
@@ -178,10 +154,10 @@ function raiseOnCardPlayedEvent(sCardNode, bFacedown, tEventTrace)
 end
 
 -- vCard and vDestination are both card nodes, the former where it came from, and the latter where it is moved to
-function raiseOnCardMovedEvent(sCardNode, tEventTrace)
+function raiseOnCardMovedEvent(sCardNode, sOldCardNode, tEventTrace)
 	return DeckedOutEvents.raiseEvent(
 		DeckedOutEvents.DECKEDOUT_EVENT_CARD_MOVED, 
-		{ sCardNode = sCardNode },
+		{ sCardNode = sCardNode, sOldCardNode = sOldCardNode },
 		tEventTrace
 	);
 end
@@ -307,6 +283,24 @@ function raiseOnDeckSettingChangedEvent(sDeckNode, sSettingKey, sPreviousValue, 
 	);
 end
 
+-- Not used currently. Will be used if we add full cards on images support
+function raiseOnCardAddedToImageEvent(tEventTrace)
+	return DeckedOutEvents.raiseEvent(
+		DeckedOutEvents.DECKEDOUT_EVENT_IMAGE_CARD_ADDED, 
+		{  },
+		tEventTrace
+	);
+end
+
+-- Not used currently. Will be used if we add full cards on images support
+function raiseOnCardDeletedFromImageEvent(tEventTrace)
+	return DeckedOutEvents.raiseEvent(
+		DeckedOutEvents.DECKEDOUT_EVENT_IMAGE_CARD_ADDED, 
+		{  },
+		tEventTrace
+	);
+end
+
 -----------------------------------------------------
 -- EVENT HANDLERS
 -----------------------------------------------------
@@ -330,6 +324,63 @@ function deleteCardsFromDecksThatAreDeleted(tEventArgs, tEventTrace)
 			card.delete();
 		end
 	end
+end
+
+-----------------------------------------------------
+-- CARD DROP HANDLERS
+-----------------------------------------------------
+function onCardDroppedInChat(draginfo)
+	local sClass,sRecord = draginfo.getShortcutData();
+	-- Only handle card drops
+	if sClass ~= "card" then
+		return;
+	end
+
+	-- If the card is already in card storage, then don't do anything
+	if CardStorage.doesCardComeFromStorage(sRecord) then
+		return;	
+	end
+
+	local tEventTrace = {}; -- New up a trace, as this is guaranteed to be the first event
+
+	-- We specifically don't want to copy cards to storage here, since the message
+	-- handler will will copy it to chat. We only want to raise the event
+	DeckedOutEvents.raiseOnCardPlayedEvent(sRecord, DeckedOutUtilities.getFacedownHotkey(), tEventTrace)
+	return true;
+end
+
+function onCardDroppedOnToken(tokenCT, draginfo)
+	local nodeCT = CombatManager.getCTFromToken(tokenCT);
+	if not nodeCT then
+		return false;
+	end
+
+	return CardManager.onDropCard(draginfo, nodeCT);
+end
+
+function onCardDroppedOnImage(cImageControl, x, y, draginfo)
+	local sClass,sRecord = draginfo.getShortcutData();
+	-- Only handle card drops
+	if sClass ~= "card" then
+		return false;
+	end
+	local sToken = CardManager.getCardFront(sRecord);
+	if sToken then
+		local token = cImageControl.addToken(sToken, x, y)
+		TokenManager.autoTokenScale(token);
+		return token ~= nil;
+	end
+end
+
+function onCardDroppedOnHotkey(dragdata)
+	local sClass,sRecord = dragdata.getShortcutData();
+	-- Only handle card drops
+	if sClass ~= "card" then
+		return false;
+	end
+	local vCard = CardStorage.addCardToStorage(sRecord);
+	dragdata.setDatabaseNode(vCard);
+	dragdata.setShortcutData(sClass, vCard.getNodeName());
 end
 
 -----------------------------------------------------
