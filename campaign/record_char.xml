@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+	<windowclass name="charsheet" merge="join">
+		<script>
+			function onDrop(x, y, draginfo)
+				return CardManager.onDropCard(draginfo, getDatabaseNode());
+			end
+		</script>
+	</windowclass>
+</root>

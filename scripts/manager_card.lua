@@ -262,6 +262,13 @@ function getDeckIdFromCard(vCard)
 	return DB.getValue(vCard, "deckid", "");
 end
 
+function getDeckNodeFromCard(vCard)
+	vCard = DeckedOutUtilities.validateCard(vCard);
+	if not vCard then return end
+
+	return DB.findNode(CardManager.getDeckIdFromCard(vCard));
+end
+
 function getDeckNameFromCard(vCard)
 	vCard = DeckedOutUtilities.validateCard(vCard);
 	if not vCard then return end
@@ -390,24 +397,6 @@ function onDropCard(draginfo, vDestination, sExtra)
 		return;
 	end
 
-	-- Check if a the source of the card is the same as the destination
-	-- and if it is, bail
-	local sourceParentNode = DB.getChild(sRecord, "..");
-	if sourceParentNode.getNodeName() == vDestination.getNodeName() then
-		return;
-	end
-
-	-- local rActor = ActorManager.resolveActor(vDestination)
-	-- if rActor and CardManager.isActorHoldingCard(sRecord, rActor) then
-	-- 	return;
-	-- end
-
-	-- Little hack so that if we pass in charsheet.*.cards as the destination
-	-- it still works
-	if vDestination.getName() == CardManager.PLAYER_HAND_PATH then
-		vDestination = vDestination.getParent();
-	end
-
 	sDestPath = vDestination.getNodeName();
 
 	if not Session.IsHost then
@@ -419,52 +408,88 @@ function onDropCard(draginfo, vDestination, sExtra)
 end
 
 function handleAnyDrop(sSourceNode, sDestinationNode, sExtra)
+	vCard = DeckedOutUtilities.validateNode(sSourceNode, "sSourceNode");
+	vDestination = DeckedOutUtilities.validateNode(sDestinationNode, "sDestinationNode");
+	if not (vCard and vDestination) then return false end
+	
 	local sDestination = "";
 	local sReceivingIdentity = "";
 
 	-- Dropped on a charater sheet
-	if StringManager.startsWith(sDestinationNode, "charsheet") then
-		sDestination = DB.getPath(sDestinationNode, CardManager.PLAYER_HAND_PATH)
-		sReceivingIdentity = DB.findNode(sDestination).getChild("..").getName();
-	
-	elseif StringManager.startsWith(sDestinationNode, CardManager.GM_HAND_PATH) then
-		sDestination = CardManager.GM_HAND_PATH;
-		sReceivingIdentity = "gm";
+	if StringManager.startsWith(vDestination.getNodeName(), "charsheet") then
+		-- If vDestination isn't the hand path, then get the hand path
+		if vDestination.getName() ~= CardManager.PLAYER_HAND_PATH then
+			vDestination = CardManager.getHandNode(vDestination.getName());
+		end
+		
+		-- After the above, vDestination is the cards node for the character (charsheet.*.cards)
+		sReceivingIdentity = vDestination.getParent().getName();
 
-	elseif StringManager.startsWith(sDestinationNode, "deckbox") then
-		-- Check that the card being dropped acatually belongs in this deck
-		if CardManager.getDeckIdFromCard(sSourceNode) ~= DeckManager.getDeckId(sDestinationNode) then
-			Debug.console("WARNING: CardManager.onDropCard(): Tried to move a card to another deck.")
+	elseif StringManager.startsWith(vDestination.getNodeName(), CardManager.GM_HAND_PATH) then
+		vDestination = CardManager.getHandNode("gm");
+		sReceivingIdentity = "gm"
+
+	elseif StringManager.startsWith(vDestination.getNodeName(), "combattracker") then
+		if ActorManager.isPC(vDestination) then
+			-- If dropping on PC, give card to that PC
+			sReceivingIdentity = ActorManager.getCreatureNode(vDestination).getName();
+			vDestination = CardsManager.getHandNode(sReceivingIdentity);
+		else
+			-- If dropping on NPC, give card to GM
+			vDestination = CardManager.getHandNode("gm");
+			sReceivingIdentity = "gm"
+		end
+
+	elseif StringManager.startsWith(vDestination.getNodeName(), "deckbox") then
+		-- Check that the card being dropped belongs in this deck
+		if CardManager.getDeckIdFromCard(vCard) ~= DeckManager.getDeckId(vDestination) then
+			Debug.console("WARNING: CardManager.handleAnyDrop(): Tried to move a card to another deck.")
 			return;
 		end
-		if sExtra == DeckManager.DECK_CARDS_PATH then
-			sDestination = DB.getPath(sDestinationNode, DeckManager.DECK_CARDS_PATH);
-		elseif sExtra == DeckManager.DECK_DISCARD_PATH then
-			sDestination = DB.getPath(sDestinationNode, DeckManager.DECK_DISCARD_PATH);
+
+		-- Currently we only care about if sExtra for dropping on to the discard
+		-- which currently thing does.
+		if sExtra == DeckManager.DECK_DISCARD_PATH then
+			vDestination = vDestination.getChild(DeckManager.DECK_DISCARD_PATH);
+		else
+			vDestination = vDestination.getChild(DeckManager.DECK_CARDS_PATH);
 		end
 	end
 
-	if (sDestination or "") ~= "" then
+	-- Check if a the source of the card is the same as the destination
+	-- and if it is, bail.
+	local sourceParentNode = vCard.getParent();
+	if sourceParentNode.getNodeName() == vDestination.getNodeName() then
+		Debug.console("WARNING: CardManager.handleAnyDrop(): Tried to move a card to the same place it originated from.")
+		return true;
+	end
+
+	if vDestination then
 		tEventTrace = {}; -- We have to new up the table here since dropping is guaranteed to be the first in any chain of events
 
-		-- If the thing receiving the drop is the gm or a player, then trigger either the give or deal event
 		if (sReceivingIdentity or "") ~= "" then
-			if CardManager.isCardInHand(sSourceNode) then
-				local sGiverIdentity = CardManager.getCardSource(sSourceNode);
+			-- If the card being dropped is currently in a hand, then we fire the give event
+			if CardManager.isCardInHand(vCard) then
+				local sGiverIdentity = CardManager.getCardSource(vCard);
 				tEventTrace = DeckedOutEvents.addEventTrace(tEventTrace, DeckedOutEvents.DECKEDOUT_EVENT_CARD_GIVEN);
-				local card = CardManager.addCardToHand(sSourceNode, sReceivingIdentity, tEventTrace);
+				local card = CardManager.addCardToHand(vCard, sReceivingIdentity, tEventTrace);
 				DeckedOutEvents.raiseOnGiveCardEvent(card.getNodeName(), sGiverIdentity, sReceivingIdentity, tEventTrace)
+				return true;
 
-			elseif CardManager.isCardInDeck(sSourceNode) or CardManager.isCardDiscarded(sSourceNode) then
+			-- If the card being dropped is currently in a deck or discard pile, we fire the deal event
+			elseif CardManager.isCardInDeck(vCard) or CardManager.isCardDiscarded(vCard) then
 				tEventTrace = DeckedOutEvents.addEventTrace(tEventTrace, DeckedOutEvents.DECKEDOUT_EVENT_CARD_DEALT);
-				local card = CardManager.addCardToHand(sSourceNode, sReceivingIdentity, tEventTrace);
+				local card = CardManager.addCardToHand(vCard, sReceivingIdentity, tEventTrace);
 				DeckedOutEvents.raiseOnDealCardEvent(card.getNodeName(), sReceivingIdentity, tEventTrace)
-
+				return true;
 			end
 		else
-			local card = CardManager.moveCard(sSourceNode, sDestination, tEventTrace);
+			local card = CardManager.moveCard(vCard, vDestination, tEventTrace);
+			return true;
 		end
 	end
+
+	return false;
 end
 
 function sendCardDropMessage(sSourceNode, sDestinationNode, sExtra)

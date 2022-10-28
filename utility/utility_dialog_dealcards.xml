@@ -3,12 +3,8 @@
 	<windowclass name="dealcards_dialog">
 		<frame>referencelist</frame>
 		<placement>
-			<size width="300" height="250" />
+			<size width="250" height="200" />
 		</placement>
-		<sizelimits>
-			<minimum width="300" height="250" />
-			<dynamic />
-		</sizelimits>
 		<nodelete />
 		<script file="utility/scripts/dialog_dealcards.lua"/>
 		<sheetdata>
@@ -26,9 +22,9 @@
 			</frame_char>
 			<anchor_column name="columnanchor">
 				<anchored to="frame" height="0">
-					<left anchor="left" offset="15" />
+					<left anchor="left" offset="45" />
 					<right anchor="right" offset="-15" />
-					<top anchor="top" offset="5" />
+					<top anchor="top" offset="35" />
 				</anchored>
 			</anchor_column>
 

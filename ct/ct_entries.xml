@@ -1,0 +1,9 @@
+<root>
+	<windowclass name="ct_entry" merge="join">
+		<script file="ct/scripts/ct_onCardDrop.lua" />
+	</windowclass>
+	
+	<windowclass name="client_ct_entry" merge="join">
+		<script file="ct/scripts/ct_onCardDrop.lua" />
+	</windowclass>
+</root>

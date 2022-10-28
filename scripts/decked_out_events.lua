@@ -11,7 +11,10 @@ DECKEDOUT_EVENT_GROUP_DEAL = "groupdeal";
 DECKEDOUT_EVENT_HAND_DISCARDED = "handdiscarded";
 DECKEDOUT_EVENT_HAND_PUT_BACK_IN_DECK = "handputbackindeck"
 
+DECKEDOUT_EVENT_DECK_CREATED = "deckcreated";
 DECKEDOUT_EVENT_DECK_DELETED = "deckdeleted";
+
+DECKEDOUT_EVENT_DECK_SETTING_CHANGED = "decksettingchanged";
 
 OOB_MSGTYPE_DECKEDOUTEVENT = "deckedoutevent";
 
@@ -21,6 +24,15 @@ function onInit()
 	DeckedOutEvents.registerEvent(DeckedOutEvents.DECKEDOUT_EVENT_DECK_DELETED, { fCallback = deleteCardsFromDecksThatAreDeleted, target="host" })
 	OOBManager.registerOOBMsgHandler(OOB_MSGTYPE_DECKEDOUTEVENT, DeckedOutEvents.raiseEventHandler);
 	ChatManager.registerDropCallback("shortcut", DeckedOutEvents.onCardDroppedInChat);
+	Token.onDrop = DeckedOutEvents.onCardDroppedOnToken;
+
+	DB.addHandler("deckbox.decks.*", "onDelete", onDeckDeleted);
+	DB.addHandler("deckbox.decks.*", "onAdd", onDeckAdded);
+end
+
+function onClose()
+	DB.removeHandler("deckbox.decks.*", "onDelete", onDeckDeleted);
+	DB.removeHandler("deckbox.decks.*", "onAdd", onDeckAdded);
 end
 
 function onCardDroppedInChat(draginfo)
@@ -43,7 +55,22 @@ function onCardDroppedInChat(draginfo)
 	return true;
 end
 
+function onCardDroppedOnToken(tokenCT, draginfo)
+	local nodeCT = CombatManager.getCTFromToken(tokenCT);
+	if not nodeCT then
+		return false;
+	end
 
+	return CardManager.onDropCard(draginfo, nodeCT);
+end
+
+function onDeckDeleted(nodeDeck)
+	DeckedOutEvents.raiseOnDeckDeletedEvent(nodeDeck.getNodeName(), {})
+end
+
+function onDeckAdded(nodeDeck)
+	DeckedOutEvents.raiseOnDeckCreatedEvent(nodeDeck.getNodeName(), {})
+end
 
 local _tEvents = {};
 -----------------------------------------------------
@@ -256,18 +283,42 @@ function raiseOnCardAddedToStorageEvent(sCardNode, tEventTrace)
 	);
 end
 
+function raiseOnDeckCreatedEvent(sDeckNode, tEventTrace)
+	return DeckedOutEvents.raiseEvent(
+		DeckedOutEvents.DECKEDOUT_EVENT_DECK_CREATED, 
+		{ sDeckNode = sDeckNode },
+		tEventTrace
+	);
+end
+
+function raiseOnDeckDeletedEvent(sDeckNode, tEventTrace)
+	return DeckedOutEvents.raiseEvent(
+		DeckedOutEvents.DECKEDOUT_EVENT_DECK_DELETED, 
+		{ sDeckNode = sDeckNode },
+		tEventTrace
+	);
+end
+
+function raiseOnDeckSettingChangedEvent(sDeckNode, sSettingKey, sPreviousValue, sCurrentValue, tEventTrace)
+	return DeckedOutEvents.raiseEvent(
+		DeckedOutEvents.DECKEDOUT_EVENT_DECK_SETTING_CHANGED, 
+		{ sDeckNode = sDeckNode, sSettingKey = sSettingKey, sPrev = sPreviousValue, sCur = sCurrentValue },
+		tEventTrace
+	);
+end
+
 -----------------------------------------------------
 -- EVENT HANDLERS
 -----------------------------------------------------
 -- This handles deleting cards that belong to decks that themselves are deleted
 function deleteCardsFromDecksThatAreDeleted(tEventArgs, tEventTrace)
-	local vDeck = DeckedOutUtilities.validateDeck(tEventArgs.sDeckNode);
-	if not vDeck then return end
-
+	-- We can't get the actual deck here because by the time this event fires,
+	-- the deck is gone
 	-- Go through all characters
 	for k,v in pairs(DB.getChildren("charsheet")) do
 		for _, card in pairs(DB.getChildren(v, CardManager.PLAYER_HAND_PATH)) do
-			if CardManager.doesCardComeFromDeck(vDeck, card) then
+			Debug.chat(card);
+			if CardManager.getDeckIdFromCard(card) == tEventArgs.sDeckNode then
 				card.delete();
 			end
 		end
@@ -275,7 +326,7 @@ function deleteCardsFromDecksThatAreDeleted(tEventArgs, tEventTrace)
 
 	-- Go through the GM hand
 	for _, card in pairs(DB.getChildren(CardManager.GM_HAND_PATH)) do
-		if CardManager.doesCardComeFromDeck(vDeck, card) then
+		if CardManager.getDeckIdFromCard(card) == tEventArgs.sDeckNode then
 			card.delete();
 		end
 	end

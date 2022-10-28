@@ -1,22 +1,43 @@
 TODO LIST: 
-* Redo deal multi prompt window
+* Make consistent the locations for various radial menu options (discard, view card list, deal, etc)
 * re-implement 'play and discard' hotkey
 * Hand actions
-	* [ ] Discard at random
+	* [ ] Discard at random (can also be used for 'play at random')
 	* [ ] Play at random
 	* [ ] Give to other person at random
 * Add per deck configuration
 	* [ ] Toggle whether dealt cards should be hidden from GM (both the drag token and the message in chat)
+	* [ ] Toggle whether discarded cards should be hidden from GM (both the drag token and the message in chat)
 	* [ ] Toggle whether cards are played face up for face down by default (for drag/drop and doubleclick)
 	* [ ] Toggle whether the GM can see cards played facedown in chat
 	* [ ] Toggle whether dropping a card from a deck into chat automatically discards the card (as if it were played and discarded)
 	* [ ] Toggle whether dropping a card from a hand into chat automatically discards the card (as if it were played and discarded)
-* Dropping cards on entities gives cards
-	* [ ] CT entries
-	* [ ] Tokens on maps
-	* [ ] Character sheets
+
+ICONS
+	Radial
+		Deal one card to one person
+		Deal multiple cards to one person
+		Deal one card to multiple people
+		Deal multiple cards to multiple people
+		View card list
+		View discard pile
+		View hand
+		Discard one card from your hand
+		Discard entire hand
+		Discard one card at random
+		Reshuffle back into deck
+		Play card from your hand face up
+		Play card from your hand face down
+		Give another player a random card from your hand
+	Icons
+		Discard pile (this is currently the trash can icon, can probably be the same as the "view discard pile" radial icon)
+		Deck list (can probably be the same as the "view card list" radial icon)
+		Open Deckbox (for the toolbar tray in the upper right corner)
+		Decks (icon next to "Decks" in the sidebar)
 
 STRETCH GOALS
+* Cards can exist in someone's hand face down
+* Trigger me Timbers support
 * Toggle option to display username or character name in chat when trading/showing/placing cards
 * Tooltips when hovering over cards in hand
 	* Even more stretch, make the tooltip only appear when the size of the tokenfield is really small
@@ -24,6 +45,13 @@ STRETCH GOALS
 * Option toggle for automatically showing/hiding hand when switching characters? So rare this probably doesn't matter
 
 DONE
+* OnDeckCreated and OnDeckDeleted events
+* Dropping cards on entities gives cards
+	* [x] CT entries
+	* [x] Tokens on maps
+	* [x] Character sheets
+* Redo deal multi prompt window
+* Deleting a character moves all their cards into the discard pile
 * Option toggle for letting players drop cards in their hand
 * Redo hand screen graphics
 * Hovering over a card in hand makes it pop up a little bit (or get slightly larger)

@@ -11,10 +11,13 @@
 		</ruleset>
 	</properties>
 	<base>
+		<includefile source="campaign/record_char.xml" />
 		<includefile source="campaign/record_deck.xml" />
 		<includefile source="campaign/record_card.xml" />
 		<includefile source="common/deck_templates.xml" />
 		<includefile source="common/deck_templates.xml" />
+
+		<includefile source="ct/ct_entries.xml" />
 
 		<includefile source="graphics/graphics.xml" />
 
