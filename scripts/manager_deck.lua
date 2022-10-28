@@ -268,7 +268,7 @@ local _tSettingOptions = {
 		}
 	},
 	[DECK_SETTING_PLAY_VISIBILITY] = {
-		default = "gmandactor",
+		default = "everyone",
 		options = {
 			{ sTextRes = "deckbox_settings_option_player", sValue = "actor" },
 			{ sTextRes = "deckbox_settings_option_gm_and_player", sValue = "gmandactor" },
@@ -276,7 +276,7 @@ local _tSettingOptions = {
 		}
 	},
 	[DECK_SETTING_DISCARD_VISIBILITY] = {
-		default = "gmandactor",
+		default = "everyone",
 		options = {
 			{ sTextRes = "deckbox_settings_option_discarder", sValue = "actor" },
 			{ sTextRes = "deckbox_settings_option_gm_and_discarder", sValue = "gmandactor" },

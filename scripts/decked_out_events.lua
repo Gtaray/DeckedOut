@@ -52,12 +52,13 @@ local _tEvents = {};
 -----------------------------------------------------
 -- EVENT REGISTRATION
 -----------------------------------------------------
--- event data structure:
--- {
--- 	fCallback: function that is called when the event is raise
---  sTarget: either "host", "client", "immediate", or nil/"". Specifies where this callback will run.
---  	Host, Client, and nil will send an OOB to handle the event, "immediate" will happen immediately, regardless of where the event was raised
--- }
+---@class eventData
+---@field fCallback function The function that is called when the event is raised
+---@field target string "host", "client", "immediate", or nil. Specifies where this callback will occur. Immediate will happen without an OOB message being sent.
+
+---Registers an event. 
+---@param sEventKey string
+---@param tEventData eventData 
 function registerEvent(sEventKey, tEventData)
 	if not _tEvents[sEventKey] then
 		_tEvents[sEventKey] = {};
@@ -311,7 +312,6 @@ function deleteCardsFromDecksThatAreDeleted(tEventArgs, tEventTrace)
 	-- Go through all characters
 	for k,v in pairs(DB.getChildren("charsheet")) do
 		for _, card in pairs(DB.getChildren(v, CardManager.PLAYER_HAND_PATH)) do
-			Debug.chat(card);
 			if CardManager.getDeckIdFromCard(card) == tEventArgs.sDeckNode then
 				card.delete();
 			end
@@ -345,7 +345,7 @@ function onCardDroppedInChat(draginfo)
 
 	-- We specifically don't want to copy cards to storage here, since the message
 	-- handler will will copy it to chat. We only want to raise the event
-	DeckedOutEvents.raiseOnCardPlayedEvent(sRecord, DeckedOutUtilities.getFacedownHotkey(), tEventTrace)
+	CardManager.playCard(sRecord, DeckedOutUtilities.getFacedownHotkey(), tEventTrace)
 	return true;
 end
 

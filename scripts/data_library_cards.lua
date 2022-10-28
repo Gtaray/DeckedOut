@@ -20,5 +20,9 @@ function onInit()
 			class = "deckbox",
 			path = "deckbox"
 		});
+
+		-- Create the GM hand node if it doesn't exist
+	local node = DB.createNode(CardManager.GM_HAND_PATH);
+	node.setPublic(true);
 	end
 end

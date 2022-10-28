@@ -2,8 +2,11 @@ function loadDeck(sRecord)
 	local deckNode = DB.findNode(sRecord);
 	if deckNode then
 		local decklistNode = DB.createChild(getDatabaseNode(), "decks");
+		decklistNode.setPublic(true);
+
 		local newDeckNode = decklistNode.createChild();
 		DB.copyNode(deckNode, newDeckNode);
+		newDeckNode.setPublic(true);
 
 		local cardsNode = newDeckNode.getChild("cards");
 		local sDeckName = DB.getValue(newDeckNode, "name", "");
@@ -14,6 +17,7 @@ function loadDeck(sRecord)
 		end
 
 		local settings = newDeckNode.createChild("settings");
+		settings.setPublic(true);
 
 		for key,option in pairs(DeckManager.getSettingOptions()) do
 			if option.default then

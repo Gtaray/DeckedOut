@@ -34,17 +34,37 @@ function printCardPlayedMessage(tEventArgs, tEventTrace)
 	local sCardSource = CardManager.getCardSource(vCard);
 	if sCardSource == "storage" then return end
 
+	-- Check if this card is going to be discarded directly after playing
+	local bDiscard = false;
+	local vDeck = DeckedOutUtilities.validateDeck(CardManager.getDeckNodeFromCard(vCard));
+	if not vDeck then return end -- This would be weird
+
+	if CardManager.isCardInHand(vCard) then
+		bDiscard = DeckManager.getDeckSetting(vDeck, DeckManager.DECK_SETTING_AUTO_PLAY_FROM_HAND) == "yes";
+	elseif CardManager.isCardInDeck(vCard) then
+		bDiscard = DeckManager.getDeckSetting(vDeck, DeckManager.DECK_SETTING_AUTO_PLAY_FROM_DECK) == "yes";
+	end
+
 	-- In this case, everything is public so the two messages can be the same
 	local msg = {};
 	msg.type = DeckedOutMessages.OOB_MSGTYPE_PRINTCARDPLAYED;
 	msg.sender = sCardSource;
 	msg.action = "play";
+	msg.facedown = tEventArgs.bFacedown;
 
 	local sTextRes = "";
 	if bFacedown then
-		msg.text = Interface.getString("chat_msg_card_played_facedown");
+		if bDiscard then
+			msg.text = Interface.getString("chat_msg_card_played_discarded_facedown");
+		else
+			msg.text = Interface.getString("chat_msg_card_played_facedown");
+		end
 	else
-		msg.text = Interface.getString("chat_msg_card_played_faceup");
+		if bDiscard then
+			msg.text = Interface.getString("chat_msg_card_played_discarded_faceup");
+		else
+			msg.text = Interface.getString("chat_msg_card_played_faceup");
+		end
 	end
 
 	msg.text = string.format(msg.text, "[SENDER]", "[CARDNAME]");
@@ -79,6 +99,10 @@ function printCardDiscardedMessage(tEventArgs, tEventTrace)
 	if DeckedOutEvents.doesEventTraceContain(tEventTrace, DeckedOutEvents.DECKEDOUT_EVENT_HAND_DISCARDED) then
 		return;
 	end
+	-- Check if trace contains a played action, if so, don't print the message
+	if DeckedOutEvents.doesEventTraceContain(tEventTrace, DeckedOutEvents.DECKEDOUT_EVENT_CARD_PLAYED) then
+		return;
+	end
 
 	local bFacedown = tEventArgs.bFacedown == "true";
 
@@ -86,6 +110,7 @@ function printCardDiscardedMessage(tEventArgs, tEventTrace)
 	msg.type = DeckedOutMessages.OOB_MSGTYPE_PRINTCARDDISCARDED;
 	msg.sender = tEventArgs.sSender;
 	msg.action = "discard";
+	msg.facedown = tEventArgs.bFacedown;
 
 	local sTextRes = "";
 	if bFacedown then
@@ -168,9 +193,10 @@ function printCardGivenMessage(tEventArgs, tEventTrace)
 	msg.receiver = tEventArgs.sReceiver;
 	msg.card_link = vCard.getNodeName();
 	msg.action = "give";
+	msg.facedown = tEventArgs.bFacedown;
+
 	if bFacedown then
 		msg.text = Interface.getString("chat_msg_give_card_facedown");
-		msg.hide_card = "true";
 	else
 		msg.text = Interface.getString("chat_msg_give_card_faceup");
 	end
@@ -218,10 +244,8 @@ function printCardDealtMessage(tEventArgs, tEventTrace)
 	msg.receiver = tEventArgs.sReceiver;
 	msg.card_link = vCard.getNodeName();
 	msg.action = "deal";
-	
 	msg.text = Interface.getString("chat_msg_deal_card");
 	msg.text = string.format(msg.text, "[SENDER]", "[CARDNAME]", "[PRONOUN]");
-	msg.hide_card = "true";
 
 	Comm.deliverOOBMessage(msg, "");
 end
@@ -259,7 +283,6 @@ function printMultipleCardsDealtMessage(tEventArgs, tEventTrace)
 	-- it will always say the PC since we dealt them the card prior to this event
 	msg.sender = "gm"; 
 	msg.receiver = tEventArgs.sReceiver;
-	
 	msg.text = Interface.getString("chat_msg_deal_multiple_cards");
 	msg.text = string.format(msg.text, "[SENDER]", nCardsDealt, sCardPlural, "[PRONOUN]");
 
@@ -280,7 +303,6 @@ function printGroupDealMessage(tEventArgs, tEventTrace)
 	local msg = {};
 	-- The GM should always be the card source here
 	msg.sender = "gm"; 
-	
 	msg.text = Interface.getString("chat_msg_group_deal");
 	msg.text = string.format(msg.text, "[SENDER]", nCardsDealt, sCardPlural);
 
@@ -360,6 +382,14 @@ function resolveCardVisibility(msg, sSenderName, sReceiverName, sMessageId)
 
 	local vDeck = CardManager.getDeckNodeFromCard(msg.card_link);
 	if not vDeck then return true end -- Would be weird if this happened
+
+	-- We resolve facedown cards first because by default they're never visible
+	-- So it's facedown, we don't have to look any futher.
+	-- If you're the GM, we check to see if you should see other people playing face down cards
+	local bGmSeesFacedown = DeckManager.getDeckSetting(vDeck, DeckManager.DECK_SETTING_GM_SEE_FACEDOWN_CARDS) == "yes";
+	if msg.facedown == "true" then
+		return (sMessageId == "gm" and bGmSeesFacedown) or sSenderName == "you";
+	end
 
 	if msg.action == "deal" then
 		sSetting = DeckManager.getDeckSetting(vDeck, DeckManager.DECK_SETTING_DEAL_VISIBILITY);

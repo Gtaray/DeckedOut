@@ -4,6 +4,9 @@ PLAYER_HAND_PATH = "cards";
 OOB_MSGTYPE_DROPCARD = "dropcard";
 OOB_MSGTYPE_DISCARD = "discard"
 
+---@class CardManager
+---@field moveCard
+
 function onInit()
 	OOBManager.registerOOBMsgHandler(CardManager.OOB_MSGTYPE_DROPCARD, handleCardDrop);
 	OOBManager.registerOOBMsgHandler(CardManager.OOB_MSGTYPE_DISCARD, handleDiscard);
@@ -28,7 +31,6 @@ function moveCard(vCard, vDestination, tEventTrace)
 	vCard.delete();
 
 	tEventTrace = DeckedOutEvents.raiseOnCardMovedEvent(newNode.getNodeName(), sOldCardNode, tEventTrace);
-
 	return newNode;
 end
 
@@ -116,6 +118,10 @@ function putHandBackIntoDeck(sIdentity, tEventTrace)
 	end
 end
 
+---comment
+---@param vDeck databasenode databasenode or string
+---@param sIdentity string Identity of the actor performing this action
+---@param tEventTrace table
 function putCardsFromDeckInHandBackIntoDeck(vDeck, sIdentity, tEventTrace) 
 	if not DeckedOutUtilities.validateHost() then return end
 	local vDeck = DeckedOutUtilities.validateDeck(vDeck);
@@ -131,6 +137,32 @@ function putCardsFromDeckInHandBackIntoDeck(vDeck, sIdentity, tEventTrace)
 		if deckNode and deckid == sDeckId then
 			CardManager.moveCard(card, DeckManager.getCardsNode(deckNode), tEventTrace)
 		end
+	end
+end
+
+---Plays a card face up or face down. Depending on the settings for the card's deck, it will discard the card afterwards
+---@param vCard databasenode databasenode or string
+---@param bFacedown boolean default true
+---@param tEventTrace table
+function playCard(vCard, bFacedown, tEventTrace)
+	local vCard = DeckedOutUtilities.validateCard(vCard);
+	if not vCard then return end
+
+	local vDeck = DeckedOutUtilities.validateDeck(CardManager.getDeckNodeFromCard(vCard));
+	if not vDeck then return end
+
+	DeckedOutEvents.raiseOnCardPlayedEvent(vCard.getNodeName(), bFacedown, tEventTrace)
+
+	local bDiscard = false;
+	if CardManager.isCardInHand(vCard) then
+		bDiscard = DeckManager.getDeckSetting(vDeck, DeckManager.DECK_SETTING_AUTO_PLAY_FROM_HAND) == "yes";
+	elseif CardManager.isCardInDeck(vCard) then
+		bDiscard = DeckManager.getDeckSetting(vDeck, DeckManager.DECK_SETTING_AUTO_PLAY_FROM_DECK) == "yes";
+	end
+
+	if bDiscard then
+		local sIdentity = CardManager.getCardSource(vCard);
+		CardManager.discardCard(vCard, bFacedown, sIdentity, tEventTrace);
 	end
 end
 

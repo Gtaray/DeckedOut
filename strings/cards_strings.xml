@@ -108,7 +108,9 @@
 
 	<!-- Chat messages -->
 	<string name="chat_msg_card_played_faceup">%s played %s</string>
-	<string name="chat_msg_card_played_facedown">%s placed %s facedown</string>
+	<string name="chat_msg_card_played_facedown">%s played %s facedown</string>
+	<string name="chat_msg_card_played_discarded_faceup">%s played and discarded %s</string>
+	<string name="chat_msg_card_played_discarded_facedown">%s played and discarded %s facedown</string>
 	<string name="chat_msg_card_discarded_faceup">%s discarded %s</string>
 	<string name="chat_msg_card_discarded_facedown">%s discarded %s facedown</string>
 	<string name="chat_msg_discarded_hand">%s discarded %s hand</string>

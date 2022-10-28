@@ -6,13 +6,13 @@ end
 function onMenuSelection(selection)	
 	if selection == 3 then
 		-- Player face up
-		DeckedOutEvents.raiseOnCardPlayedEvent(node().getNodeName())
+		CardManager.playCard(node(), false, {})
 	elseif selection == 2 then
 		-- Play face down
-		DeckedOutEvents.raiseOnCardPlayedEvent(node().getNodeName(), true)
+		CardManager.playCard(node(), true, {})
 	elseif selection == 7 then
 		-- Discard card
-		CardManager.discardCard(node());
+		CardManager.discardCard(node(), false, CardManager.getCardSource(node()), {});
 	end
 end
 
@@ -36,7 +36,7 @@ end
 
 function onDoubleClick(x, y)
 	-- Show card in chat
-	DeckedOutEvents.raiseOnCardPlayedEvent(node().getNodeName(), DeckedOutUtilities.getFacedownHotkey())
+	CardManager.playCard(node(), DeckedOutUtilities.getFacedownHotkey(), {})
 end
 
 -- DRAGGING
