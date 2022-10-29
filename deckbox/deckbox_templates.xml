@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+	<template name="frame_deckbox">
+		<genericcontrol>
+			<frame name="groupbox" />
+		</genericcontrol>
+	</template>
+
+	<template name="label_column_deckbox">
+		<label>
+			<anchored to="columnanchor">
+				<top anchor="bottom" relation="current" offset="7" />
+				<left />
+				<right />
+			</anchored>
+		</label>
+	</template>
+
+	<template name="deckback">
+		<tokenfield>
+			<anchored height="252" width="180" />
+			<nodrag />
+			<script>
+				function onInit()
+					registerMenuItem(Interface.getString("deckbox_menu_view_deck_cards"), "deck", 3);
+					registerMenuItem(Interface.getString("deckbox_menu_view_discard_cards"), "discard", 4);
+				end
+				function onMenuSelection(selection)
+					if not Session.IsHost then
+						return;
+					end
+					if selection == 3 then
+						DesktopManager.openCardList(DeckManager.getCardsNode(window.getDatabaseNode()));
+					elseif selection == 4 then
+						DesktopManager.openCardList(DeckManager.getDiscardNode(window.getDatabaseNode()));
+					end
+				end
+				function onDragStart(button, x, y, draginfo)
+					local node = window.getDatabaseNode();
+					if Session.IsHost then
+						CardManager.onDragFromDeck(window.getDatabaseNode(), draginfo);
+						return true;
+					end
+				end
+				function onDrop(x, y, draginfo)
+					CardManager.onDropCard(draginfo, window.getDatabaseNode(), DeckManager.DECK_CARDS_PATH);
+				end
+			</script>
+		</tokenfield>
+	</template>
+
+	<template name="string_column_deckbox">
+		<stringcontrol>
+			<anchored to="columnanchor">
+				<top anchor="bottom" relation="relative" offset="7" />
+				<left offset="120" />
+				<right offset="-5" />
+			</anchored>
+		</stringcontrol>
+	</template>
+
+	<template name="header_deckbox">
+		<label>
+			<anchored to="columnanchor" height="20">
+				<top anchor="bottom" relation="relative" offset="10" />
+				<left offset="10" />
+				<right offset="-10" />
+			</anchored>
+			<frame name="headersimple" offset="10,3,10,3" />
+			<center />
+		</label>
+	</template>
+
+	<template name="button_column_deckbox">
+		<button_text>
+			<anchored to="columnanchor" height="20">
+				<top anchor="bottom" relation="relative" offset="12" />
+				<left offset="10" />
+				<right offset="-10" />
+			</anchored>
+		</button_text>
+	</template>
+
+	<template name="portrait_deckbox_base">
+		<genericcontrol>
+			<icon>charlist_base</icon>
+			<script file="common/scripts/leftClickOpensRadial.lua" />
+		</genericcontrol>
+	</template>
+	<template name="portrait_deckbox">
+		<portrait_deckbox_base>
+			<script file="deckbox/scripts/portrait_deckbox.lua" />
+		</portrait_deckbox_base>
+	</template>
+
+	<template name="setting_label">
+		<label_column>
+			<anchored width="300" />
+		</label_column>
+	</template>
+
+	<template name="combobox_setting">
+		<comboboxc>
+			<script file="deckbox/scripts/combobox_setting.lua" />
+			<anchored height="20">
+				<top parent="columnanchor" anchor="bottom" relation="relative" offset="7" />
+				<left offset="320" />
+				<right offset="-5" />
+			</anchored>
+			<listdirection>down</listdirection>
+		</comboboxc>
+	</template>
+</root>

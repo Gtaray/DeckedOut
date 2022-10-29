@@ -1,5 +1,5 @@
 function isOwner()
-	return DB.isOwner(window.getDatabaseNode());
+	return Session.IsHost or DB.isOwner(window.getDatabaseNode());
 end
 function onClickDown()
 	return self.isOwner();

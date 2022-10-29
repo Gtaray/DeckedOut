@@ -41,13 +41,13 @@
 
 	<windowclass name="card_main">
 		<margins control="0,0,0,2" />
-		<script file="campaign/scripts/record_card_main.lua" />
 		<sheetdata>			
 			<anchor_column name="columnanchor" />
 			<token_column name="image">
 				<nodrag />
-				<script file="common/scripts/onCardDrag_gm.lua" />
+				<script file="common/scripts/onCardDrag.lua" />
 				<anchored width="250" height="350" />
+				<gmdrag />
 			</token_column>
 		</sheetdata>
 	</windowclass>

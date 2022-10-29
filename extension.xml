@@ -15,7 +15,6 @@
 		<includefile source="campaign/record_deck.xml" />
 		<includefile source="campaign/record_card.xml" />
 		<includefile source="common/deck_templates.xml" />
-		<includefile source="common/deck_templates.xml" />
 
 		<includefile source="ct/ct_entries.xml" />
 
@@ -25,9 +24,9 @@
 
 		<includefile source="deckbox/deckbox.xml" />
 		<includefile source="deckbox/deckbox_settings.xml" />
-
-		<includefile source="utility/cardlist_viewer.xml" />
-		<includefile source="utility/utility_dialog_dealcards.xml" />
+		<includefile source="deckbox/cardlist_viewer.xml" />
+		<includefile source="deckbox/deckbox_templates.xml" />
+		<includefile source="deckbox/dialog_dealcards.xml" />
 
 		<!-- <includefile source="graphics/graphics_cards.xml" /> -->
 

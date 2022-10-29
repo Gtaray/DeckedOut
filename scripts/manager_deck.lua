@@ -254,9 +254,6 @@ DECK_SETTING_AUTO_PLAY_FROM_HAND = "autoplayfromhand";
 -- Should cards played from a deck be automatically discarded: yes or no
 -- Default: yes
 DECK_SETTING_AUTO_PLAY_FROM_DECK = "autoplayfromdeck";
--- Should cards dropped onto an image be auto played and disarded? No action, Play, play and discard
--- Default: play
-DECK_SETTING_ACTION_ON_IMAGE_DROP = "imagedropaction";
 
 local _tSettingOptions = {
 	[DECK_SETTING_DEAL_VISIBILITY] = {
@@ -311,15 +308,7 @@ local _tSettingOptions = {
 			{ sTextRes = "deckbox_setting_option_yes", sValue = "yes" },
 			{ sTextRes = "deckbox_setting_option_no", sValue = "no" },
 		}
-	},
-	[DECK_SETTING_ACTION_ON_IMAGE_DROP] = {
-		default = "play",
-		options = {
-			{ sTextRes = "deckbox_settings_option_image_action_noaction", sValue = "noaction" },
-			{ sTextRes = "deckbox_settings_option_image_action_play", sValue = "play" },
-			{ sTextRes = "deckbox_settings_option_image_action_playanddiscard", sValue = "playanddiscard" }
-		}
-	},
+	}
 }
 
 function getSettingOptions()

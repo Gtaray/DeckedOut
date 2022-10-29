@@ -3,20 +3,10 @@ TODO LIST:
 * Display icons in chat for card actions	
 	* Message data can have multiple icons, so this is basically easy
 * Make consistent the locations for various radial menu options (discard, view card list, deal, etc)
-* Clean up the Deck windowclass (it still looks pre-alpha)
-* re-implement 'play and discard' hotkey
 * Hand actions
 	* [ ] Discard at random (can also be used for 'play at random')
 	* [ ] Play at random
 	* [ ] Give to other person at random
-* Add per deck configuration
-	* [x] Toggle whether dealt cards should be hidden from GM (both the drag token and the message in chat)
-	* [x] Toggle whether discarded cards should be hidden from GM (both the drag token and the message in chat)
-	* [x] Toggle whether cards are played face up for face down by default (for drag/drop and doubleclick)
-	* [x] Toggle whether the GM can see cards played facedown in chat
-	* [x] Toggle whether dropping a card from a deck into chat automatically discards the card (as if it were played and discarded)
-	* [x] Toggle whether dropping a card from a hand into chat automatically discards the card (as if it were played and discarded)
-	* [ ] Toggle whether dropping a card from a deck onto an image automatically discards the card (as if it were played and discarded)
 
 ICONS
 Radial
@@ -54,6 +44,16 @@ STRETCH GOALS
 * Option toggle for automatically showing/hiding hand when switching characters? So rare this probably doesn't matter
 
 DONE
+* re-implement 'play and discard' hotkey
+* Add per deck configuration
+	* [x] Toggle whether dealt cards should be hidden from GM (both the drag token and the message in chat)
+	* [x] Toggle whether discarded cards should be hidden from GM (both the drag token and the message in chat)
+	* [x] Toggle whether cards are played face up for face down by default (for drag/drop and doubleclick)
+	* [x] Toggle whether the GM can see cards played facedown in chat
+	* [x] Toggle whether dropping a card from a deck into chat automatically discards the card (as if it were played and discarded)
+	* [x] Toggle whether dropping a card from a hand into chat automatically discards the card (as if it were played and discarded)
+* Clean up the Deck windowclass (it still looks pre-alpha)
+* Added an icon for when cards in hands or decks are missing tokens (like when you break a link)
 * Allow deck list and discard pile to be viewed concurrently
 * BUG: Dropping a card in the hotkey bar, then moving that card elsewhere, then clicking on the link again creates a dead card in the deck that can't be removed
 	* Fixed by making cards dropped in the hotkeybar link point to a card in storage. 

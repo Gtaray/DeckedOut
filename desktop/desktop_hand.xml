@@ -90,16 +90,8 @@
 			<token_card name="image">
 				<script file="desktop/scripts/desktop_card.lua" />
 			</token_card>
-			<genericcontrol name="highlight">
-				<frame>cardhighlight</frame>
-				<anchored to="image">
-					<top offset="0"/>
-					<bottom offset="0" />
-					<left offset="0" />
-					<right offset="0" />
-				</anchored>
-				<invisible />
-			</genericcontrol>
+			<icon_missing_token name="missingtoken" />
+			<card_highlight name="highlight" />
 		</sheetdata>
 	</windowclass>
 

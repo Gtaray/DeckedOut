@@ -142,10 +142,16 @@ end
 -----------------------------------------------------
 -- EVENT RAISERS
 -----------------------------------------------------
-function raiseOnCardPlayedEvent(sCardNode, bFacedown, tEventTrace)
+function raiseOnCardPlayedEvent(sCardNode, bFacedown, bDiscard, tEventTrace)
 	local tArgs = { sCardNode = sCardNode };
+	tArgs.bFacedown = "false";
 	if bFacedown then
 		tArgs.bFacedown = "true";
+	end
+
+	tArgs.bDiscard = "false";
+	if bDiscard then
+		tArgs.bDiscard = "true";
 	end
 	return DeckedOutEvents.raiseEvent(
 		DeckedOutEvents.DECKEDOUT_EVENT_CARD_PLAYED,
@@ -364,10 +370,29 @@ function onCardDroppedOnImage(cImageControl, x, y, draginfo)
 	if sClass ~= "card" then
 		return false;
 	end
-	local sToken = CardManager.getCardFront(sRecord);
+
+	local vCard = DeckedOutUtilities.validateCard(sRecord);
+	local sCardBack = CardManager.getCardBack(vCard);
+	
+	-- whether we place a card face down or face up is a bit tricky
+	-- If the card was dragged from its source with the hotkey pressed and is thus face down
+	-- then we always want to place face down
+	-- If the card was dragged from its source face up, then we want to place the card
+	-- respecting whether the facedown hotkey is currently pressed upon  dropping
+	local sToken = draginfo.getTokenData();
+	local bFacedown = sToken == sCardBack;
+
+	if DeckedOutUtilities.getFacedownHotkey() then
+		sToken = sCardBack;
+		bFacedown = true;
+	end
+
 	if sToken then
 		local token = cImageControl.addToken(sToken, x, y)
 		TokenManager.autoTokenScale(token);
+
+		CardManager.playCard(sRecord, bFacedown, {})
+
 		return token ~= nil;
 	end
 end

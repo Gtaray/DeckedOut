@@ -53,14 +53,34 @@
 
 	<windowclass name="cardlist_viewer_item">
 		<margins control="0,0,0,2" />
+		<script>
+			local bPopped = false;
+			
+			function onInit()
+				highlight.setEnabled(false);
+			end
+			
+			function onHover(hover)
+				if hover and not bPopped then
+					highlight.setVisible(true);
+					bPopped = true;
+				elseif not hover and bPopped then
+					highlight.setVisible(false);
+					bPopped = false;
+				end
+			end
+		</script>
 		<sheetdata>
-			<discardable_card_gm name="image">
+			<discardable_card name="image">
+				<script file="common/scripts/onCardDrag.lua" />
 				<nodrag />
 				<anchored height="140" width="100">
 					<top />
 					<left />
 				</anchored>
-			</discardable_card_gm>
+			</discardable_card>
+			<icon_missing_token name="missingtoken" />
+			<card_highlight name="highlight" />
 		</sheetdata>
 	</windowclass>
 </root>

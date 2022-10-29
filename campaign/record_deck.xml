@@ -3,10 +3,10 @@
 	<windowclass name="deck">
 		<frame>recordsheet</frame>
 		<placement>
-			<size width="320" height="457" />
+			<size width="320" height="480" />
 		</placement>
 		<sizelimits>
-			<minimum width="320" height="457" />
+			<minimum width="320" height="480" />
 			<dynamic />
 		</sizelimits>
 		<minimize>minimized_item</minimize>
@@ -45,7 +45,6 @@
 	</windowclass>
 
 	<windowclass name="deck_main">
-		<script file="campaign/scripts/record_deck_main.lua" />
 		<margins control="0,0,0,2" />
 		<sheetdata>			
 			<anchor_column name="columnanchor" />
@@ -91,7 +90,7 @@
 					<bottom offset="-5" />
 					<right offset="-13" />
 				</anchored>
-				<columns width="180" fillwidth="true" />
+				<columns width="105" fillwidth="true" />
 				<class>card_item</class>
 				<datasource>.cards</datasource>
 				<empty textres="deck_emptycards" font="list-empty" />
@@ -107,13 +106,13 @@
 		<margins control="0,0,0,5" />
 		<sheetdata>
 			<hs name="name" />
-			<dragable_card_gm name="image">
+			<token_card name="image">
 				<nodrag />
-				<anchored height="252" width="180">
+				<anchored height="140" width="100">
 					<top />
 					<left />
 				</anchored>
-			</dragable_card_gm>
+			</token_card>
 			<button_idelete name="idelete">
 				<script>
 					function onInit()

@@ -55,10 +55,6 @@
 	<string name="deckbox_settings_label_autoplay_from_deck">Automatically discard cards played from decks?</string>
 
 	<string name="deckbox_settings_header_misc">Miscellaneous</string>
-	<string name="deckbox_settings_label_action_on_image">Action taken when cards are dropped onto images</string>
-	<string name="deckbox_settings_option_image_action_noaction">No action</string>
-	<string name="deckbox_settings_option_image_action_play">Play card</string>
-	<string name="deckbox_settings_option_image_action_playanddiscard">Play and discard card</string>
 
 	<string name="deckbox_settings_option_gm">The GM</string>
 	<string name="deckbox_settings_option_everyone">Everyone</string>

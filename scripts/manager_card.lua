@@ -1,5 +1,3 @@
----@meta
-
 GM_HAND_PATH = "gmhand";
 PLAYER_HAND_PATH = "cards";
 
@@ -65,7 +63,14 @@ function discardCard(vCard, bFacedown, sIdentity, tEventTrace)
 	end
 
 	local vDeck = DeckedOutUtilities.validateDeck(CardManager.getDeckIdFromCard(vCard));
-	if not vDeck then return end
+	if not vDeck then
+		-- If there's no vDeck present, then this could be a case of a dead card
+		-- Check to see if it's other data is empty, and if so, delete it.
+		if (CardManager.getCardFront(vCard) or "") == "" then
+			vCard.delete();
+			return;
+		end
+	end
 
 	-- If for some reason identity is nil, set to GM, since only the GM can get to this point in the functions
 	if (sIdentity or "") == "" then
@@ -143,6 +148,7 @@ end
 ---@param vCard databasenode databasenode or string
 ---@param bFacedown boolean default true
 ---@param tEventTrace table
+---@alias CardManager.playCard function
 function playCard(vCard, bFacedown, tEventTrace)
 	local vCard = DeckedOutUtilities.validateCard(vCard);
 	if not vCard then return end
@@ -150,14 +156,19 @@ function playCard(vCard, bFacedown, tEventTrace)
 	local vDeck = DeckedOutUtilities.validateDeck(CardManager.getDeckNodeFromCard(vCard));
 	if not vDeck then return end
 
-	DeckedOutEvents.raiseOnCardPlayedEvent(vCard.getNodeName(), bFacedown, tEventTrace)
-
 	local bDiscard = false;
 	if CardManager.isCardInHand(vCard) then
 		bDiscard = DeckManager.getDeckSetting(vDeck, DeckManager.DECK_SETTING_AUTO_PLAY_FROM_HAND) == "yes";
 	elseif CardManager.isCardInDeck(vCard) then
 		bDiscard = DeckManager.getDeckSetting(vDeck, DeckManager.DECK_SETTING_AUTO_PLAY_FROM_DECK) == "yes";
 	end
+
+	-- The hotkey shoudl take presedence over any other options.
+	if DeckedOutUtilities.getPlayAndDiscardHotkey() then
+		bDiscard = true;
+	end
+
+	DeckedOutEvents.raiseOnCardPlayedEvent(vCard.getNodeName(), bFacedown, bDiscard, tEventTrace)
 
 	if bDiscard then
 		local sIdentity = CardManager.getCardSource(vCard);
@@ -380,7 +391,6 @@ function isActorHoldingCard(vCard, rActor)
 
 	return rActor.sCreatureNode == DB.getPath("charsheet", sSource);
 end
-
 ------------------------------------------
 -- DRAG DROP
 ------------------------------------------
@@ -404,9 +414,17 @@ function onDragCard(vCard, draginfo)
 	vCard = DeckedOutUtilities.validateCard(vCard);
 	if not vCard then return end
 
+	if (CardManager.getCardFront(vCard) or "") == "" then
+		return true;
+	end
+
 	draginfo.setType("shortcut");
 	draginfo.setShortcutData("card", vCard.getPath());
-	draginfo.setTokenData(DB.getValue(vCard, "image", ""))
+	if DeckedOutUtilities.getFacedownHotkey() then
+		draginfo.setTokenData(CardManager.getCardBack(vCard));
+	else
+		draginfo.setTokenData(DB.getValue(vCard, "image", ""));
+	end
 	draginfo.setDescription(DB.getValue(vCard, "name", ""));
 end
 

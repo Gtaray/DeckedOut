@@ -34,24 +34,14 @@ function printCardPlayedMessage(tEventArgs, tEventTrace)
 	local sCardSource = CardManager.getCardSource(vCard);
 	if sCardSource == "storage" then return end
 
-	-- Check if this card is going to be discarded directly after playing
-	local bDiscard = false;
-	local vDeck = DeckedOutUtilities.validateDeck(CardManager.getDeckNodeFromCard(vCard));
-	if not vDeck then return end -- This would be weird
-
-	if CardManager.isCardInHand(vCard) then
-		bDiscard = DeckManager.getDeckSetting(vDeck, DeckManager.DECK_SETTING_AUTO_PLAY_FROM_HAND) == "yes";
-	elseif CardManager.isCardInDeck(vCard) then
-		bDiscard = DeckManager.getDeckSetting(vDeck, DeckManager.DECK_SETTING_AUTO_PLAY_FROM_DECK) == "yes";
-	end
-
 	-- In this case, everything is public so the two messages can be the same
 	local msg = {};
 	msg.type = DeckedOutMessages.OOB_MSGTYPE_PRINTCARDPLAYED;
 	msg.sender = sCardSource;
 	msg.action = "play";
 	msg.facedown = tEventArgs.bFacedown;
-
+	
+	local bDiscard = tEventArgs.bDiscard == "true";
 	local sTextRes = "";
 	if bFacedown then
 		if bDiscard then

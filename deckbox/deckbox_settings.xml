@@ -92,18 +92,6 @@
 			<combobox_setting name="autoplay_from_deck" source="settings.autoplayfromdeck">
 				<parameter>DECK_SETTING_AUTO_PLAY_FROM_DECK</parameter>
 			</combobox_setting>
-
-			<header_column name="header_misc">
-				<static textres="deckbox_settings_header_misc" />
-				<center />
-			</header_column>
-			
-			<setting_label name="action_on_image_label">
-				<static textres="deckbox_settings_label_action_on_image" />
-			</setting_label>
-			<combobox_setting name="action_on_image" source="settings.imagedropaction">
-				<parameter>DECK_SETTING_ACTION_ON_IMAGE_DROP</parameter>
-			</combobox_setting>
 		</sheetdata>
 	</windowclass>
 </root>

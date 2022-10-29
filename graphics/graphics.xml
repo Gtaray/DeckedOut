@@ -17,6 +17,7 @@
 	<icon name="deal_multiple" file="graphics/radial/deal.png" />
 
 	<!-- Misc -->
+	<icon name="missing_token" file="graphics/icons/missing_token.png" />
 	<icon name="button_discard" file="graphics/radial/icon_delete.png" />
 
 	<!-- Frames -->

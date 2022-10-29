@@ -6,7 +6,7 @@
 			<size width="250" height="200" />
 		</placement>
 		<nodelete />
-		<script file="utility/scripts/dialog_dealcards.lua"/>
+		<script file="deckbox/scripts/dialog_dealcards.lua"/>
 		<sheetdata>
 			<windowtitlebar name="reftitle">
 				<resource>dealcards_dialog_title</resource>
