@@ -3,7 +3,7 @@
 	<announcement text="Loaded Decked Out v0.1" font="emotefont" />
 	<properties>
 		<name>Feature: Decked Out</name>
-		<version>0.6</version>
+		<version>0.7</version>
 		<author>George Taray</author>
 		<description>Adds decks of cards</description>
 		<ruleset>
