@@ -1,9 +1,4 @@
 aRecords = {
-	-- ["card"] = {
-	-- 	bExport = true,
-	-- 	bID = false,
-	-- 	aDataMap = { "card", "reference.cards" }
-	-- },
 	["deck"] = {
 		bExport = true,
 		bID = false,

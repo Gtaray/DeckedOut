@@ -39,7 +39,7 @@ function dealCard(vDeck, sIdentity, tEventTrace)
 		-- This makes sure that the trace stack is preserved, while still having the event fire second
 		tEventTrace = DeckedOutEvents.addEventTrace(tEventTrace, DeckedOutEvents.DECKEDOUT_EVENT_CARD_DEALT);
 		local card = CardManager.addCardToHand(aCards[1], sIdentity, tEventTrace);
-		DeckedOutEvents.raiseOnDealCardEvent(card.getNodeName(), sIdentity, tEventTrace);
+		DeckedOutEvents.raiseOnDealCardEvent(card, sIdentity, tEventTrace);
 		return card;
 	end
 end
@@ -58,7 +58,7 @@ function dealCards(vDeck, sIdentity, nCardAmount, tEventTrace)
 	
 	-- Raise the event first so that tEventTrace is updated and we don't get messages
 	-- in chat for every card dealt
-	tEventTrace = DeckedOutEvents.raiseOnMultipleCardsDealtEvent(vDeck.getNodeName(), nCardAmount, sIdentity, tEventTrace)
+	tEventTrace = DeckedOutEvents.raiseOnMultipleCardsDealtEvent(vDeck, nCardAmount, sIdentity, tEventTrace)
 
 	for i = 1, nCardAmount, 1 do
 		DeckManager.dealCard(vDeck, sIdentity, tEventTrace);
@@ -76,7 +76,7 @@ function dealCardsToActiveIdentities(vDeck, nCardAmount, tEventTrace)
 		return;
 	end
 
-	tEventTrace = DeckedOutEvents.raiseOnDealCardsToActiveIdentitiesEvent(vDeck.getNodeName(), nCardAmount, tEventTrace);
+	tEventTrace = DeckedOutEvents.raiseOnDealCardsToActiveIdentitiesEvent(vDeck, nCardAmount, tEventTrace);
 
 	for _,user in ipairs(User.getAllActiveIdentities()) do
 		DeckManager.dealCards(vDeck, user, nCardAmount, tEventTrace);
@@ -100,7 +100,7 @@ function setDeckSetting(vDeck, sKey, sValue, tEventTrace)
 	if not node then return end
 
 	local tEventTrace = DeckedOutEvents.raiseOnDeckSettingChangedEvent(
-		vDeck.getNodeName(), 
+		vDeck, 
 		sKey, 
 		node.getValue(),
 		sValue,

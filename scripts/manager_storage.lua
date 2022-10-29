@@ -27,7 +27,7 @@ function addCardToStorage(vCard, tEventTrace)
 	local sToken = CardManager.getCardFront(vCard);
 	_storage[sToken] = newCard;
 
-	tEventTrace = DeckedOutEvents.raiseOnCardAddedToStorageEvent(newCard.getNodeName(), tEventTrace);
+	tEventTrace = DeckedOutEvents.raiseOnCardAddedToStorageEvent(newCard, tEventTrace);
 
 	return newCard;
 end

@@ -27,7 +27,7 @@ function moveCard(vCard, vDestination, tEventTrace)
 	DB.copyNode(vCard, newNode);
 	vCard.delete();
 
-	tEventTrace = DeckedOutEvents.raiseOnCardMovedEvent(newNode.getNodeName(), sOldCardNode, tEventTrace);
+	tEventTrace = DeckedOutEvents.raiseOnCardMovedEvent(newNode, sOldCardNode, tEventTrace);
 	return newNode;
 end
 
@@ -44,7 +44,7 @@ function addCardToHand(vCard, sIdentity, tEventTrace)
 
 	tEventTrace = DeckedOutEvents.addEventTrace(tEventTrace, DeckedOutEvents.DECKEDOUT_EVENT_CARD_ADDED_TO_HAND);
 	local card = CardManager.moveCard(vCard, handNode, tEventTrace);
-	DeckedOutEvents.raiseOnCardAddedToHandEvent(card.getNodeName(), sIdentity, tEventTrace);
+	DeckedOutEvents.raiseOnCardAddedToHandEvent(card, sIdentity, tEventTrace);
 	
 	return card;
 end
@@ -79,14 +79,14 @@ function discardCard(vCard, bFacedown, sIdentity, tEventTrace)
 
 	tEventTrace = DeckedOutEvents.addEventTrace(tEventTrace, DeckedOutEvents.DECKEDOUT_EVENT_CARD_DISCARDED);
 	local card = CardManager.moveCard(vCard, DeckManager.getDiscardNode(vDeck), tEventTrace);
-	DeckedOutEvents.raiseOnDiscardFromHandEvent(card.getNodeName(), sIdentity, bFacedown, tEventTrace);
+	DeckedOutEvents.raiseOnDiscardFromHandEvent(card, sIdentity, bFacedown, tEventTrace);
 end
 
 -- Given an identity (either a user identity or 'gm'), this discards that users entire hand
 function discardHand(sIdentity, tEventTrace)
 	if not DeckedOutUtilities.validateIdentity(sIdentity) then return end
 
-	tEventTrace = DeckedOutEvents.raiseOnHandDiscardedEvent(sIdentity, "", tEventTrace);
+	tEventTrace = DeckedOutEvents.raiseOnHandDiscardedEvent(sIdentity, nil, tEventTrace);
 
 	for k,card in pairs(CardManager.getHandNode(sIdentity).getChildren()) do
 		CardManager.discardCard(card, true, sIdentity, tEventTrace);
@@ -98,8 +98,7 @@ function discardCardsInHandFromDeck(vDeck, sIdentity)
 	local vDeck = DeckedOutUtilities.validateDeck(vDeck);
 	if not DeckedOutUtilities.validateIdentity(sIdentity) then return end
 
-	local sDeckId = DeckManager.getDeckId(vDeck);
-	tEventTrace = DeckedOutEvents.raiseOnHandDiscardedEvent(sIdentity, sDeckId, tEventTrace);
+	tEventTrace = DeckedOutEvents.raiseOnHandDiscardedEvent(sIdentity, vDeck, tEventTrace);
 
 	for k,card in pairs(CardManager.getHandNode(sIdentity).getChildren()) do
 		if CardManager.getDeckIdFromCard(card) == sDeckId then
@@ -112,7 +111,7 @@ function putHandBackIntoDeck(sIdentity, tEventTrace)
 	if not DeckedOutUtilities.validateHost() then return end
 	if not DeckedOutItilities.validateIdentity(sIdentity) then return end
 
-	tEventTrace = DeckedOutEvents.raiseOnHandReturnedToDeckEvent(sIdentity, "", tEventTrace)
+	tEventTrace = DeckedOutEvents.raiseOnHandReturnedToDeckEvent(sIdentity, nil, tEventTrace)
 
 	for k,card in pairs(CardManager.getHandNode(sIdentity).getChildren()) do
 		local vDeck = DeckedOutUtilities.validateDeck(CardManager.getDeckIdFromCard(card));
@@ -132,8 +131,7 @@ function putCardsFromDeckInHandBackIntoDeck(vDeck, sIdentity, tEventTrace)
 	if not vDeck then return end
 	if not DeckedOutUtilities.validateIdentity(sIdentity) then return end
 
-	local sDeckId = DeckManager.getDeckId(vDeck);
-	tEventTrace = DeckedOutEvents.raiseOnHandReturnedToDeckEvent(sIdentity, sDeckId, tEventTrace)
+	tEventTrace = DeckedOutEvents.raiseOnHandReturnedToDeckEvent(sIdentity, vDeck, tEventTrace)
 
 	for k,card in pairs(CardManager.getHandNode(sIdentity).getChildren()) do
 		local deckid = CardManager.getDeckIdFromCard(card);
@@ -168,7 +166,7 @@ function playCard(vCard, bFacedown, tEventTrace)
 		bDiscard = true;
 	end
 
-	DeckedOutEvents.raiseOnCardPlayedEvent(vCard.getNodeName(), bFacedown, bDiscard, tEventTrace)
+	DeckedOutEvents.raiseOnCardPlayedEvent(vCard, bFacedown, bDiscard, tEventTrace)
 
 	if bDiscard then
 		local sIdentity = CardManager.getCardSource(vCard);
@@ -532,14 +530,14 @@ function handleAnyDrop(sSourceNode, sDestinationNode, sExtra)
 				local sGiverIdentity = CardManager.getCardSource(vCard);
 				tEventTrace = DeckedOutEvents.addEventTrace(tEventTrace, DeckedOutEvents.DECKEDOUT_EVENT_CARD_GIVEN);
 				local card = CardManager.addCardToHand(vCard, sReceivingIdentity, tEventTrace);
-				DeckedOutEvents.raiseOnGiveCardEvent(card.getNodeName(), sGiverIdentity, sReceivingIdentity, tEventTrace)
+				DeckedOutEvents.raiseOnGiveCardEvent(card, sGiverIdentity, sReceivingIdentity, tEventTrace)
 				return true;
 
 			-- If the card being dropped is currently in a deck or discard pile, we fire the deal event
 			elseif CardManager.isCardInDeck(vCard) or CardManager.isCardDiscarded(vCard) then
 				tEventTrace = DeckedOutEvents.addEventTrace(tEventTrace, DeckedOutEvents.DECKEDOUT_EVENT_CARD_DEALT);
 				local card = CardManager.addCardToHand(vCard, sReceivingIdentity, tEventTrace);
-				DeckedOutEvents.raiseOnDealCardEvent(card.getNodeName(), sReceivingIdentity, tEventTrace)
+				DeckedOutEvents.raiseOnDealCardEvent(card, sReceivingIdentity, tEventTrace)
 				return true;
 			end
 		else

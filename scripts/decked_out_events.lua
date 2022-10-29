@@ -41,11 +41,11 @@ function onClose()
 end
 
 function onDeckDeleted(nodeDeck)
-	DeckedOutEvents.raiseOnDeckDeletedEvent(nodeDeck.getNodeName(), {})
+	DeckedOutEvents.raiseOnDeckDeletedEvent(nodeDeck, {})
 end
 
 function onDeckAdded(nodeDeck)
-	DeckedOutEvents.raiseOnDeckCreatedEvent(nodeDeck.getNodeName(), {})
+	DeckedOutEvents.raiseOnDeckCreatedEvent(nodeDeck, {})
 end
 
 local _tEvents = {};
@@ -55,6 +55,12 @@ local _tEvents = {};
 ---@class eventData
 ---@field fCallback function The function that is called when the event is raised
 ---@field target string "host", "client", "immediate", or nil. Specifies where this callback will occur. Immediate will happen without an OOB message being sent.
+
+---@class eventMessage
+---@field type string OOB Message type
+---@field event string Event key to raise
+---@field args table Table of event arguments.
+---@field trace table Table for the event trace.
 
 ---Registers an event. 
 ---@param sEventKey string
@@ -67,15 +73,19 @@ function registerEvent(sEventKey, tEventData)
 	table.insert(_tEvents[sEventKey], tEventData);
 end
 
--- tArgs must be a table with only string values
--- tEventTrace must be a list of strings
--- Events are only raised if there are handlers for those events, but we still want to preserve the event trace
+---Raises an event, which either sends an OOB message or fire the event handler immmediately.
+---@param sEventKey string Event key for the event to raise
+---@param tArgs table Table of arguments that is passed to the event
+---@param tEventTrace table Integer indexed table of event keys that representing events that have been raised as part of a single user action.
+---@param bDontAddTrace boolean Flag for whether to add this event to the event trace. Used when you manually add an event to the trace
+---@return table tEventTrace Returns the tEventTrace table with the current event added to it 
 function raiseEvent(sEventKey, tArgs, tEventTrace, bDontAddTrace)
 	if not tEventTrace then
 		tEventTrace = {};
 	end
+
 	if not bDontAddTrace then
-		table.insert(tEventTrace, sEventKey);
+		tEventTrace = addEventTrace(tEventTrace, sEventKey);
 	end
 
 	local event = _tEvents[sEventKey];
@@ -105,6 +115,8 @@ function raiseEvent(sEventKey, tArgs, tEventTrace, bDontAddTrace)
 	return tEventTrace
 end
 
+---Handles the deckedoutevent OOB message. Runs any event handlers for the event
+---@param msg eventMessage OOB message handler
 function raiseEventHandler(msg)
 	local sEventKey = msg.event;
 	local args = {};
@@ -130,7 +142,10 @@ function raiseEventHandler(msg)
 	end
 end
 
--- This is kind of a hacky way to get around some order of operations problems in the call stack
+---Adds an entry to the event table
+---@param tEventTrace table Integer indexed table of event keys that representing events that have been raised as part of a single user action.
+---@param sEventKey string Event key for the event to raise
+---@return table tEventTrace Returns the tEventTrace table with the current event added to it 
 function addEventTrace(tEventTrace, sEventKey)
 	if not tEventTrace then
 		tEventTrace = {};
@@ -142,8 +157,15 @@ end
 -----------------------------------------------------
 -- EVENT RAISERS
 -----------------------------------------------------
-function raiseOnCardPlayedEvent(sCardNode, bFacedown, bDiscard, tEventTrace)
-	local tArgs = { sCardNode = sCardNode };
+
+---Raises the onCardPlayed event
+---@param vCard databasenode Card that is being played 
+---@param bFacedown boolean Is this card being played facedown?
+---@param bDiscard boolean Is this card being discarded after being played?
+---@param tEventTrace table Event trace table
+---@return table tEventTrace Event trace table
+function raiseOnCardPlayedEvent(vCard, bFacedown, bDiscard, tEventTrace)
+	local tArgs = { sCardNode = vCard.getNodeName() };
 	tArgs.bFacedown = "false";
 	if bFacedown then
 		tArgs.bFacedown = "true";
@@ -160,31 +182,44 @@ function raiseOnCardPlayedEvent(sCardNode, bFacedown, bDiscard, tEventTrace)
 	);
 end
 
--- vCard and vDestination are both card nodes, the former where it came from, and the latter where it is moved to
-function raiseOnCardMovedEvent(sCardNode, sOldCardNode, tEventTrace)
+---Raises the onCardMoved event.
+---@param vCard databasenode Card that is moved, AFTER the move takes place.
+---@param sOldCardNode string DB path for where the card came from BEFORE the move takes place.
+---@param tEventTrace table. Event trace table
+---@return table tEventTrace Event trace table
+function raiseOnCardMovedEvent(vCard, sOldCardNode, tEventTrace)
 	return DeckedOutEvents.raiseEvent(
 		DeckedOutEvents.DECKEDOUT_EVENT_CARD_MOVED, 
-		{ sCardNode = sCardNode, sOldCardNode = sOldCardNode },
+		{ sCardNode = vCard.getNodeName(), sOldCardNode = sOldCardNode },
 		tEventTrace
 	);
 end
 
--- vCard: card added to hand
--- sIdentity: identity of the user whose hand the card was added to. Either a user identity node name or "gm"
-function raiseOnCardAddedToHandEvent(sCardNode, sIdentity, tEventTrace)
+---Raises the onCardMoved event.
+---@param vCard databasenode Card that is added to hand, AFTER is is added to the hand
+---@param sIdentity string Character identity (or 'gm') of the person whose hand the card is being added to
+---@param tEventTrace table. Event trace table
+---@return table tEventTrace Event trace table
+function raiseOnCardAddedToHandEvent(vCard, sIdentity, tEventTrace)
 	return DeckedOutEvents.raiseEvent(
 		DeckedOutEvents.DECKEDOUT_EVENT_CARD_ADDED_TO_HAND, 
-		{ sCardNode = sCardNode, sIdentity = sIdentity },
+		{ sCardNode = vCard.getNodeName(), sIdentity = sIdentity },
 		tEventTrace,
 		true -- True because this event technically happens after moveCard, and by then the trace is already updated
 	);
 end
 
--- vCard: card discarded
--- sSender: identity (or 'gm') of the character that is doing the discarding
--- bFacedown: optional. If present, specifes that cards were discarded sight unseen
-function raiseOnDiscardFromHandEvent(sCardNode, sSender, bFacedown, tEventTrace)
-	local tArgs = { sCardNode = sCardNode, sSender = sSender };
+---Raises the onCardDiscard event
+---@param vCard databasenode Card being discarded, AFTER the move takes place
+---@param sIdentity string Character identity (or 'gm') of the person discarding the card
+---@param bFacedown boolean Is the card being discarded facedown?
+---@param tEventTrace table. Event trace table
+---@return table tEventTrace Event trace table
+function raiseOnDiscardFromHandEvent(vCard, sIdentity, bFacedown, tEventTrace)
+	vCard = DeckedOutUtilities.validateCard(vCard);
+	if not vCard then return end
+
+	local tArgs = { sCardNode = vCard.getNodeName(), sSender = sIdentity };
 	if bFacedown then
 		tArgs.bFacedown = "true";
 	end
@@ -198,10 +233,15 @@ end
 
 -- sIdentity: identity of the user whose hand to discard
 -- sDeckNode: optional. If present, specifies that only cards from this deck were discarded
-function raiseOnHandDiscardedEvent(sIdentity, sDeckNode, tEventTrace)
+---Raises the onHandSicarded event.
+---@param sIdentity string Character identity (or 'gm') of the person discarding their hand
+---@param vDeck databasenode optional. Deck node for which cards should be discarded
+---@param tEventTrace table. Event trace table
+---@return table tEventTrace Event trace table
+function raiseOnHandDiscardedEvent(sIdentity, vDeck, tEventTrace)
 	local tArgs = { sIdentity = sIdentity };
-	if (sDeckNode or "") ~= "" then
-		tArgs.sDeckNode = sDeckNode;
+	if vDeck then
+		tArgs.sDeckNode = vDeck.getNodeName();
 	end
 	return DeckedOutEvents.raiseEvent(
 		DeckedOutEvents.DECKEDOUT_EVENT_HAND_DISCARDED, 
@@ -210,12 +250,15 @@ function raiseOnHandDiscardedEvent(sIdentity, sDeckNode, tEventTrace)
 	);
 end
 
--- sIdentity: identity of the user whose hand returned to deck
--- sDeckNode: optional. if present, this specificies that only cards from this deck node were returned to the hand, not all.
-function raiseOnHandReturnedToDeckEvent(sIdentity, sDeckNode, tEventTrace)
+---Raises the onHandSicarded event.
+---@param sIdentity string Character identity (or 'gm') of the person discarding their hand
+---@param vDeck databasenode optional. Deck node for which cards should be discarded
+---@param tEventTrace table. Event trace table
+---@return table tEventTrace Event trace table
+function raiseOnHandReturnedToDeckEvent(sIdentity, vDeck, tEventTrace)
 	local tArgs = { sIdentity = sIdentity };
 	if (sDeckNode or "") ~= "" then
-		tArgs.sDeckNode = sDeckNode;
+		tArgs.sDeckNode = vDeck.getNodeName();
 	end
 	return DeckedOutEvents.raiseEvent(
 		DeckedOutEvents.DECKEDOUT_EVENT_HAND_PUT_BACK_IN_DECK, 
@@ -224,68 +267,109 @@ function raiseOnHandReturnedToDeckEvent(sIdentity, sDeckNode, tEventTrace)
 	);
 end
 
-function raiseOnGiveCardEvent(sCardNode, sGiverIdentity, sReceiverIdentity, tEventTrace)
+---Raises the onGiveCard event
+---@param vCard databasenode Card node for the card that's given, AFTER the move has taken place
+---@param sGiverIdentity string Character identity (or 'gm') for the person giving the card
+---@param sReceiverIdentity string Character identity (or 'gm') for the person receiving the card
+---@param tEventTrace table. Event trace table
+---@return table tEventTrace Event trace table
+function raiseOnGiveCardEvent(vCard, sGiverIdentity, sReceiverIdentity, tEventTrace)
 	return DeckedOutEvents.raiseEvent(
 		DeckedOutEvents.DECKEDOUT_EVENT_CARD_GIVEN, 
-		{ sCardNode = sCardNode, sGiver = sGiverIdentity, sReceiver = sReceiverIdentity },
+		{ sCardNode = vCard.getNodeName(), sGiver = sGiverIdentity, sReceiver = sReceiverIdentity },
 		tEventTrace,
 		true -- true because this event technically happens after addCardToHand, and by then the trace is already updated
 	);
 end
 
-function raiseOnDealCardEvent(sCardNode, sIdentity, tEventTrace)
+---Raises the onCardDeal event
+---@param vCard databasenode Card node for the card that's dealt, AFTER the move has taken place
+---@param sIdentity string Character identity (or 'gm') for the person receiving the card
+---@param tEventTrace table. Event trace table
+---@return table tEventTrace Event trace table
+function raiseOnDealCardEvent(vCard, sIdentity, tEventTrace)
 	return DeckedOutEvents.raiseEvent(
 		DeckedOutEvents.DECKEDOUT_EVENT_CARD_DEALT, 
-		{ sCardNode = sCardNode, sReceiver = sIdentity },
+		{ sCardNode = vCard.getNodeName(), sReceiver = sIdentity },
 		tEventTrace,
 		true -- true because this event technically happens after addCardToHand, and by then the trace is already updated
 	);
 end
 
-function raiseOnMultipleCardsDealtEvent(sDeckNode, nCardsDealt, sIdentity, tEventTrace)
+---Raises the onMultipleCardsDealt event
+---@param vDeck databasenode Deck node for the deck the cards are dealt from
+---@param nCardsDealt number Number of cards being dealt
+---@param sIdentity string Character identity (or 'gm') for the person receiving the dealt cards
+---@param tEventTrace table. Event trace table
+---@return table tEventTrace Event trace table
+function raiseOnMultipleCardsDealtEvent(vDeck, nCardsDealt, sIdentity, tEventTrace)
 	return DeckedOutEvents.raiseEvent(
 		DeckedOutEvents.DECKEDOUT_EVENT_MULTIPLE_CARDS_DEALT, 
-		{ sDeckNode = sDeckNode, nCardsDealt = nCardsDealt, sReceiver = sIdentity },
+		{ sDeckNode = vDeck.getNodeName(), nCardsDealt = nCardsDealt, sReceiver = sIdentity },
 		tEventTrace
 	);
 end
 
-function raiseOnDealCardsToActiveIdentitiesEvent(sDeckNode, nCardsDealt, tEventTrace)
+---Raises the onDealCardsToActiveIdentities event
+---@param vDeck databasenode Deck node for the deck the cards are dealt from
+---@param nCardsDealt number Number of cards being dealt
+---@param tEventTrace table. Event trace table
+---@return table tEventTrace Event trace table
+function raiseOnDealCardsToActiveIdentitiesEvent(vDeck, nCardsDealt, tEventTrace)
 	return DeckedOutEvents.raiseEvent(
 		DeckedOutEvents.DECKEDOUT_EVENT_GROUP_DEAL, 
-		{ sDeckNode = sDeckNode, nCardsDealt = nCardsDealt },
+		{ sDeckNode = vDeck.getNodeName(), nCardsDealt = nCardsDealt },
 		tEventTrace
 	);
 end
 
-function raiseOnCardAddedToStorageEvent(sCardNode, tEventTrace)
+---Raises the onCardAddedToStorage event
+---@param vCard databasenode Card node that is added to storage, AFTER the move event
+---@param tEventTrace table. Event trace table
+---@return table tEventTrace Event trace table
+function raiseOnCardAddedToStorageEvent(vCard, tEventTrace)
 	return DeckedOutEvents.raiseEvent(
 		DeckedOutEvents.DECKEDOUT_EVENT_CARD_ADDED_TO_STORAGE, 
-		{ sCardNode = sCardNode },
+		{ sCardNode = vCard.getNodeName() },
 		tEventTrace
 	);
 end
 
-function raiseOnDeckCreatedEvent(sDeckNode, tEventTrace)
+---Raises the onDeckCreated event
+---@param vDeck databasenode Deck node that was created
+---@param tEventTrace table. Event trace table
+---@return table tEventTrace Event trace table
+function raiseOnDeckCreatedEvent(vDeck, tEventTrace)
 	return DeckedOutEvents.raiseEvent(
 		DeckedOutEvents.DECKEDOUT_EVENT_DECK_CREATED, 
-		{ sDeckNode = sDeckNode },
+		{ sDeckNode = vDeck.getNodeName() },
 		tEventTrace
 	);
 end
 
-function raiseOnDeckDeletedEvent(sDeckNode, tEventTrace)
+---Raises the onDeckDeleted event
+---@param vDeck databasenode Deck node that was created
+---@param tEventTrace table. Event trace table
+---@return table tEventTrace Event trace table
+function raiseOnDeckDeletedEvent(vDeck, tEventTrace)
 	return DeckedOutEvents.raiseEvent(
 		DeckedOutEvents.DECKEDOUT_EVENT_DECK_DELETED, 
-		{ sDeckNode = sDeckNode },
+		{ sDeckNode = vDeck.getNodeName() },
 		tEventTrace
 	);
 end
 
-function raiseOnDeckSettingChangedEvent(sDeckNode, sSettingKey, sPreviousValue, sCurrentValue, tEventTrace)
+---Raises the onDeckSettingChanged event
+---@param vDeck databasenode Deck node for which the settring was changed
+---@param sSettingKey string Settings key that was changed
+---@param sPreviousValue string Previous value
+---@param sCurrentValue string Current value
+---@param tEventTrace table. Event trace table
+---@return table tEventTrace Event trace table
+function raiseOnDeckSettingChangedEvent(vDeck, sSettingKey, sPreviousValue, sCurrentValue, tEventTrace)
 	return DeckedOutEvents.raiseEvent(
 		DeckedOutEvents.DECKEDOUT_EVENT_DECK_SETTING_CHANGED, 
-		{ sDeckNode = sDeckNode, sSettingKey = sSettingKey, sPrev = sPreviousValue, sCur = sCurrentValue },
+		{ sDeckNode = vDeck.getNodeName(), sSettingKey = sSettingKey, sPrev = sPreviousValue, sCur = sCurrentValue },
 		tEventTrace
 	);
 end
@@ -311,10 +395,12 @@ end
 -----------------------------------------------------
 -- EVENT HANDLERS
 -----------------------------------------------------
--- This handles deleting cards that belong to decks that themselves are deleted
+---Handles deleting cards that belong to decks that themselves are deleted
+---@param tEventArgs table Event arguments table
+---@param tEventTrace table Event trace table
 function deleteCardsFromDecksThatAreDeleted(tEventArgs, tEventTrace)
 	-- We can't get the actual deck here because by the time this event fires,
-	-- the deck is gone
+	-- the deck is gone. So we use tEventArgs.sDeckNode
 	-- Go through all characters
 	for k,v in pairs(DB.getChildren("charsheet")) do
 		for _, card in pairs(DB.getChildren(v, CardManager.PLAYER_HAND_PATH)) do
@@ -335,6 +421,9 @@ end
 -----------------------------------------------------
 -- CARD DROP HANDLERS
 -----------------------------------------------------
+---Event for when a card is dropped in chat
+---@param draginfo dragdata Dragdata info
+---@return boolean bEndEvent If the return is true, the event is handled.
 function onCardDroppedInChat(draginfo)
 	local sClass,sRecord = draginfo.getShortcutData();
 	-- Only handle card drops
@@ -355,6 +444,10 @@ function onCardDroppedInChat(draginfo)
 	return true;
 end
 
+---Event for when a card is dropped on a token (on an image)
+---@param tokenCT string String prototype for the token the card was dropped on
+---@param draginfo dragdata Dragdata info
+---@return boolean bEndEvent If the return is true, the event is handled.
 function onCardDroppedOnToken(tokenCT, draginfo)
 	local nodeCT = CombatManager.getCTFromToken(tokenCT);
 	if not nodeCT then
@@ -364,6 +457,12 @@ function onCardDroppedOnToken(tokenCT, draginfo)
 	return CardManager.onDropCard(draginfo, nodeCT);
 end
 
+---Event for when a card token is dropped on an image
+---@param cImageControl imagecontrol Image control the token is dropped on
+---@param x number x coordinate of the drop location
+---@param y number y coordinate of the drop location
+---@param draginfo dragdata Dragdata information
+---@return boolean bEndEvent If the return is true, the event is handled.
 function onCardDroppedOnImage(cImageControl, x, y, draginfo)
 	local sClass,sRecord = draginfo.getShortcutData();
 	-- Only handle card drops
@@ -397,6 +496,9 @@ function onCardDroppedOnImage(cImageControl, x, y, draginfo)
 	end
 end
 
+---Event for when a card is dropped onto the hotkeybar
+---@param dragdata dragdata Dragdata info
+---@return boolean bEndEvent If the return is true, the event is handled.
 function onCardDroppedOnHotkey(dragdata)
 	local sClass,sRecord = dragdata.getShortcutData();
 	-- Only handle card drops
@@ -411,6 +513,10 @@ end
 -----------------------------------------------------
 -- HELPERS
 -----------------------------------------------------
+---Returns true if the provided event trace contains the given event key
+---@param tEventTrace table Event trace table
+---@param sEventName string Event key to search for
+---@return boolean bIncludes Returns true if the trace contains the given event, otherwise false
 function doesEventTraceContain(tEventTrace, sEventName)
 	for _,v in ipairs(tEventTrace) do
 		if v == sEventName then
