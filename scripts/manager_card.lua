@@ -163,7 +163,7 @@ function playCard(vCard, bFacedown, tEventTrace)
 		bDiscard = DeckManager.getDeckSetting(vDeck, DeckManager.DECK_SETTING_AUTO_PLAY_FROM_DECK) == "yes";
 	end
 
-	-- The hotkey shoudl take presedence over any other options.
+	-- The hotkey should take presedence over any other options.
 	if DeckedOutUtilities.getPlayAndDiscardHotkey() then
 		bDiscard = true;
 	end
