@@ -27,6 +27,10 @@ function addCardToStorage(vCard, tEventTrace)
 		return CardStorage.getCardFromStorage(vCard);
 	end
 
+	if not DeckedOutEvents.onCardAddedToStoragePreCheck(vCard) then
+		return;
+	end
+
 	local newCard = DB.copyNode(vCard, DB.createChild(CardStorage.getCardStorageNode()));
 	local sToken = CardManager.getCardFront(vCard);
 	_storage[sToken] = newCard;

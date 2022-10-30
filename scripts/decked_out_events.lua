@@ -48,13 +48,214 @@ function onDeckAdded(nodeDeck)
 	DeckedOutEvents.raiseOnDeckCreatedEvent(nodeDeck, {})
 end
 
+local _tEventPreChecks = {};
+-----------------------------------------------------
+-- PRE-CHECK REGISTRATION
+-----------------------------------------------------
+
+---Registers a function as a precheck to an event.
+---If the pre-check function returns false, then the event does not occur
+---Pre-check functions have a single parameter, tArgs, that varies from event to event 
+---@param sEventKey string
+---@param fPreCheckFunction function
+function registerPreCheck(sEventKey, fPreCheckFunction)
+	if not fPreCheckFunction[sEventKey] then
+		fPreCheckFunction[sEventKey] = {};
+	end
+
+	table.insert(fPreCheckFunction[sEventKey], fPreCheckFunction);
+end
+
+---Runs all registered pre check functions for a given event key
+---@param sEventKey string
+---@param tEventArgs table
+---@return boolean
+function runPreChecks(sEventKey, tEventArgs)
+	if not _tEventPreChecks[sEventKey] then 
+		return true;
+	end
+
+	for k,callback in ipairs(_tEventPreChecks[sEventKey]) do
+		if not callback(tEventArgs) then 
+			return false;
+		end
+	end
+
+	return true;
+end
+
+-----------------------------------------------------
+-- PRE-CHECK RUNNERS
+-----------------------------------------------------
+
+---Handles the onCardPlayed pre-checks
+---@param vCard databasenode
+---@param bFacedown boolean
+---@param bDiscard boolean
+---@return boolean
+function onCardPlayedPreCheck(vCard, bFacedown, bDiscard)
+	local tArgs = { sCardNode = vCard.getNodeName() };
+	tArgs.bFacedown = "false";
+	if bFacedown then
+		tArgs.bFacedown = "true";
+	end
+
+	tArgs.bDiscard = "false";
+	if bDiscard then
+		tArgs.bDiscard = "true";
+	end
+
+	return DeckedOutEvents.runPreChecks(
+		DeckedOutEvents.DECKEDOUT_EVENT_CARD_PLAYED, 
+		tArgs);
+end
+
+---Handles the onCardMoved pre-checks
+---@param vCard databasenode
+---@param sOldCardNode string
+---@return boolean
+function onCardMovedPreCheck(vCard, vDestination)
+	return DeckedOutEvents.runPreChecks(
+		DeckedOutEvents.DECKEDOUT_EVENT_CARD_MOVED, 
+		{ sCardNode = vCard.getNodeName(), sDestinationNode = vDestination.getNodeName() }
+	);
+end
+
+---Handles the onCardAddedToHand pre-checks
+---@param vCard databasendoe
+---@param sIdentity string
+---@return boolean
+function onCardAddedToHandPreCheck(vCard, sIdentity)
+	return DeckedOutEvents.runPreChecks(
+		DeckedOutEvents.DECKEDOUT_EVENT_CARD_ADDED_TO_HAND, 
+		{ sCardNode = vCard.getNodeName(), sIdentity = sIdentity }
+	);
+end
+
+---Handles the onCardDiscarded pre-checks
+---@param vCard databasenode
+---@param sIdentity string
+---@param bFacedown boolean
+---@return boolean
+function onCardDiscardedPreCheck(vCard, sIdentity, bFacedown)
+	local tArgs = { sCardNode = vCard.getNodeName(), sSender = sIdentity };
+	if bFacedown then
+		tArgs.bFacedown = "true";
+	end
+	return DeckedOutEvents.runPreChecks(
+		DeckedOutEvents.DECKEDOUT_EVENT_CARD_DISCARDED, 
+		tArgs
+	);
+end
+
+---Handles the onHandDiscarded pre-checks
+---@param sIdentity string
+---@param vDeck databasenode
+---@return boolean
+function onHandDiscardedPreCheck(sIdentity, vDeck)
+	local tArgs = { sIdentity = sIdentity };
+	if vDeck then
+		tArgs.sDeckNode = vDeck.getNodeName();
+	end
+	return DeckedOutEvents.runPreChecks(
+		DeckedOutEvents.DECKEDOUT_EVENT_HAND_DISCARDED, 
+		tArgs
+	);
+end
+
+---Handles the onHandReturnedToDeck pre-checks
+---@param sIdentity string
+---@param vDeck databasenode
+---@return boolean
+function onHandReturnedToDeckPreCheck(sIdentity, vDeck)
+	local tArgs = { sIdentity = sIdentity };
+	if vDeck then
+		tArgs.sDeckNode = vDeck.getNodeName();
+	end
+	return DeckedOutEvents.runPreChecks(
+		DeckedOutEvents.DECKEDOUT_EVENT_HAND_PUT_BACK_IN_DECK, 
+		tArgs
+	);
+end
+
+---Handles the onGiveCard pre-checks
+---@param vCard databasenode
+---@param sGiverIdentity string
+---@param sReceiverIdentity string
+---@return boolean
+function onGiveCardPreCheck(vCard, sGiverIdentity, sReceiverIdentity)
+	return DeckedOutEvents.runPreChecks(
+		DeckedOutEvents.DECKEDOUT_EVENT_CARD_GIVEN, 
+		{ sCardNode = vCard.getNodeName(), sGiver = sGiverIdentity, sReceiver = sReceiverIdentity }
+	);
+end
+
+---Handles the onCardDealt pre-checks
+---@param vDeck databasenode Deck that is being dealt from
+---@param vCard databasenode Card that would be dealt
+---@param sIdentity string
+---@return boolean
+function onDealCardPreCheck(vDeck, vCard, sIdentity)
+	return DeckedOutEvents.runPreChecks(
+		DeckedOutEvents.DECKEDOUT_EVENT_CARD_DEALT, 
+		{ sDeckNode = vDeck.getNodeName(), sCardNode = vCard.getNodeName(), sReceiver = sIdentity }
+	);
+end
+
+---Handles the onMultipleCardsDealt pre-checks
+---@param vDeck databasenode
+---@param nCardsDealt number
+---@param sIdentity string
+---@return boolean
+function onMultipleCardsDealtPreCheck(vDeck, nCardsDealt, sIdentity)
+	return DeckedOutEvents.runPreChecks(
+		DeckedOutEvents.DECKEDOUT_EVENT_MULTIPLE_CARDS_DEALT, 
+		{ sDeckNode = vDeck.getNodeName(), nCardsDealt = nCardsDealt, sReceiver = sIdentity }
+	);
+end
+
+---Handles the onCardsDealtToActiveIdentities pre-checks
+---@param vDeck any
+---@param nCardsDealt any
+---@return unknown
+function onCardsDealtToActiveIdentityPreCheck(vDeck, nCardsDealt)
+	return DeckedOutEvents.runPreChecks(
+		DeckedOutEvents.DECKEDOUT_EVENT_GROUP_DEAL, 
+		{ sDeckNode = vDeck.getNodeName(), nCardsDealt = nCardsDealt }
+	);
+end
+
+---Handles the onCardAddedToStorage pre-checks
+---@param vCard databasenode Card to be added to storage
+---@return boolean
+function onCardAddedToStoragePreCheck(vCard)
+	return DeckedOutEvents.runPreChecks(
+		DeckedOutEvents.DECKEDOUT_EVENT_CARD_ADDED_TO_STORAGE, 
+		{ sCardNode = vCard.getNodeName() }
+	);
+end
+
+---Handles the onDeckSettingChanged pre-checks
+---@param vDeck databasenode
+---@param sSettingKey string
+---@param sCurrentValue string
+---@param sNewValue string
+---@return boolean
+function onDeckSettingChangedPreCheck(vDeck, sSettingKey, sCurrentValue, sNewValue)
+	return DeckedOutEvents.runPreChecks(
+		DeckedOutEvents.DECKEDOUT_EVENT_DECK_SETTING_CHANGED, 
+		{ sDeckNode = vDeck.getNodeName(), sSettingKey = sSettingKey, sNew = sNewValue, sCur = sCurrentValue },
+		tEventTrace
+	);
+end
+
 local _tEvents = {};
 -----------------------------------------------------
 -- EVENT REGISTRATION
 -----------------------------------------------------
 ---@class eventData
 ---@field fCallback function The function that is called when the event is raised
----@field target string "host", "client", "immediate", or nil. Specifies where this callback will occur. Immediate will happen without an OOB message being sent.
+---@field target string "host", "client", or nil. Specifies where this callback will occur.
 
 ---@class eventMessage
 ---@field type string OOB Message type
@@ -195,7 +396,7 @@ function raiseOnCardMovedEvent(vCard, sOldCardNode, tEventTrace)
 	);
 end
 
----Raises the onCardMoved event.
+---Raises the onCardAddedToHand event.
 ---@param vCard databasenode Card that is added to hand, AFTER is is added to the hand
 ---@param sIdentity string Character identity (or 'gm') of the person whose hand the card is being added to
 ---@param tEventTrace table. Event trace table
@@ -216,9 +417,6 @@ end
 ---@param tEventTrace table. Event trace table
 ---@return table tEventTrace Event trace table
 function raiseOnDiscardFromHandEvent(vCard, sIdentity, bFacedown, tEventTrace)
-	vCard = DeckedOutUtilities.validateCard(vCard);
-	if not vCard then return end
-
 	local tArgs = { sCardNode = vCard.getNodeName(), sSender = sIdentity };
 	if bFacedown then
 		tArgs.bFacedown = "true";

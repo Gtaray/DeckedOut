@@ -25,6 +25,10 @@ function moveCard(vCard, vDestination, tEventTrace)
 	vDestination = DeckedOutUtilities.validateNode(vDestination, "vDestination");
 	if not vDestination then return end
 
+	if not DeckedOutEvents.onCardMovedPreCheck(vCard, vDestination) then
+		return;
+	end
+
 	local sOldCardNode = vCard.getNodeName();
 	local newNode = DB.createChild(vDestination);
 	DB.copyNode(vCard, newNode);
@@ -46,6 +50,10 @@ function addCardToHand(vCard, sIdentity, tEventTrace)
 	if not DeckedOutUtilities.validateIdentity(sIdentity) then return end;
 	local handNode = DeckedOutUtilities.validateHandNode(sIdentity);
 	if not handNode then return end
+
+	if not DeckedOutEvents.onCardAddedToHandPreCheck(vCard, sIdentity) then
+		return;
+	end
 
 	tEventTrace = DeckedOutEvents.addEventTrace(tEventTrace, DeckedOutEvents.DECKEDOUT_EVENT_CARD_ADDED_TO_HAND);
 	local card = CardManager.moveCard(vCard, handNode, tEventTrace);
@@ -87,6 +95,10 @@ function discardCard(vCard, bFacedown, sIdentity, tEventTrace)
 		sIdentity = "gm";
 	end
 
+	if not DeckedOutEvents.onCardDiscardedPreCheck(vCard, sIdentity) then
+		return;
+	end
+
 	tEventTrace = DeckedOutEvents.addEventTrace(tEventTrace, DeckedOutEvents.DECKEDOUT_EVENT_CARD_DISCARDED);
 	local card = CardManager.moveCard(vCard, DeckManager.getDiscardNode(vDeck), tEventTrace);
 	DeckedOutEvents.raiseOnDiscardFromHandEvent(card, sIdentity, bFacedown, tEventTrace);
@@ -97,6 +109,10 @@ end
 ---@param tEventTrace table Event trace table
 function discardHand(sIdentity, tEventTrace)
 	if not DeckedOutUtilities.validateIdentity(sIdentity) then return end
+
+	if not DeckedOutEvents.onHandDiscardedPreCheck(sIdentity) then
+		return;
+	end
 
 	tEventTrace = DeckedOutEvents.raiseOnHandDiscardedEvent(sIdentity, nil, tEventTrace);
 
@@ -115,6 +131,10 @@ function discardCardsInHandFromDeck(vDeck, sIdentity, tEventTrace)
 	local vDeck = DeckedOutUtilities.validateDeck(vDeck);
 	if not DeckedOutUtilities.validateIdentity(sIdentity) then return end
 
+	if not DeckedOutEvents.onHandDiscardedPreCheck(sIdentity, vDeck) then
+		return;
+	end
+
 	tEventTrace = DeckedOutEvents.raiseOnHandDiscardedEvent(sIdentity, vDeck, tEventTrace);
 
 	for k,card in pairs(CardManager.getHandNode(sIdentity).getChildren()) do
@@ -131,6 +151,10 @@ end
 function putHandBackIntoDeck(sIdentity, tEventTrace)
 	if not DeckedOutUtilities.validateHost() then return end
 	if not DeckedOutItilities.validateIdentity(sIdentity) then return end
+
+	if not DeckedOutEvents.onHandReturnedToDeckPreCheck(sIdentity) then
+		return;
+	end
 
 	tEventTrace = DeckedOutEvents.raiseOnHandReturnedToDeckEvent(sIdentity, nil, tEventTrace)
 
@@ -152,6 +176,10 @@ function putCardsFromDeckInHandBackIntoDeck(vDeck, sIdentity, tEventTrace)
 	local vDeck = DeckedOutUtilities.validateDeck(vDeck);
 	if not vDeck then return end
 	if not DeckedOutUtilities.validateIdentity(sIdentity) then return end
+
+	if not DeckedOutEvents.onHandReturnedToDeckPreCheck(sIdentity, vDeck) then
+		return;
+	end
 
 	tEventTrace = DeckedOutEvents.raiseOnHandReturnedToDeckEvent(sIdentity, vDeck, tEventTrace)
 
@@ -186,6 +214,10 @@ function playCard(vCard, bFacedown, tEventTrace)
 	-- The hotkey should take presedence over any other options.
 	if DeckedOutUtilities.getPlayAndDiscardHotkey() then
 		bDiscard = true;
+	end
+
+	if not DeckedOutEvents.onCardPlayedPreCheck(vCard, bFacedown, bDiscard) then
+		return;
 	end
 
 	DeckedOutEvents.raiseOnCardPlayedEvent(vCard, bFacedown, bDiscard, tEventTrace)

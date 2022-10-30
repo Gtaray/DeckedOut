@@ -36,8 +36,11 @@ function dealCard(vDeck, sIdentity, tEventTrace)
 	if not DeckedOutUtilities.validateIdentity(sIdentity) then return end
 	
 	local aCards = DeckManager.getRandomCardsInDeck(vDeck, 1);
-
 	if aCards and aCards[1] then
+		if not DeckedOutEvents.onDealCardPreCheck(vDeck, aCards[1], sIdentity) then
+			return;
+		end
+
 		-- We place a trace event above the addCardToHand call since that call generates more events
 		-- We can't call the raise event before addCardToHand, because the card isn't in the hand, yet
 		-- and sCardNode would be nil by the time a handler got to it otherwise (as it was moved from the deck)
@@ -64,6 +67,10 @@ function dealCards(vDeck, sIdentity, nCardAmount, tEventTrace)
 	if nCardAmount < 1 then
 		return;
 	end
+
+	if not DeckedOutEvents.onMultipleCardsDealtPreCheck(vDeck, nCardAmount, sIdentity) then
+		return;
+	end
 	
 	-- Raise the event first so that tEventTrace is updated and we don't get messages
 	-- in chat for every card dealt
@@ -85,6 +92,10 @@ function dealCardsToActiveIdentities(vDeck, nCardAmount, tEventTrace)
 
 	-- No idea why this would happen, but if it does, don't do anything
 	if nCardAmount < 1 then
+		return;
+	end
+
+	if not DeckedOutEvents.onCardsDealtToActiveIdentityPreCheck(vDeck, nCardAmount) then
 		return;
 	end
 
@@ -115,6 +126,10 @@ function setDeckSetting(vDeck, sKey, sValue, tEventTrace)
 	local node = DB.getChild(settings, sKey);
 	node = DeckedOutUtilities.validateNode(node, "settingNode");
 	if not node then return end
+
+	if not DeckedOutEvents.onDeckSettingChangedPreCheck(vDeck, sKey, node.getValue(), sValue) then
+		return;
+	end
 
 	local tEventTrace = DeckedOutEvents.raiseOnDeckSettingChangedEvent(
 		vDeck, 
