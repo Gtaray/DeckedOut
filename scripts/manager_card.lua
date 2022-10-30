@@ -117,6 +117,7 @@ function discardCardsInHandFromDeck(vDeck, sIdentity, tEventTrace)
 
 	tEventTrace = DeckedOutEvents.raiseOnHandDiscardedEvent(sIdentity, vDeck, tEventTrace);
 
+	sDeckId = DeckManager.getDeckId(vDeck);
 	for k,card in pairs(CardManager.getHandNode(sIdentity).getChildren()) do
 		if CardManager.getDeckIdFromCard(card) == sDeckId then
 			CardManager.discardCard(card, false, tEventTrace);
