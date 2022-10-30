@@ -12,9 +12,12 @@ end
 ------------------------------------------
 -- COMMON FUNCTIONS
 ------------------------------------------
--- Moves a card from one place to another. 
--- vCard is the card to move.
--- vDestination is the node to move it to
+
+---Moves a card from one place to another. Raises the onCardMoved event
+---@param vCard databasenode|string
+---@param vDestination databasenode Node under which the card node is moved to
+---@param tEventTrace table Event trace table
+---@return databasenode cardNode The card node in its new location
 function moveCard(vCard, vDestination, tEventTrace)
 	if not DeckedOutUtilities.validateHost() then return end
 	vCard = DeckedOutUtilities.validateCard(vCard);
@@ -31,9 +34,11 @@ function moveCard(vCard, vDestination, tEventTrace)
 	return newNode;
 end
 
--- Adds a given card to someone's hand
--- vCard is the card to move
--- sIdentity is either user identity (character sheet node name) or "gm"
+---Adds a card to an identity's hand. Raises the onCardAddedToHand event
+---@param vCard databasenode|string
+---@param sIdentity string Character identity (or 'gm') for the person receiving the card
+---@param tEventTrace table Event trace table
+---@return databasenode cardNode The card node in its new location
 function addCardToHand(vCard, sIdentity, tEventTrace)
 	if not DeckedOutUtilities.validateHost() then return end
 	vCard = DeckedOutUtilities.validateCard(vCard);
@@ -49,9 +54,14 @@ function addCardToHand(vCard, sIdentity, tEventTrace)
 	return card;
 end
 
--- Discards the given card from wherever it is located.
--- The actual discarding has to be done on the host since clients don't have access to the deckbox (where the discard pile is)
--- sIdentity is optional, and should only be present if a player is discarding a card, because the GM has to do the actual disarding, this param is how custody is preserved
+---Discards the given card from wherever it is located. 
+---If a client calls this function, an OOB message is generated and sent 
+---to the host to perform the actual moving of the databasenode.
+---Raises the onCardDiscarded event
+---@param vCard databasenode|string
+---@param bFacedown boolean Is the card discarded face down
+---@param sIdentity string Character identity or ('gm') for the person discarding the card.
+---@param tEventTrace table Event trace table
 function discardCard(vCard, bFacedown, sIdentity, tEventTrace)
 	vCard = DeckedOutUtilities.validateCard(vCard);
 	if not vCard then return end
@@ -82,7 +92,9 @@ function discardCard(vCard, bFacedown, sIdentity, tEventTrace)
 	DeckedOutEvents.raiseOnDiscardFromHandEvent(card, sIdentity, bFacedown, tEventTrace);
 end
 
--- Given an identity (either a user identity or 'gm'), this discards that users entire hand
+---Discards a character's entire hand. Raises the onHandDiscarded event
+---@param sIdentity string Character identity (or 'gm') for the person discarding their hand
+---@param tEventTrace table Event trace table
 function discardHand(sIdentity, tEventTrace)
 	if not DeckedOutUtilities.validateIdentity(sIdentity) then return end
 
@@ -93,7 +105,12 @@ function discardHand(sIdentity, tEventTrace)
 	end
 end
 
-function discardCardsInHandFromDeck(vDeck, sIdentity)
+---Discards all cards in a charaters hand that originated from a specific deck.
+---Raises the onHandDiscarded event
+---@param vDeck databasenode|string Deck whose cards should be discarded
+---@param sIdentity string Character identity (or 'gm') for the person discarding their hand
+---@param tEventTrace table Event trace table
+function discardCardsInHandFromDeck(vDeck, sIdentity, tEventTrace)
 	if not DeckedOutUtilities.validateHost() then return end
 	local vDeck = DeckedOutUtilities.validateDeck(vDeck);
 	if not DeckedOutUtilities.validateIdentity(sIdentity) then return end
@@ -107,6 +124,10 @@ function discardCardsInHandFromDeck(vDeck, sIdentity)
 	end
 end
 
+---Puts all cards in a character's hand back into the appropriate decks.
+---Raises the onHandReturnedToDeck event
+---@param sIdentity string Character identity (or 'gm') for the person performing this action
+---@param tEventTrace table Event trace table
 function putHandBackIntoDeck(sIdentity, tEventTrace)
 	if not DeckedOutUtilities.validateHost() then return end
 	if not DeckedOutItilities.validateIdentity(sIdentity) then return end
@@ -121,10 +142,11 @@ function putHandBackIntoDeck(sIdentity, tEventTrace)
 	end
 end
 
----comment
----@param vDeck databasenode databasenode or string
----@param sIdentity string Identity of the actor performing this action
----@param tEventTrace table
+---Returns all cards in a person's hand of a given deck
+---Raises the onHandReturnedToDeck event
+---@param vDeck databasenode|string Deck node whose cards should be returned to the deck
+---@param sIdentity string Character identity (or 'gm') of the actor performing this action
+---@param tEventTrace table Even trace table
 function putCardsFromDeckInHandBackIntoDeck(vDeck, sIdentity, tEventTrace) 
 	if not DeckedOutUtilities.validateHost() then return end
 	local vDeck = DeckedOutUtilities.validateDeck(vDeck);
@@ -143,10 +165,10 @@ function putCardsFromDeckInHandBackIntoDeck(vDeck, sIdentity, tEventTrace)
 end
 
 ---Plays a card face up or face down. Depending on the settings for the card's deck, it will discard the card afterwards
----@param vCard databasenode databasenode or string
+-- Raises the onCardPlayed event
+---@param vCard databasenode|string
 ---@param bFacedown boolean default true
 ---@param tEventTrace table
----@alias CardManager.playCard function
 function playCard(vCard, bFacedown, tEventTrace)
 	local vCard = DeckedOutUtilities.validateCard(vCard);
 	if not vCard then return end
@@ -177,10 +199,17 @@ end
 ------------------------------------------
 -- HAND FUNCTIONS
 ------------------------------------------
+
+---Gets the hand database node for a given identity
+---@param sIdentity string Character identity (or 'gm')
+---@return databasenode
 function getHandNode(sIdentity)
 	return DB.createNode(CardManager.getHandPath(sIdentity));
 end
 
+---Returns the full DB path for an identity's hand node
+---@param sIdentity string Character identity (or 'gm')
+---@return string dbPath
 function getHandPath(sIdentity)
 	if not DeckedOutUtilities.validateIdentity(sIdentity) then return end
 
@@ -191,16 +220,26 @@ function getHandPath(sIdentity)
 	end
 end
 
+---Gets a list of all cards in an identity's hand
+---@param sIdentity string Character identity (or 'gm')
+---@return table cards A table of card database nodes, indexed by the node name
 function getCardsInHand(sIdentity)
 	local handNode = CardManager.getHandNode(sIdentity);
 	return DB.getChildren(handNode);
 end
 
+---Gets the number of cards in an identity's hand
+---@param sIdentity string Character identity (or 'gm')
+---@return number
 function getNumberOfCardsInHand(sIdentity)
 	if not DeckedOutUtilities.validateIdentity(sIdentity) then return end
 	return CardManager.getHandNode(sIdentity).getChildCount();
 end
 
+---Gets the number of cards in an identity's hand that originate from a specific deck
+---@param vDeck databasenode|string
+---@param sIdentity string Character identity (or 'gm')
+---@return number
 function getNumberOfCardsFromDeckInHand(vDeck, sIdentity)
 	local vDeck = DeckedOutUtilities.validateDeck(vDeck);
 	if not vDeck then return end
@@ -223,6 +262,11 @@ end
 -- DISCARD
 ------------------------------------------
 
+---Internal use only. Clients send this OOB message when they discard a card
+---@param vCard databasenode Card being discarded
+---@param bFacedown boolean
+---@param sIdentity string Character identity (or 'gm')
+---@param tEventTrace Event trace table
 function sendDiscardMsg(vCard, bFacedown, sIdentity, tEventTrace)
 	local msg = {};
 	msg.type = CardManager.OOB_MSGTYPE_DISCARD;
@@ -238,6 +282,8 @@ function sendDiscardMsg(vCard, bFacedown, sIdentity, tEventTrace)
 	Comm.deliverOOBMessage(msg, "");
 end
 
+---Internal use only. Receives the OOB message a client sends when they discard a card
+---@param msgOOB table OOB message table
 function handleDiscard(msgOOB)
 	-- Only the GM should handle this
 	if not Session.IsHost then
@@ -261,6 +307,10 @@ end
 ------------------------------------------
 -- CARD STATES
 ------------------------------------------
+
+---Checks if a card is currently located in a deck
+---@param vCard databasenode|string
+---@return boolean
 function isCardInDeck(vCard)
 	vCard = DeckedOutUtilities.validateCard(vCard);
 	if not vCard then return end
@@ -269,6 +319,9 @@ function isCardInDeck(vCard)
 	return StringManager.startsWith(vCard.getNodeName(), "deckbox") and sNodeParentName == DeckManager.DECK_CARDS_PATH;
 end
 
+---Checks if a card is currently discarded
+---@param vCard databasenode|string
+---@return boolean
 function isCardDiscarded(vCard)
 	vCard = DeckedOutUtilities.validateCard(vCard);
 	if not vCard then return end
@@ -277,6 +330,9 @@ function isCardDiscarded(vCard)
 	return StringManager.startsWith(vCard.getNodeName(), "deckbox") and sNodeParentName == DeckManager.DECK_DISCARD_PATH;
 end
 
+---Checks if a card is currently in someone's hand
+---@param vCard databasenode|string
+---@return boolean
 function isCardInHand(vCard)
 	vCard = DeckedOutUtilities.validateCard(vCard);
 	if not vCard then return end
@@ -284,18 +340,27 @@ function isCardInHand(vCard)
 	return CardManager.isCardOwnedByCharacter(vCard) or CardManager.isCardOwnedByGm(vCard);
 end
 
+---Checks if a card is currently in a character's hand
+---@param vCard databasenode|string
+---@return boolean
 function isCardOwnedByCharacter(vCard)
 	vCard = DeckedOutUtilities.validateCard(vCard);
 	if not vCard then return end
 	return StringManager.startsWith(vCard.getNodeName(), "charsheet");
 end
 
+---Checks if a card is currently in the GM's hand
+---@param vCard databasenode|string
+---@return boolean
 function isCardOwnedByGm(vCard)
 	vCard = DeckedOutUtilities.validateCard(vCard);
 	if not vCard then return end
 	return StringManager.startsWith(vCard.getNodeName(), CardManager.GM_HAND_PATH);
 end
 
+---Gets the full database path of the deck from which a card originates
+---@param vCard databasenode|string
+---@return string
 function getDeckIdFromCard(vCard)
 	vCard = DeckedOutUtilities.validateCard(vCard);
 	if not vCard then return end
@@ -303,6 +368,9 @@ function getDeckIdFromCard(vCard)
 	return DB.getValue(vCard, "deckid", "");
 end
 
+---Gets the database node of the deck from which a card originates
+---@param vCard databasenode|string
+---@return databasenode
 function getDeckNodeFromCard(vCard)
 	vCard = DeckedOutUtilities.validateCard(vCard);
 	if not vCard then return end
@@ -310,6 +378,9 @@ function getDeckNodeFromCard(vCard)
 	return DeckedOutUtilities.validateDeck(CardManager.getDeckIdFromCard(vCard));
 end
 
+---Gets the name of the deck from which a card originates
+---@param vCard databasenode|string
+---@return string
 function getDeckNameFromCard(vCard)
 	vCard = DeckedOutUtilities.validateCard(vCard);
 	if not vCard then return end
@@ -317,6 +388,10 @@ function getDeckNameFromCard(vCard)
 	return DB.getValue(vCard, "deckname", "");
 end
 
+---Checks whether a card comes from a specific deck
+---@param vDeck databasenode|string
+---@param vCard databasenode|string
+---@return boolean
 function doesCardComeFromDeck(vDeck, vCard)
 	vCard = DeckedOutUtilities.validateCard(vCard);
 	if not vCard then return end
@@ -327,6 +402,9 @@ function doesCardComeFromDeck(vDeck, vCard)
 		   CardManager.getDeckNameFromCard(vCard) == CardManager.getDeckName(vDeck);
 end
 
+---Gets the token prototype for the back of a card's deck
+---@param vCard databasenode|string
+---@return string sTokenPrototype
 function getCardBack(vCard)
 	vCard = DeckedOutUtilities.validateCard(vCard);
 	if not vCard then return end
@@ -334,6 +412,9 @@ function getCardBack(vCard)
 	return DeckManager.getDecksCardBack(CardManager.getDeckIdFromCard(vCard));
 end
 
+---Gets the token prototype for a card
+---@param vCard databasenode|string
+---@return string sTokenPrototype
 function getCardFront(vCard)
 	vCard = DeckedOutUtilities.validateCard(vCard);
 	if not vCard then return end
@@ -341,6 +422,9 @@ function getCardFront(vCard)
 	return DB.getValue(vCard, "image", "");
 end
 
+---Gets the name of a card
+---@param vCard databasenode|string
+---@return string
 function getCardName(vCard)
 	vCard = DeckedOutUtilities.validateCard(vCard);
 	if not vCard then return end
@@ -348,6 +432,11 @@ function getCardName(vCard)
 	return DB.getValue(vCard, "name", "");
 end
 
+---Gets the identity for the current holder of a card. If the card is in a 
+---character's hand, this returns that character's identity. If the card is anywhere
+---else, this returns 'gm'
+---@param vCard databasenode|string
+---@return string
 function getCardSource(vCard)
 	vCard = DeckedOutUtilities.validateCard(vCard);
 	if not vCard then return end
@@ -365,6 +454,9 @@ function getCardSource(vCard)
 	return "gm";
 end
 
+---Gets the resolved actor table for the owner of a card
+---@param vCard databasenode|string
+---@return table rActor
 function getActorHoldingCard(vCard)
 	vCard = DeckedOutUtilities.validateCard(vCard);
 	if not vCard then return end
@@ -376,6 +468,10 @@ function getActorHoldingCard(vCard)
 	return ActorManager.resolveActor(vCard.getChild("..."));
 end
 
+---Checks if an actor is holding a card. Only works for PCs
+---@param vCard databasenode|string
+---@param rActor table
+---@return boolean
 function isActorHoldingCard(vCard, rActor)
 	vCard = DeckedOutUtilities.validateCard(vCard);
 	if not vCard then return end
@@ -392,6 +488,10 @@ end
 ------------------------------------------
 -- DRAG DROP
 ------------------------------------------
+
+---Sets the token data for the draginfo when a card is dragged from a deck
+---@param vDeck databasenode|string
+---@param draginfo dragdata
 function onDragFromDeck(vDeck, draginfo)
 	vDeck = DeckedOutUtilities.validateDeck(vDeck);
 	if not vDeck then return end
@@ -408,6 +508,11 @@ function onDragFromDeck(vDeck, draginfo)
 	end
 end
 
+---Initializes data when a token is dragged from somewhere.
+---Sets the token data, the shortcut, and the description
+---@param vCard databasenode|string
+---@param draginfo dragdata
+---@return boolean
 function onDragCard(vCard, draginfo)
 	vCard = DeckedOutUtilities.validateCard(vCard);
 	if not vCard then return end
@@ -428,6 +533,12 @@ end
 
 -- vDestination in this case should be the Node of the thing that's holding the card
 -- i.e. the charsheet record. it should NOT be the charsheet.cards node
+---Handles a card being dropped onto any particular destination. 
+---Handles giving and playing cards
+---@param draginfo dragdata
+---@param vDestination databasenode|string Node for the location onto which the card is being dropped
+---@param sExtra string If this is equal to DeckManager.DECK_DISCARD_PATH, then the card is sent to the deck's discard pile
+---@return boolean
 function onDropCard(draginfo, vDestination, sExtra)
 	if not draginfo then
 		Debug.console("ERROR: CardManager.onDropCard(): draginfo was nil or not found.");
@@ -464,6 +575,11 @@ function onDropCard(draginfo, vDestination, sExtra)
 	return CardManager.handleAnyDrop(sRecord, sDestPath, sExtra);
 end
 
+---Handles dropping a card on any target
+---@param sSourceNode string DB path id of the card being dropped
+---@param sDestinationNode string DB path id of the location the card is being dropped on
+---@param sExtra string If this is equal to DeckManager.DECK_DISCARD_PATH, then the card is sent to the deck's discard pile
+---@return boolean
 function handleAnyDrop(sSourceNode, sDestinationNode, sExtra)
 	vCard = DeckedOutUtilities.validateNode(sSourceNode, "sSourceNode");
 	vDestination = DeckedOutUtilities.validateNode(sDestinationNode, "sDestinationNode");
@@ -549,6 +665,10 @@ function handleAnyDrop(sSourceNode, sDestinationNode, sExtra)
 	return false;
 end
 
+---Internal use only. Sends an OOB message to handle onDrop events. Only called by clients
+---@param sSourceNode string
+---@param sDestinationNode string
+---@param sExtra string
 function sendCardDropMessage(sSourceNode, sDestinationNode, sExtra)
 	-- The GM shouldn't be here, only clients should be sending this message
 	if Session.IsHost then
@@ -564,6 +684,8 @@ function sendCardDropMessage(sSourceNode, sDestinationNode, sExtra)
 	Comm.deliverOOBMessage(msgOOB, "");
 end
 
+---Internal use only. Receives an OOB message to handle onDrop events
+---@param msgOOB table
 function handleCardDrop(msgOOB)
 	-- Only the GM should be handling drops, becuase this usually means moving around data
 	-- Which only the GM can do anyway

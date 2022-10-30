@@ -15,6 +15,10 @@ end
 -- EVENT FUNCTIONS
 -----------------------------------------------------
 
+---Adds a card to card storage. Raises the onAddedToStorage event
+---@param vCard databasenode|string
+---@param tEventTrace table Event trace table
+---@return databasenode card The node that was added to card storage
 function addCardToStorage(vCard, tEventTrace)
 	local vCard = DeckedOutUtilities.validateCard(vCard);
 	if not vCard then return end
@@ -35,6 +39,10 @@ end
 -----------------------------------------------------
 -- HELPERS
 -----------------------------------------------------
+
+---Checks of a card is already in storage
+---@param vCard databasenode|string
+---@return boolean
 function isCardInStorage(vCard)
 	local vCard = DeckedOutUtilities.validateCard(vCard);
 	if not vCard then return end
@@ -43,6 +51,9 @@ function isCardInStorage(vCard)
 	return _storage[sToken] ~= nil;
 end
 
+---Gets a card from storage. Returns nil if card is not in storage
+---@param vCard databasenode|string
+---@return string tokenPrototype
 function getCardFromStorage(vCard)
 	local vCard = DeckedOutUtilities.validateCard(vCard);
 	if not vCard then return end
@@ -51,6 +62,9 @@ function getCardFromStorage(vCard)
 	return _storage[sToken];
 end
 
+---Checks if a card node comes from the card storage node
+---@param vCard databasenode|string
+---@return boolean
 function doesCardComeFromStorage(vCard)
 	local vCard = DeckedOutUtilities.validateCard(vCard);
 	if not vCard then return end
@@ -59,6 +73,8 @@ function doesCardComeFromStorage(vCard)
 	return StringManager.startsWith(sNodeName, CardStorage.CARD_STORAGE_PATH);
 end
 
+---Gets the card storage node
+---@return string
 function getCardStorageNode()
 	return DB.findNode(CardStorage.CARD_STORAGE_PATH);
 end

@@ -23,7 +23,12 @@ end
 ------------------------------------------
 -- EVENT FUNCTIONS
 ------------------------------------------
--- Deals the given card to the given identity
+
+---Deals a card to an identity. Raises the onDealCard event
+---@param vDeck databasenode|string Deck from which the card is dealt
+---@param sIdentity string Character identity (or 'gm') that's receiving the card
+---@param tEventTrace table Event trace table
+---@return databasenode card The card that's dealt
 function dealCard(vDeck, sIdentity, tEventTrace)
 	if not DeckedOutUtilities.validateHost() then return end
 	vDeck = DeckedOutUtilities.validateDeck(vDeck);
@@ -44,7 +49,11 @@ function dealCard(vDeck, sIdentity, tEventTrace)
 	end
 end
 
--- Deals multiple cards to one person
+---Deals multiple cards to one person. Raises the onMultipleCardsDealt event
+---@param vDeck databasenode|string Deck from which the cards are dealt
+---@param sIdentity string Character identity (or 'gm') that's receiving the card
+---@param nCardAmount number Number of cards to deal
+---@param tEventTrace table Event trace table
 function dealCards(vDeck, sIdentity, nCardAmount, tEventTrace)
 	if not DeckedOutUtilities.validateHost() then return end
 	vDeck = DeckedOutUtilities.validateDeck(vDeck);
@@ -65,7 +74,10 @@ function dealCards(vDeck, sIdentity, nCardAmount, tEventTrace)
 	end
 end
 
--- Deals a card to all active identities
+---Deals a card to all active identities. Raises the onGroupDeal event
+---@param vDeck databasenode|string Deck from which the cards are dealt
+---@param nCardAmount number Number of cards to deal
+---@param tEventTrace table Event trace table
 function dealCardsToActiveIdentities(vDeck, nCardAmount, tEventTrace)
 	if not DeckedOutUtilities.validateHost() then return end
 	vDeck = DeckedOutUtilities.validateDeck(vDeck);
@@ -83,6 +95,11 @@ function dealCardsToActiveIdentities(vDeck, nCardAmount, tEventTrace)
 	end
 end
 
+---Sets a deck setting. Raises the onDeckSettingChanged event
+---@param vDeck databasenode|string Deck for which the setting is changed
+---@param sKey string Setting key to chnage
+---@param sValue string Value to change the setting to
+---@param nCardAmount number Number of cards to deal
 function setDeckSetting(vDeck, sKey, sValue, tEventTrace)
 	vDeck = DeckedOutUtilities.validateDeck(vDeck);
 	if not vDeck then return end
@@ -113,7 +130,10 @@ end
 ------------------------------------------
 -- DECK MANAGEMENT
 ------------------------------------------
--- This function gets a card, without actually removing it from the deck
+
+---This function gets a card, without actually removing it from the deck
+---@param vDeck databasenode|string Deck from which to draw a card
+---@return databasenode card The databasenode for the card drawn from the deck
 function drawCard(vDeck)
 	vDeck = DeckedOutUtilities.validateDeck(vDeck);
 	if not vDeck then return end
@@ -122,6 +142,9 @@ function drawCard(vDeck)
 	return aCards[1];
 end
 
+---Adds a card back to its orignial deck
+---@param vCard databasenode|string Card that's being returned to its deck
+---@return databasenode card The card node after it has been moved
 function addCardToDeck(vCard)
 	vCard = DeckedOutUtilities.validateCard(vCard);
 	if not vDeck then return end
@@ -135,6 +158,9 @@ end
 ------------------------------------------
 -- DISCARD PILE MANAGEMENT
 ------------------------------------------
+
+---Moves the discard pile for a deck back into the deck
+---@param vDeck databasenode|string The deck whose discard pile is put back into the deck
 function moveDiscardPileIntoDeck(vDeck)
 	vDeck = DeckedOutUtilities.validateDeck(vDeck);
 	if not vDeck then return end
@@ -148,6 +174,10 @@ end
 ------------------------------------------
 -- DECK STATE
 ------------------------------------------
+
+---Gets the node that contains the cards in the deck
+---@param vDeck databasenode|string
+---@return databasenode cardsNode
 function getCardsNode(vDeck)
 	vDeck = DeckedOutUtilities.validateDeck(vDeck);
 	if not vDeck then return end
@@ -155,6 +185,9 @@ function getCardsNode(vDeck)
 	return DB.createChild(vDeck, DeckManager.DECK_CARDS_PATH);
 end
 
+---Gets the discard databasenode for the given deck
+---@param vDeck databasenode|string
+---@return databasenode discardNode
 function getDiscardNode(vDeck)
 	vDeck = DeckedOutUtilities.validateDeck(vDeck);
 	if not vDeck then return end
@@ -163,6 +196,9 @@ function getDiscardNode(vDeck)
 	
 end
 
+---Gets the number of cards in a deck
+---@param vDeck databasenode|string
+---@return number cardCount
 function getNumberOfCardsInDeck(vDeck) 
 	vDeck = DeckedOutUtilities.validateDeck(vDeck);
 	if not vDeck then return end
@@ -175,6 +211,9 @@ function getNumberOfCardsInDeck(vDeck)
 	return cards.getChildCount();
 end
 
+---Gets the number of cards in a deck's discard pile
+---@param vDeck databasenode|string
+---@return number cardCount
 function getNumberOfCardsInDiscardPile(vDeck) 
 	vDeck = DeckedOutUtilities.validateDeck(vDeck);
 	if not vDeck then return end
@@ -187,6 +226,10 @@ function getNumberOfCardsInDiscardPile(vDeck)
 	return discard.getChildCount();
 end
 
+---Gets a number of random cards in a deck, without removing them
+---@param vDeck databasenode|string
+---@param nNumberOfCards number
+---@return table cards An integer indexed table of card nodes randomly sampled from the deck.
 function getRandomCardsInDeck(vDeck, nNumberOfCards)
 	vDeck = DeckedOutUtilities.validateDeck(vDeck);
 	if not vDeck then return end
@@ -210,6 +253,9 @@ function getRandomCardsInDeck(vDeck, nNumberOfCards)
 	return aResults;
 end
 
+---Gets the token prototype representing the back of a deck
+---@param vDeck databasenode|string
+---@return string tokenPrototype
 function getDecksCardBack(vDeck)
 	vDeck = DeckedOutUtilities.validateDeck(vDeck);
 	if not vDeck then return end
@@ -217,6 +263,9 @@ function getDecksCardBack(vDeck)
 	return DB.getValue(vDeck, "back", "");
 end
 
+---Gets the full database ID for the deck
+---@param vDeck databasenode|string
+---@return string deckNodeName
 function getDeckId(vDeck)
 	vDeck = DeckedOutUtilities.validateDeck(vDeck);
 	if not vDeck then return end
@@ -224,6 +273,9 @@ function getDeckId(vDeck)
 	return vDeck.getNodeName();
 end
 
+---Gets the name of the deck
+---@param vDeck databasenode|string
+---@return string deckName
 function getDeckName(vDeck)
 	vDeck = DeckedOutUtilities.validateDeck(vDeck);
 	if not vDeck then return end
@@ -311,14 +363,23 @@ local _tSettingOptions = {
 	}
 }
 
+---Gets the deck setting options table for configuring all deck options
+---@return table
 function getSettingOptions()
 	return _tSettingOptions;
 end
 
+---Gets a specific deck setting options entry from the options configuration table
+---@param sKey string Settings key
+---@return table
 function getSettingOption(sKey) 
 	return _tSettingOptions[sKey];
 end
 
+---Gets the settings value for a deck
+---@param vDeck databasenode|string
+---@param sKey string Settings key
+---@return string value
 function getDeckSetting(vDeck, sKey)
 	vDeck = DeckedOutUtilities.validateDeck(vDeck);
 	if not vDeck then return end
@@ -329,6 +390,9 @@ function getDeckSetting(vDeck, sKey)
 	return DB.getValue(settings, sKey, "");
 end
 
+---Gets the settings node for a deck
+---@param vDeck databasenode|string
+---@return databasenode
 function getDeckSettingsNode(vDeck)
 	vDeck = DeckedOutUtilities.validateDeck(vDeck);
 	if not vDeck then return end

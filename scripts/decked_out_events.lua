@@ -257,7 +257,7 @@ end
 ---@return table tEventTrace Event trace table
 function raiseOnHandReturnedToDeckEvent(sIdentity, vDeck, tEventTrace)
 	local tArgs = { sIdentity = sIdentity };
-	if (sDeckNode or "") ~= "" then
+	if vDeck then
 		tArgs.sDeckNode = vDeck.getNodeName();
 	end
 	return DeckedOutEvents.raiseEvent(

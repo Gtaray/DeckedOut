@@ -227,7 +227,7 @@
 					function onButtonPress()
 						local node = window.getDatabaseNode();
 						for sIdentity in pairs(DB.getChildren("charsheet")) do
-							CardManager.discardCardsInHandFromDeck(node, sIdentity);
+							CardManager.discardCardsInHandFromDeck(node, sIdentity, {});
 						end
 					end
 				</script>
@@ -239,9 +239,9 @@
 					function onButtonPress()
 						local node = window.getDatabaseNode();
 						for sIdentity in pairs(DB.getChildren("charsheet")) do
-							CardManager.discardCardsInHandFromDeck(node, sIdentity);
+							CardManager.discardCardsInHandFromDeck(node, sIdentity, {});
 						end
-						CardManager.discardCardsInHandFromDeck(node, "gm");
+						CardManager.discardCardsInHandFromDeck(node, "gm", {});
 					end
 				</script>
 				<state textres="deckbox_button_discard_all_hands" />

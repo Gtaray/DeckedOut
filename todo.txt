@@ -1,4 +1,5 @@
 TODO LIST: 
+* Add pre-check functions to all events, and get rid of immediate event type
 * Add tooltip to trash bin in hand
 * Display icons in chat for card actions	
 	* Message data can have multiple icons, so this is basically easy
@@ -7,6 +8,8 @@ TODO LIST:
 	* [ ] Discard at random (can also be used for 'play at random')
 	* [ ] Play at random
 	* [ ] Give to other person at random
+* Game Option for setting the facedown hotkey
+* Game option for setting the play-and-discard hotkey
 
 ICONS
 Radial
@@ -31,6 +34,7 @@ Icons
 	Decks (icon next to "Decks" in the sidebar)
 
 STRETCH GOALS
+* Added documentation to all api functions
 * Merge played and discarded messages into a single message when done together
 * Figure out how to handle card tokens being on the map and ALSO in a person's hand
 	* Potential solution: Add a new location similar to storage where tokens get moved to if they're on an image. The data is in the deckbox, but the tokens are on a map.

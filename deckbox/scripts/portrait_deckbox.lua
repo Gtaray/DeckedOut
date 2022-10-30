@@ -18,7 +18,7 @@ function onMenuSelection(selection)
 	elseif selection == 3 then
 		DesktopManager.promptCardAmount(onCardAmountSelected);
 	elseif selection == 4 then
-		CardManager.discardCardsInHandFromDeck(getDeckNode(), getIdentity());
+		CardManager.discardCardsInHandFromDeck(getDeckNode(), getIdentity(), {});
 	elseif selection == 5 then
 		CardManager.putCardsFromDeckInHandBackIntoDeck(getDeckNode(), getIdentity());
 	elseif selection == 6 then
