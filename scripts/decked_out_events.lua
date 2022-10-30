@@ -271,12 +271,18 @@ end
 ---@param vCard databasenode Card node for the card that's given, AFTER the move has taken place
 ---@param sGiverIdentity string Character identity (or 'gm') for the person giving the card
 ---@param sReceiverIdentity string Character identity (or 'gm') for the person receiving the card
+---@param bFacedown boolean Facedown or not
 ---@param tEventTrace table. Event trace table
 ---@return table tEventTrace Event trace table
-function raiseOnGiveCardEvent(vCard, sGiverIdentity, sReceiverIdentity, tEventTrace)
+function raiseOnGiveCardEvent(vCard, sGiverIdentity, sReceiverIdentity, bFacedown, tEventTrace)
+	local tArgs = { sCardNode = vCard.getNodeName(), sGiver = sGiverIdentity, sReceiver = sReceiverIdentity };
+	if bFacedown then
+		tArgs.bFacedown = "true";
+	end
+
 	return DeckedOutEvents.raiseEvent(
 		DeckedOutEvents.DECKEDOUT_EVENT_CARD_GIVEN, 
-		{ sCardNode = vCard.getNodeName(), sGiver = sGiverIdentity, sReceiver = sReceiverIdentity },
+		tArgs,
 		tEventTrace,
 		true -- true because this event technically happens after addCardToHand, and by then the trace is already updated
 	);
@@ -285,12 +291,17 @@ end
 ---Raises the onCardDeal event
 ---@param vCard databasenode Card node for the card that's dealt, AFTER the move has taken place
 ---@param sIdentity string Character identity (or 'gm') for the person receiving the card
+---@param bFacedown boolean
 ---@param tEventTrace table. Event trace table
 ---@return table tEventTrace Event trace table
-function raiseOnDealCardEvent(vCard, sIdentity, tEventTrace)
+function raiseOnDealCardEvent(vCard, sIdentity, bFacedown, tEventTrace)
+	local tArgs = { sCardNode = vCard.getNodeName(), sReceiver = sIdentity }
+	if bFacedown then
+		tArgs.bFacedown = "true";
+	end
 	return DeckedOutEvents.raiseEvent(
 		DeckedOutEvents.DECKEDOUT_EVENT_CARD_DEALT, 
-		{ sCardNode = vCard.getNodeName(), sReceiver = sIdentity },
+		tArgs,
 		tEventTrace,
 		true -- true because this event technically happens after addCardToHand, and by then the trace is already updated
 	);

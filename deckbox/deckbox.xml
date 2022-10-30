@@ -189,7 +189,7 @@
 			<button_column_deckbox name="button_dealonetogm">
 				<script>
 					function onButtonPress()
-						DeckManager.dealCard(window.getDatabaseNode(), "gm");
+						DeckManager.dealCard(window.getDatabaseNode(), "gm", false);
 					end
 				</script>
 				<anchored to="columnanchor" height="20" width="150" merge="replace">

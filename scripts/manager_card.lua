@@ -566,14 +566,17 @@ function onDropCard(draginfo, vDestination, sExtra)
 		return;
 	end
 
+	-- Figure out if the card should be passed facedown
+	local bFacedown = CardManager.getCardBack(sRecord) == draginfo.getTokenData();
+
 	sDestPath = vDestination.getNodeName();
 
 	if not Session.IsHost then
-		CardManager.sendCardDropMessage(sRecord, sDestPath, sExtra);
+		CardManager.sendCardDropMessage(sRecord, sDestPath, sExtra, bFacedown);
 		return true;
 	end
 
-	return CardManager.handleAnyDrop(sRecord, sDestPath, sExtra);
+	return CardManager.handleAnyDrop(sRecord, sDestPath, sExtra, bFacedown);
 end
 
 ---Handles dropping a card on any target
@@ -581,7 +584,7 @@ end
 ---@param sDestinationNode string DB path id of the location the card is being dropped on
 ---@param sExtra string If this is equal to DeckManager.DECK_DISCARD_PATH, then the card is sent to the deck's discard pile
 ---@return boolean
-function handleAnyDrop(sSourceNode, sDestinationNode, sExtra)
+function handleAnyDrop(sSourceNode, sDestinationNode, sExtra, bFacedown)
 	vCard = DeckedOutUtilities.validateNode(sSourceNode, "sSourceNode");
 	vDestination = DeckedOutUtilities.validateNode(sDestinationNode, "sDestinationNode");
 	if not (vCard and vDestination) then return false end
@@ -647,14 +650,14 @@ function handleAnyDrop(sSourceNode, sDestinationNode, sExtra)
 				local sGiverIdentity = CardManager.getCardSource(vCard);
 				tEventTrace = DeckedOutEvents.addEventTrace(tEventTrace, DeckedOutEvents.DECKEDOUT_EVENT_CARD_GIVEN);
 				local card = CardManager.addCardToHand(vCard, sReceivingIdentity, tEventTrace);
-				DeckedOutEvents.raiseOnGiveCardEvent(card, sGiverIdentity, sReceivingIdentity, tEventTrace)
+				DeckedOutEvents.raiseOnGiveCardEvent(card, sGiverIdentity, sReceivingIdentity, bFacedown, tEventTrace)
 				return true;
 
 			-- If the card being dropped is currently in a deck or discard pile, we fire the deal event
 			elseif CardManager.isCardInDeck(vCard) or CardManager.isCardDiscarded(vCard) then
 				tEventTrace = DeckedOutEvents.addEventTrace(tEventTrace, DeckedOutEvents.DECKEDOUT_EVENT_CARD_DEALT);
 				local card = CardManager.addCardToHand(vCard, sReceivingIdentity, tEventTrace);
-				DeckedOutEvents.raiseOnDealCardEvent(card, sReceivingIdentity, tEventTrace)
+				DeckedOutEvents.raiseOnDealCardEvent(card, sReceivingIdentity, bFacedown, tEventTrace)
 				return true;
 			end
 		else
@@ -670,7 +673,7 @@ end
 ---@param sSourceNode string
 ---@param sDestinationNode string
 ---@param sExtra string
-function sendCardDropMessage(sSourceNode, sDestinationNode, sExtra)
+function sendCardDropMessage(sSourceNode, sDestinationNode, sExtra, bFacedown)
 	-- The GM shouldn't be here, only clients should be sending this message
 	if Session.IsHost then
 		return;
@@ -681,6 +684,11 @@ function sendCardDropMessage(sSourceNode, sDestinationNode, sExtra)
 	msgOOB.sSourceNode = sSourceNode;
 	msgOOB.sDestinationNode = sDestinationNode;
 	msgOOB.sExtra = sExtra;
+	if bFacedown then
+		msgOOB.bFacedown = "true";
+	else
+		msgOOB.bFacedown = "false";
+	end
 
 	Comm.deliverOOBMessage(msgOOB, "");
 end
@@ -694,5 +702,5 @@ function handleCardDrop(msgOOB)
 		return;
 	end
 
-	CardManager.handleAnyDrop(msgOOB.sSourceNode, msgOOB.sDestinationNode, msgOOB.sExtra);
+	CardManager.handleAnyDrop(msgOOB.sSourceNode, msgOOB.sDestinationNode, msgOOB.sExtra, msgOOB.bFacedown == "true");
 end

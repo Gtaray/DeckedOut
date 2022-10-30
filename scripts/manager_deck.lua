@@ -27,9 +27,10 @@ end
 ---Deals a card to an identity. Raises the onDealCard event
 ---@param vDeck databasenode|string Deck from which the card is dealt
 ---@param sIdentity string Character identity (or 'gm') that's receiving the card
+---@param bFacedown boolean
 ---@param tEventTrace table Event trace table
 ---@return databasenode card The card that's dealt
-function dealCard(vDeck, sIdentity, tEventTrace)
+function dealCard(vDeck, sIdentity, bFacedown, tEventTrace)
 	if not DeckedOutUtilities.validateHost() then return end
 	vDeck = DeckedOutUtilities.validateDeck(vDeck);
 	if not vDeck then return end
@@ -44,7 +45,7 @@ function dealCard(vDeck, sIdentity, tEventTrace)
 		-- This makes sure that the trace stack is preserved, while still having the event fire second
 		tEventTrace = DeckedOutEvents.addEventTrace(tEventTrace, DeckedOutEvents.DECKEDOUT_EVENT_CARD_DEALT);
 		local card = CardManager.addCardToHand(aCards[1], sIdentity, tEventTrace);
-		DeckedOutEvents.raiseOnDealCardEvent(card, sIdentity, tEventTrace);
+		DeckedOutEvents.raiseOnDealCardEvent(card, sIdentity, bFacedown, tEventTrace);
 		return card;
 	end
 end
@@ -70,7 +71,7 @@ function dealCards(vDeck, sIdentity, nCardAmount, tEventTrace)
 	tEventTrace = DeckedOutEvents.raiseOnMultipleCardsDealtEvent(vDeck, nCardAmount, sIdentity, tEventTrace)
 
 	for i = 1, nCardAmount, 1 do
-		DeckManager.dealCard(vDeck, sIdentity, tEventTrace);
+		DeckManager.dealCard(vDeck, sIdentity, false, tEventTrace);
 	end
 end
 

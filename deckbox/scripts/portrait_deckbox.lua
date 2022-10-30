@@ -14,7 +14,7 @@ end
 
 function onMenuSelection(selection)
 	if selection == 2 then
-		DeckManager.dealCard(getDeckNode(), getIdentity());
+		DeckManager.dealCard(getDeckNode(), getIdentity(), false);
 	elseif selection == 3 then
 		DesktopManager.promptCardAmount(onCardAmountSelected);
 	elseif selection == 4 then

@@ -234,6 +234,7 @@ function printCardDealtMessage(tEventArgs, tEventTrace)
 	msg.receiver = tEventArgs.sReceiver;
 	msg.card_link = vCard.getNodeName();
 	msg.action = "deal";
+	msg.facedown = tEventArgs.bFacedown;
 	msg.text = Interface.getString("chat_msg_deal_card");
 	msg.text = string.format(msg.text, "[SENDER]", "[CARDNAME]", "[PRONOUN]");
 
@@ -378,6 +379,10 @@ function resolveCardVisibility(msg, sSenderName, sReceiverName, sMessageId)
 	-- If you're the GM, we check to see if you should see other people playing face down cards
 	local bGmSeesFacedown = DeckManager.getDeckSetting(vDeck, DeckManager.DECK_SETTING_GM_SEE_FACEDOWN_CARDS) == "yes";
 	if msg.facedown == "true" then
+		-- Edge case for dealing cards, where we don't want to care about sender name (it's always the GM)
+		if msg.action == "deal" then
+			return sMessageId == "gm" and bGmSeesFacedown
+		end
 		return (sMessageId == "gm" and bGmSeesFacedown) or sSenderName == "you";
 	end
 
@@ -405,7 +410,7 @@ function resolveCardVisibility(msg, sSenderName, sReceiverName, sMessageId)
 		end
 		return sSenderName == "you" or sReceiverName == "you";
 	elseif sSetting == "gmandactor" then
-		return sMessageIdentity == "gm" or sSenderName == "you" or sReceiverName == "you";
+		return sMessageId == "gm" or sSenderName == "you" or sReceiverName == "you";
 	end
 
 	-- If we get here and sSetting is not everyone, then something went wrong

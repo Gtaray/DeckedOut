@@ -7,8 +7,6 @@ TODO LIST:
 	* [ ] Discard at random (can also be used for 'play at random')
 	* [ ] Play at random
 	* [ ] Give to other person at random
-* Game Option for setting the facedown hotkey
-* Game option for setting the play-and-discard hotkey
 
 ICONS
 Radial
@@ -48,6 +46,8 @@ STRETCH GOALS
 * Add pre-check functions to all events, and get rid of immediate event type
 
 DONE
+* Game Option for setting the facedown hotkey
+* Game option for setting the play-and-discard hotkey
 * re-implement 'play and discard' hotkey
 * Add per deck configuration
 	* [x] Toggle whether dealt cards should be hidden from GM (both the drag token and the message in chat)

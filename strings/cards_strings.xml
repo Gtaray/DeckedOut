@@ -102,7 +102,7 @@
 	<string name="dealcards_dialog_label_amount"># of Cards</string>
 	<string name="dealcards_dialog_button_accept">Deal</string>
 
-	<!-- Chat messages -->
+	<!-- CHAT MESSAGES -->
 	<string name="chat_msg_card_played_faceup">%s played %s</string>
 	<string name="chat_msg_card_played_facedown">%s played %s facedown</string>
 	<string name="chat_msg_card_played_discarded_faceup">%s played and discarded %s</string>
@@ -117,4 +117,12 @@
 	<string name="chat_msg_group_deal">%s dealt %s %s to everyone</string>
 	<string name="chat_msg_hand_put_back_in_deck">%s shuffled %s hand back into %s</string>
 	<string name="chat_msg_not_enough_cards_in_deck">There are not enough cards in %s to deal</string>
+
+	<!-- GAME OPTIONS -->
+	<string name="option_header_deckedout">Decked Out</string>
+	<string name="option_label_facedown_hotkey">Hotkey for playing cards facedown</string>
+	<string name="option_label_play_and_discard_hotkey">Hotkey for discarding a card after playing it</string>
+	<string name="option_val_ctrl">Control</string>
+	<string name="option_val_shift">Shift</string>
+	<string name="option_val_alt">Alt</string>
 </root>

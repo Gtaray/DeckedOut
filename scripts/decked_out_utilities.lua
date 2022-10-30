@@ -1,13 +1,26 @@
 ---Returns true the facedown hotkey is pressed
 ---@return boolean bPressed
 function getFacedownHotkey()
-	return Input.isShiftPressed();
+	return DeckedOutUtilities.getHotkey(OptionsManager.getOption("HOTKEY_FACEDOWN"));
 end
 
 ---Returns true the play-and-discard hotkey is pressed
 ---@return boolean bPressed
 function getPlayAndDiscardHotkey()
-	return Input.isControlPressed();
+	return DeckedOutUtilities.getHotkey(OptionsManager.getOption("HOTKEY_DISCARD"));
+end
+
+---Returns whether an input is pressed based on the input
+---@param sOption string Hotkey option
+---@return boolean
+function getHotkey(sOption)
+	if sOption == "shift" then
+		return Input.isShiftPressed();
+	elseif sOption == "control" then
+		return Input.isControlPressed();
+	elseif sOption == "alt" then
+		return Input.isAltPressed();
+	end
 end
 
 ---Validates that a parameter is not nil. If it is nil, an error and the stack trace is printed in the console
