@@ -1,5 +1,4 @@
 TODO LIST: 
-* Add pre-check functions to all events, and get rid of immediate event type
 * Add tooltip to trash bin in hand
 * Display icons in chat for card actions	
 	* Message data can have multiple icons, so this is basically easy
@@ -46,6 +45,7 @@ STRETCH GOALS
 	* Even more stretch, make the tooltip only appear when the size of the tokenfield is really small
 * Figure out what the heck is going on with the hand icon when dynamically setting anchor points
 * Option toggle for automatically showing/hiding hand when switching characters? So rare this probably doesn't matter
+* Add pre-check functions to all events, and get rid of immediate event type
 
 DONE
 * re-implement 'play and discard' hotkey
