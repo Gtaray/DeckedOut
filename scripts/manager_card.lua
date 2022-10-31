@@ -120,7 +120,7 @@ function discardCardsInHandFromDeck(vDeck, sIdentity, tEventTrace)
 	sDeckId = DeckManager.getDeckId(vDeck);
 	for k,card in pairs(CardManager.getHandNode(sIdentity).getChildren()) do
 		if CardManager.getDeckIdFromCard(card) == sDeckId then
-			CardManager.discardCard(card, false, tEventTrace);
+			CardManager.discardCard(card, false, sIdentity, tEventTrace);
 		end
 	end
 end
@@ -170,30 +170,64 @@ end
 ---@param vCard databasenode|string
 ---@param bFacedown boolean default true
 ---@param tEventTrace table
-function playCard(vCard, bFacedown, tEventTrace)
+function playCard(vCard, bFacedown, bDiscard, tEventTrace)
 	local vCard = DeckedOutUtilities.validateCard(vCard);
 	if not vCard then return end
 
 	local vDeck = DeckedOutUtilities.validateDeck(CardManager.getDeckNodeFromCard(vCard));
 	if not vDeck then return end
 
-	local bDiscard = false;
-	if CardManager.isCardInHand(vCard) then
-		bDiscard = DeckManager.getDeckSetting(vDeck, DeckManager.DECK_SETTING_AUTO_PLAY_FROM_HAND) == "yes";
-	elseif CardManager.isCardInDeck(vCard) then
-		bDiscard = DeckManager.getDeckSetting(vDeck, DeckManager.DECK_SETTING_AUTO_PLAY_FROM_DECK) == "yes";
-	end
+	-- local bDiscard = false;
+	-- if CardManager.isCardInHand(vCard) then
+	-- 	bDiscard = DeckManager.getDeckSetting(vDeck, DeckManager.DECK_SETTING_AUTO_PLAY_FROM_HAND) == "yes";
+	-- elseif CardManager.isCardInDeck(vCard) then
+	-- 	bDiscard = DeckManager.getDeckSetting(vDeck, DeckManager.DECK_SETTING_AUTO_PLAY_FROM_DECK) == "yes";
+	-- end
 
-	-- The hotkey should take presedence over any other options.
-	if DeckedOutUtilities.getPlayAndDiscardHotkey() then
-		bDiscard = true;
-	end
+	-- -- The hotkey should take presedence over any other options.
+	-- if DeckedOutUtilities.getPlayAndDiscardHotkey() then
+	-- 	bDiscard = true;
+	-- end
 
 	DeckedOutEvents.raiseOnCardPlayedEvent(vCard, bFacedown, bDiscard, tEventTrace)
 
 	if bDiscard then
 		local sIdentity = CardManager.getCardSource(vCard);
 		CardManager.discardCard(vCard, bFacedown, sIdentity, tEventTrace);
+	end
+end
+
+---Gets a random card from sIdentity's hand and plays it
+---@param sIdentity string
+---@param bFacedown boolean
+---@param tEventTrace table
+---@return databasenode cardPlayed
+function playRandomCard(sIdentity, bFacedown, bDiscard, tEventTrace)
+	if not DeckedOutUtilities.validateIdentity(sIdentity) then return end
+
+	local aCards = CardManager.getRandomCardsInHand(sIdentity, 1);
+
+	if aCards and aCards[1] then
+		-- tEventTrace = DeckedOutEvents.addEventTrace(tEventTrace, DeckedOutEvents.DECKEDOUT_EVENT_HAND_PLAY_RANDOM);
+		DeckedOutEvents.raiseOnPlayRandomCardEvent(aCards[1], bFacedown, tEventTrace)
+		CardManager.playCard(aCards[1], bFacedown, bDiscard, tEventTrace);
+		
+	end
+end
+
+---Gets a random card from sIdentity's hand and discards it
+---@param sIdentity string
+---@param bFacedown boolean
+---@param tEventTrace table
+---@return databasenode cardPlayed
+function discardRandomCard(sIdentity, bFacedown, tEventTrace)
+	if not DeckedOutUtilities.validateIdentity(sIdentity) then return end
+
+	local aCards = CardManager.getRandomCardsInHand(sIdentity, 1);
+	
+	if aCards and aCards[1] then
+		DeckedOutEvents.raiseOnDiscardRandomCardEvent(aCards[1], bFacedown, tEventTrace)
+		CardManager.discardCard(aCards[1], bFacedown, sIdentity, tEventTrace);
 	end
 end
 
@@ -257,6 +291,30 @@ function getNumberOfCardsFromDeckInHand(vDeck, sIdentity)
 	end
 
 	return nCount;
+end
+
+---Gets a number of randomly selected cards from an identity's hand
+---@param sIdentity string
+---@param nNumberOfCards number
+---@return table aCards
+function getRandomCardsInHand(sIdentity, nNumberOfCards)
+	if not DeckedOutUtilities.validateIdentity(sIdentity) then return end
+
+	local aCards = {};
+	for k,v in pairs(CardManager.getCardsInHand(sIdentity)) do
+		table.insert(aCards, v);
+	end
+
+	if #aCards == 0 then
+		return;
+	end
+
+	local aResults = {};
+	for i = 1, nNumberOfCards, 1 do
+		table.insert(aResults, table.remove(aCards, math.random(1, #aCards)));
+	end
+
+	return aResults;
 end
 
 ------------------------------------------

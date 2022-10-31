@@ -22,6 +22,7 @@
 			<nodrag />
 			<script>
 				function onInit()
+					registerMenuItem(Interface.getString("deckbox_menu_play_top_card"), "play_faceup", 2);
 					registerMenuItem(Interface.getString("deckbox_menu_view_deck_cards"), "deck", 3);
 					registerMenuItem(Interface.getString("deckbox_menu_view_discard_cards"), "discard", 4);
 				end
@@ -29,7 +30,9 @@
 					if not Session.IsHost then
 						return;
 					end
-					if selection == 3 then
+					if selection == 2 then
+						onDoubleClick();
+					elseif selection == 3 then
 						DesktopManager.openCardList(DeckManager.getCardsNode(window.getDatabaseNode()));
 					elseif selection == 4 then
 						DesktopManager.openCardList(DeckManager.getDiscardNode(window.getDatabaseNode()));
@@ -44,6 +47,12 @@
 				end
 				function onDrop(x, y, draginfo)
 					CardManager.onDropCard(draginfo, window.getDatabaseNode(), DeckManager.DECK_CARDS_PATH);
+				end
+				function onDoubleClick(x, y)
+					local aCards = DeckManager.getRandomCardsInDeck(window.getDatabaseNode(), 1);
+					if aCards and aCards[1] then
+						CardManager.playCard(aCards[1], DeckedOutUtilities.getFacedownHotkey(), true, {});
+					end
 				end
 			</script>
 		</tokenfield>

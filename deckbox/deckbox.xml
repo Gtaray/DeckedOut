@@ -97,7 +97,6 @@
 					<top parent="name" anchor="bottom" offset="5" />
 					<left offset="15" />
 				</anchored>
-				<script file="common/scripts/leftClickOpensRadial.lua" />
 			</deckback>
 
 			<!-- CARD COUNTS -->

@@ -72,6 +72,7 @@
 
 	<!-- DECKBOX MENU ITEMS -->
 	<string name="deckbox_menu_close_deck">Delete Deck</string>
+	<string name="deckbox_menu_play_top_card">Play and discard from the top of the deck</string>
 	<string name="deckbox_menu_view_deck_cards">View all cards in this deck</string>
 	<string name="deckbox_menu_view_discard_cards">View all cards in the discard pile</string>
 	<string name="deckbox_menu_deal_one_to_character">Deal one card to this character</string>
@@ -80,8 +81,12 @@
 	<string name="deckbox_menu_reshuffle_characters_hand">Reshuffle all cards from this deck in this character's hand back into the deck</string>
 	<string name="deckbox_menu_view_pc_cards_in_hand">View all cards in this character's hand</string>
 
-	<!-- HAND MENU ITEMS -->
+	<!-- HAND MENU ITEMS AND TOOLTIPS -->
+	<string name="hand_menu_give_random">Give a random card from your hand to this character</string>
+	<string name="hand_menu_play_random">Play a card at random from your hand</string>
+	<string name="hand_menu_discard_random">Discard a card at random from your hand</string>
 	<string name="hand_menu_discard_hand">Discard hand</string>
+	<string name="hand_tooltip_discard_card">Drop a card here to discard it</string>
 
 	<!-- CARD MENU ITEMS -->
 	<string name="card_menu_discard_card">Discard card</string>
@@ -105,13 +110,21 @@
 	<!-- CHAT MESSAGES -->
 	<string name="chat_msg_card_played_faceup">%s played %s</string>
 	<string name="chat_msg_card_played_facedown">%s played %s facedown</string>
+	<string name="chat_msg_card_randomly_played_faceup">%s randomly played %s</string>
+	<string name="chat_msg_card_randomly_played_facedown">%s randomly played %s facedown</string>
 	<string name="chat_msg_card_played_discarded_faceup">%s played and discarded %s</string>
 	<string name="chat_msg_card_played_discarded_facedown">%s played and discarded %s facedown</string>
+	<string name="chat_msg_card_randomly_played_discarded_faceup">%s randomly played and discarded %s</string>
+	<string name="chat_msg_card_randomly_played_discarded_facedown">%s randomly played and discarded %s facedown</string>
 	<string name="chat_msg_card_discarded_faceup">%s discarded %s</string>
 	<string name="chat_msg_card_discarded_facedown">%s discarded %s facedown</string>
+	<string name="chat_msg_card_randomly_discarded_faceup">%s randomly discarded %s</string>
+	<string name="chat_msg_card_randomly_discarded_facedown">%s randomly discarded %s facedown</string>
 	<string name="chat_msg_discarded_hand">%s discarded %s hand</string>
 	<string name="chat_msg_give_card_faceup">%s gave %s to %s</string>
 	<string name="chat_msg_give_card_facedown">%s gave %s to %s facedown</string>
+	<string name="chat_msg_card_randomly_give_faceup">%s randomly gave %s to %s</string>
+	<string name="chat_msg_card_randomly_give_facedown">%s randomly gave %s to %s facedown</string>
 	<string name="chat_msg_deal_card">%s dealt %s to %s</string>
 	<string name="chat_msg_deal_multiple_cards">%s dealt %s %s to %s</string>
 	<string name="chat_msg_group_deal">%s dealt %s %s to everyone</string>

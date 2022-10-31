@@ -13,8 +13,17 @@ function onMenuSelection(selection)
 	if super and super.onMenuSelection then
 		super.onMenuSelection();
 	end
+
+	local sIdentity = User.getCurrentIdentity();
+	if Session.IsHost then
+		sIdentity = "gm"
+	end
 	
 	if selection == 7 then
-		CardManager.discardCard(window.getDatabaseNode());
+		CardManager.discardCard(
+			window.getDatabaseNode(), 
+			DeckedOutUtilities.getFacedownHotkey(), 
+			sIdentity,
+			{});
 	end
 end

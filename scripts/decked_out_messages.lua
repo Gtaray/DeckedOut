@@ -1,13 +1,12 @@
-OOB_MSGTYPE_PRINTCARDPLAYED = "printcardplayed";
-OOB_MSGTYPE_PRINTCARDDISCARDED = "printcarddiscarded";
-OOB_MSGTYPE_PRINTCARDGIVEN = "printcardgiven";
-OOB_MSGTYPE_PRINTCARDDEALT = "printcarddealt";
+OOB_MSGTYPE_DECKEDOUT_STANDARD = "standard_message_handler";
 
 -- All of these message events need to start from the host because the host needs to add any cards to storage before sending out another OOB
 -- That second OOB message is the one that actually prints to chat
 function onInit()
 	DeckedOutEvents.registerEvent(DeckedOutEvents.DECKEDOUT_EVENT_CARD_PLAYED, { fCallback = printCardPlayedMessage, sTarget = "host" });
+	DeckedOutEvents.registerEvent(DeckedOutEvents.DECKEDOUT_EVENT_HAND_PLAY_RANDOM, { fCallback = printRandomCardPlayedMessage, sTarget = "host" });
 	DeckedOutEvents.registerEvent(DeckedOutEvents.DECKEDOUT_EVENT_CARD_DISCARDED, { fCallback = printCardDiscardedMessage, sTarget = "host" });
+	DeckedOutEvents.registerEvent(DeckedOutEvents.DECKEDOUT_EVENT_HAND_DISCARD_RANDOM, { fCallback = printRandomCardDiscardedMessage, sTarget = "host" });
 	DeckedOutEvents.registerEvent(DeckedOutEvents.DECKEDOUT_EVENT_CARD_GIVEN, { fCallback = printCardGivenMessage, sTarget = "host" });
 	DeckedOutEvents.registerEvent(DeckedOutEvents.DECKEDOUT_EVENT_CARD_DEALT, { fCallback = printCardDealtMessage, sTarget = "host" });
 	DeckedOutEvents.registerEvent(DeckedOutEvents.DECKEDOUT_EVENT_HAND_DISCARDED, { fCallback = printHandDiscardedMessage, sTarget = "host" });
@@ -17,10 +16,22 @@ function onInit()
 
 	-- These oob messages are needed because cards are printed to chat. the GM must copy referenced cards to card storage
 	-- Before sending the message to chat. Clients can't copy to storage.
-	OOBManager.registerOOBMsgHandler(OOB_MSGTYPE_PRINTCARDPLAYED, DeckedOutMessages.printCardPlayedHandler);
-	OOBManager.registerOOBMsgHandler(OOB_MSGTYPE_PRINTCARDDISCARDED, DeckedOutMessages.printCardDiscardedHandler);
-	OOBManager.registerOOBMsgHandler(OOB_MSGTYPE_PRINTCARDGIVEN, DeckedOutMessages.printCardGivenHandler);
-	OOBManager.registerOOBMsgHandler(OOB_MSGTYPE_PRINTCARDDEALT, DeckedOutMessages.printCardDealtHandler);
+	OOBManager.registerOOBMsgHandler(OOB_MSGTYPE_DECKEDOUT_STANDARD, DeckedOutMessages.standardMessageHandler);
+end
+
+function standardMessageHandler(msgOOB)
+	-- Only the GM should be handling this event
+	if not Session.IsHost then
+		return;
+	end
+
+	-- Before we do anything else, we need to copy the card link
+	-- into card storage
+	local newCard = CardStorage.addCardToStorage(msgOOB.card_link);
+	msgOOB.card_link = newCard.getNodeName();
+
+	sendMessageToGm(msgOOB);
+	sendMessageToClients(msgOOB);
 end
 
 -----------------------------------------------------
@@ -30,13 +41,18 @@ function printCardPlayedMessage(tEventArgs, tEventTrace)
 	local vCard = DeckedOutUtilities.validateCard(tEventArgs.sCardNode);
 	if not vCard then return end
 
+	-- If this is called as part of the play random event, don't print a message
+	if DeckedOutEvents.doesEventTraceContain(tEventTrace, DeckedOutEvents.DECKEDOUT_EVENT_HAND_PLAY_RANDOM) then
+		return;
+	end
+
 	local bFacedown = tEventArgs.bFacedown == "true";
 	local sCardSource = CardManager.getCardSource(vCard);
 	if sCardSource == "storage" then return end
 
 	-- In this case, everything is public so the two messages can be the same
 	local msg = {};
-	msg.type = DeckedOutMessages.OOB_MSGTYPE_PRINTCARDPLAYED;
+	msg.type = DeckedOutMessages.OOB_MSGTYPE_DECKEDOUT_STANDARD;
 	msg.sender = sCardSource;
 	msg.action = "play";
 	msg.facedown = tEventArgs.bFacedown;
@@ -63,20 +79,43 @@ function printCardPlayedMessage(tEventArgs, tEventTrace)
 	Comm.deliverOOBMessage(msg, "");
 end
 
-function printCardPlayedHandler(msgOOB)
-	-- Only the GM should be handling this event
-	if not Session.IsHost then
-		return;
+function printRandomCardPlayedMessage(tEventArgs, tEventTrace)
+	local vCard = DeckedOutUtilities.validateCard(tEventArgs.sCardNode);
+	if not vCard then return end
+
+	local bFacedown = tEventArgs.bFacedown == "true";
+	local sCardSource = CardManager.getCardSource(vCard);
+	if sCardSource == "storage" then return end
+
+	-- In this case, everything is public so the two messages can be the same
+	local msg = {};
+	msg.type = DeckedOutMessages.OOB_MSGTYPE_DECKEDOUT_STANDARD;
+	msg.sender = sCardSource;
+	msg.action = "play";
+	msg.facedown = tEventArgs.bFacedown;
+	
+	local bDiscard = tEventArgs.bDiscard == "true";
+	local sTextRes = "";
+	if bFacedown then
+		if bDiscard then
+			msg.text = Interface.getString("chat_msg_card_randomly_played_discarded_facedown");
+		else
+			msg.text = Interface.getString("chat_msg_card_randomly_played_facedown");
+		end
+	else
+		if bDiscard then
+			msg.text = Interface.getString("chat_msg_card_randomly_played_discarded_faceup");
+		else
+			msg.text = Interface.getString("chat_msg_card_randomly_played_faceup");
+		end
 	end
 
-	-- Before we do anything else, we need to copy the card link
-	-- into card storage
-	local newCard = CardStorage.addCardToStorage(msgOOB.card_link);
-	msgOOB.card_link = newCard.getNodeName();
+	msg.text = string.format(msg.text, "[SENDER]", "[CARDNAME]");
+	msg.card_link = vCard.getNodeName();
 
-	sendMessageToGm(msgOOB);
-	sendMessageToClients(msgOOB);
+	Comm.deliverOOBMessage(msg, "");
 end
+
 -----------------------------------------------------
 -- DISCARDING CARDS
 -----------------------------------------------------
@@ -93,11 +132,15 @@ function printCardDiscardedMessage(tEventArgs, tEventTrace)
 	if DeckedOutEvents.doesEventTraceContain(tEventTrace, DeckedOutEvents.DECKEDOUT_EVENT_CARD_PLAYED) then
 		return;
 	end
+	-- don't show action as part of the discard random event
+	if DeckedOutEvents.doesEventTraceContain(tEventTrace, DeckedOutEvents.DECKEDOUT_EVENT_HAND_DISCARD_RANDOM) then
+		return;
+	end
 
 	local bFacedown = tEventArgs.bFacedown == "true";
 
 	local msg = {};
-	msg.type = DeckedOutMessages.OOB_MSGTYPE_PRINTCARDDISCARDED;
+	msg.type = DeckedOutMessages.OOB_MSGTYPE_DECKEDOUT_STANDARD;
 	msg.sender = tEventArgs.sSender;
 	msg.action = "discard";
 	msg.facedown = tEventArgs.bFacedown;
@@ -115,19 +158,30 @@ function printCardDiscardedMessage(tEventArgs, tEventTrace)
 	Comm.deliverOOBMessage(msg, "");
 end
 
-function printCardDiscardedHandler(msgOOB)
-	-- Only the GM should be handling this event
-	if not Session.IsHost then
-		return;
+function printRandomCardDiscardedMessage(tEventArgs, tEventTrace)
+	if not DeckedOutUtilities.validateIdentity(tEventArgs.sSender) then return end
+	vCard = DeckedOutUtilities.validateCard(tEventArgs.sCardNode);
+	if not vCard then return end
+
+	local bFacedown = tEventArgs.bFacedown == "true";
+
+	local msg = {};
+	msg.type = DeckedOutMessages.OOB_MSGTYPE_DECKEDOUT_STANDARD;
+	msg.sender = tEventArgs.sSender;
+	msg.action = "discard";
+	msg.facedown = tEventArgs.bFacedown;
+
+	local sTextRes = "";
+	if bFacedown then
+		msg.text = Interface.getString("chat_msg_card_discarded_facedown");
+	else
+		msg.text = Interface.getString("chat_msg_card_discarded_faceup");
 	end
 
-	-- Before we do anything else, we need to copy the card link
-	-- into card storage
-	local newCard = CardStorage.addCardToStorage(msgOOB.card_link);
-	msgOOB.card_link = newCard.getNodeName();
+	msg.text = string.format(msg.text, "[SENDER]", "[CARDNAME]");
+	msg.card_link = vCard.getNodeName();
 
-	sendMessageToGm(msgOOB);
-	sendMessageToClients(msgOOB);
+	Comm.deliverOOBMessage(msg, "");
 end
 
 -- This is configured to run only on the host
@@ -178,7 +232,7 @@ function printCardGivenMessage(tEventArgs, tEventTrace)
 	end
 
 	local msg = {};
-	msg.type = DeckedOutMessages.OOB_MSGTYPE_PRINTCARDGIVEN;
+	msg.type = DeckedOutMessages.OOB_MSGTYPE_DECKEDOUT_STANDARD;
 	msg.sender = tEventArgs.sGiver;
 	msg.receiver = tEventArgs.sReceiver;
 	msg.card_link = vCard.getNodeName();
@@ -196,21 +250,6 @@ function printCardGivenMessage(tEventArgs, tEventTrace)
 	Comm.deliverOOBMessage(msg, "");
 end
 
-function printCardGivenHandler(msgOOB)
-	-- Only the GM should be handling this event
-	if not Session.IsHost then
-		return;
-	end
-
-	-- Before we do anything else, we need to copy the card link
-	-- into card storage
-	local newCard = CardStorage.addCardToStorage(msgOOB.card_link);
-	msgOOB.card_link = newCard.getNodeName();
-
-	sendMessageToGm(msgOOB);
-	sendMessageToClients(msgOOB);
-end
-
 function printCardDealtMessage(tEventArgs, tEventTrace)
 	-- If the event trace already contains the deal multiple cards event, then we don't want to print out any messages, so we bail
 	if DeckedOutEvents.doesEventTraceContain(tEventTrace, DeckedOutEvents.DECKEDOUT_EVENT_MULTIPLE_CARDS_DEALT) then
@@ -226,7 +265,7 @@ function printCardDealtMessage(tEventArgs, tEventTrace)
 	end
 
 	local msg = {};
-	msg.type = DeckedOutMessages.OOB_MSGTYPE_PRINTCARDDEALT;
+	msg.type = DeckedOutMessages.OOB_MSGTYPE_DECKEDOUT_STANDARD;
 	-- The GM should always be the card source here. 
 	-- If we use value returned from getCardSource, 
 	-- it will always say the PC since we dealt them the card prior to this event
@@ -239,21 +278,6 @@ function printCardDealtMessage(tEventArgs, tEventTrace)
 	msg.text = string.format(msg.text, "[SENDER]", "[CARDNAME]", "[PRONOUN]");
 
 	Comm.deliverOOBMessage(msg, "");
-end
-
-function printCardDealtHandler(msgOOB)
-	-- Only the GM should be handling this event
-	if not Session.IsHost then
-		return;
-	end
-
-	-- Before we do anything else, we need to copy the card link
-	-- into card storage
-	local newCard = CardStorage.addCardToStorage(msgOOB.card_link);
-	msgOOB.card_link = newCard.getNodeName();
-
-	sendMessageToGm(msgOOB);
-	sendMessageToClients(msgOOB);
 end
 
 function printMultipleCardsDealtMessage(tEventArgs, tEventTrace)
@@ -375,14 +399,13 @@ function resolveCardVisibility(msg, sSenderName, sReceiverName, sMessageId)
 	if not vDeck then return true end -- Would be weird if this happened
 
 	-- We resolve facedown cards first because by default they're never visible
-	-- So it's facedown, we don't have to look any futher.
-	-- If you're the GM, we check to see if you should see other people playing face down cards
+	-- So it's facedown, we don't have to look any futher
 	local bGmSeesFacedown = DeckManager.getDeckSetting(vDeck, DeckManager.DECK_SETTING_GM_SEE_FACEDOWN_CARDS) == "yes";
-	if msg.facedown == "true" then
-		-- Edge case for dealing cards, where we don't want to care about sender name (it's always the GM)
-		if msg.action == "deal" then
-			return sMessageId == "gm" and bGmSeesFacedown
-		end
+	if msg.facedown == "true" and msg.action ~= "deal"then
+		-- If this is the deal action, then we don't want to worry about the facedown status.
+		-- We let the logic below this control who can see deals
+		-- This is so if only the player being dealt shoudl see the message, we don't have to worry about whether the GM
+		-- Can see facedown cards. They just don't ever see the cards dealt
 		return (sMessageId == "gm" and bGmSeesFacedown) or sSenderName == "you";
 	end
 

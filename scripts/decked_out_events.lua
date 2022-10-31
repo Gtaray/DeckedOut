@@ -8,6 +8,9 @@ DECKEDOUT_EVENT_CARD_ADDED_TO_HAND = "cardaddedtohand";
 DECKEDOUT_EVENT_MULTIPLE_CARDS_DEALT = "multiplecardsdealt";
 DECKEDOUT_EVENT_GROUP_DEAL = "groupdeal";
 
+DECKEDOUT_EVENT_HAND_GIVE_RANDOM = "giverandom";
+DECKEDOUT_EVENT_HAND_PLAY_RANDOM = "playrandom";
+DECKEDOUT_EVENT_HAND_DISCARD_RANDOM = "discardrandom";
 DECKEDOUT_EVENT_HAND_DISCARDED = "handdiscarded";
 DECKEDOUT_EVENT_HAND_PUT_BACK_IN_DECK = "handputbackindeck"
 
@@ -216,15 +219,71 @@ end
 ---@param tEventTrace table. Event trace table
 ---@return table tEventTrace Event trace table
 function raiseOnDiscardFromHandEvent(vCard, sIdentity, bFacedown, tEventTrace)
-	vCard = DeckedOutUtilities.validateCard(vCard);
-	if not vCard then return end
-
 	local tArgs = { sCardNode = vCard.getNodeName(), sSender = sIdentity };
 	if bFacedown then
 		tArgs.bFacedown = "true";
 	end
 	return DeckedOutEvents.raiseEvent(
 		DeckedOutEvents.DECKEDOUT_EVENT_CARD_DISCARDED, 
+		tArgs,
+		tEventTrace,
+		true
+	);
+end
+
+---Raises the onGiveRandomCard event
+---@param vCard databasenode Card that's being givem
+---@param sGiverIdentity string Character identity (or 'gm') for the person giving the card
+---@param sReceiverIdentity string Character identity (or 'gm') for the person receiving the card
+---@param bFacedown boolean
+---@param tEventTrace table
+---@return table tEventTrace
+function raiseOnGiveRandomCardEvent(vCard, sGiverIdentity, sReceiverIdentity, bFacedown, tEventTrace)
+	local tArgs = { sCardNode = vCard.getNodeName(), sGiver = sGiverIdentity, sReceiver = sReceiverIdentity };
+	if bFacedown then
+		tArgs.bFacedown = "true";
+	end
+
+	return DeckedOutEvents.raiseEvent(
+		DeckedOutEvents.DECKEDOUT_EVENT_HAND_GIVE_RANDOM,
+		tArgs,
+		tEventTrace,
+		true
+	)
+end
+
+---Raises the onPlayRandomCard event
+---@param vCard databasenode Card that is being played 
+---@param bDiscard boolean Is this card being discarded after being played?
+---@param tEventTrace table Event trace table
+---@return table tEventTrace Event trace table
+function raiseOnPlayRandomCardEvent(vCard, bFacedown, tEventTrace)
+	local tArgs = { sCardNode = vCard.getNodeName() };
+	tArgs.bFacedown = "false";
+	if bFacedown then
+		tArgs.bFacedown = "true";
+	end
+	
+	return DeckedOutEvents.raiseEvent(
+		DeckedOutEvents.DECKEDOUT_EVENT_HAND_PLAY_RANDOM,
+		tArgs,
+		tEventTrace
+	)
+end
+
+---Raises the onDiscardRandomCard event
+---@param vCard databasenode Card being discarded, AFTER the move takes place
+---@param sIdentity string Character identity (or 'gm') of the person discarding the card
+---@param bFacedown boolean Is the card being discarded facedown?
+---@param tEventTrace table. Event trace table
+---@return table tEventTrace Event trace table
+function raiseOnDiscardRandomCardEvent(vCard, sIdentity, bFacedown, tEventTrace)
+	local tArgs = { sCardNode = vCard.getNodeName(), sSender = sIdentity };
+	if bFacedown then
+		tArgs.bFacedown = "true";
+	end
+	return DeckedOutEvents.raiseEvent(
+		DeckedOutEvents.DECKEDOUT_EVENT_HAND_DISCARD_RANDOM, 
 		tArgs,
 		tEventTrace,
 		true
@@ -451,7 +510,7 @@ function onCardDroppedInChat(draginfo)
 
 	-- We specifically don't want to copy cards to storage here, since the message
 	-- handler will will copy it to chat. We only want to raise the event
-	CardManager.playCard(sRecord, DeckedOutUtilities.getFacedownHotkey(), tEventTrace)
+	CardManager.playCard(sRecord, DeckedOutUtilities.getFacedownHotkey(), DeckedOutUtilities.shouldPlayAndDiscard(), tEventTrace)
 	return true;
 end
 
@@ -501,7 +560,7 @@ function onCardDroppedOnImage(cImageControl, x, y, draginfo)
 		local token = cImageControl.addToken(sToken, x, y)
 		TokenManager.autoTokenScale(token);
 
-		CardManager.playCard(sRecord, bFacedown, {})
+		CardManager.playCard(sRecord, bFacedown, DeckedOutUtilities.shouldPlayAndDiscard(), {})
 
 		return token ~= nil;
 	end

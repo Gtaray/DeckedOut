@@ -10,6 +10,26 @@ function getPlayAndDiscardHotkey()
 	return DeckedOutUtilities.getHotkey(OptionsManager.getOption("HOTKEY_DISCARD"));
 end
 
+function shouldPlayAndDiscard(vCard, vDeck)
+	-- The hotkey should take presedence over any other options.
+	if DeckedOutUtilities.getPlayAndDiscardHotkey() then
+		return true;
+	end
+
+	local vCard = DeckedOutUtilities.validateCard(vCard);
+	if not vCard then return false end;
+	local vDeck = CardManager.getDeckNodeFromCard(vCard);
+	if not DeckedOutUtilities.validateDeck(vDeck) then return false end
+
+	if CardManager.isCardInHand(vCard) then
+		return DeckManager.getDeckSetting(vDeck, DeckManager.DECK_SETTING_AUTO_PLAY_FROM_HAND) == "yes";
+	elseif CardManager.isCardInDeck(vCard) then
+		return DeckManager.getDeckSetting(vDeck, DeckManager.DECK_SETTING_AUTO_PLAY_FROM_DECK) == "yes";
+	end
+	
+	return false;
+end
+
 ---Returns whether an input is pressed based on the input
 ---@param sOption string Hotkey option
 ---@return boolean

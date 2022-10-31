@@ -21,7 +21,7 @@ function onInit()
 		local node = DB.createNode(CardManager.GM_HAND_PATH);
 		node.setPublic(true);
 	end
-
+	
 	OptionsManager.registerOption2("HOTKEY_FACEDOWN", true, "option_header_deckedout", "option_label_facedown_hotkey", "option_entry_cycler",
 			{ labels = "option_val_ctrl|option_val_alt", values = "control|alt", baselabel = "option_val_shift", baseval = "shift", default = "shift" })
 	OptionsManager.registerOption2("HOTKEY_DISCARD", true, "option_header_deckedout", "option_label_play_and_discard_hotkey", "option_entry_cycler", 

@@ -11,6 +11,8 @@ function onInit()
 		updateHand(CardManager.getHandNode("gm"));
 	end
 
+	-- registerMenuItem(Interface.getString("hand_menu_play_random"), "customdice", 4);
+	-- registerMenuItem(Interface.getString("hand_menu_discard_random"), "customdice", 6);
 	registerMenuItem(Interface.getString("hand_menu_discard_hand"), "discard_hand", 8);
 	registerMenuItem(Interface.getString("hand_menu_discard_hand_confirm"), "discard_hand", 8, 8);
 end
@@ -24,7 +26,18 @@ function onClose()
 	end
 end
 
-function onMenuSelection(selection, subselection)	
+function onMenuSelection(selection, subselection)
+	-- if selection == 4 then
+	-- 	local sIdentity = self.getIdentity()
+	-- 	if sIdentity then
+	-- 		CardManager.playRandomCard(sIdentity, DeckedOutUtilities.getFacedownHotkey(), {})
+	-- 	end
+	-- elseif selection == 6 then
+	-- 	local sIdentity = self.getIdentity()
+	-- 	if sIdentity then
+	-- 		CardManager.discardRandomCard(sIdentity, DeckedOutUtilities.getFacedownHotkey(), {})
+	-- 	end
+	-- end
 	if selection == 8 and subselection == 8 then
 		local sIdentity = self.getIdentity()
 		if sIdentity then
@@ -74,13 +87,14 @@ function onDropCardOnDelete(vCard)
 	vCard = DeckedOutUtilities.validateCard(vCard);
 	if not vCard then return end
 
+	local sIdentity = User.getCurrentIdentity();
 	-- Either we're the host and the card is in the gm hand
 	-- Or we're a client and whose identity matches the card source
 	if Session.IsHost and CardManager.isCardOwnedByGm(vCard) then
-		CardManager.discardCard(vCard);
+		CardManager.discardCard(vCard, DeckedOutUtilities.getFacedownHotkey(), "gm", {});
 		return true;
-	elseif User.getCurrentIdentity() == CardManager.getCardSource(vCard) then
-		CardManager.discardCard(vCard);
+	elseif sIdentity == CardManager.getCardSource(vCard) then
+		CardManager.discardCard(vCard, DeckedOutUtilities.getFacedownHotkey(), sIdentity, {});
 		return true;
 	end
 end
