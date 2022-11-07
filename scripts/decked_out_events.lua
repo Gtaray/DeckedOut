@@ -4,6 +4,7 @@ DECKEDOUT_EVENT_CARD_GIVEN = "cardgiven";
 DECKEDOUT_EVENT_CARD_DEALT = "carddealt";
 DECKEDOUT_EVENT_CARD_ADDED_TO_STORAGE = "cardaddedtostorage";
 DECKEDOUT_EVENT_CARD_MOVED = "cardmoved";
+DECKEDOUT_EVENT_CARD_PUT_BACK_IN_DECK = "cardputbackindeck";
 DECKEDOUT_EVENT_CARD_ADDED_TO_HAND = "cardaddedtohand";
 DECKEDOUT_EVENT_MULTIPLE_CARDS_DEALT = "multiplecardsdealt";
 DECKEDOUT_EVENT_GROUP_DEAL = "groupdeal";
@@ -275,12 +276,16 @@ end
 ---@param vCard databasenode Card being discarded, AFTER the move takes place
 ---@param sIdentity string Character identity (or 'gm') of the person discarding the card
 ---@param bFacedown boolean Is the card being discarded facedown?
+---@param vDeck databasenode optional. Deck from which the card in hand is being discarded
 ---@param tEventTrace table. Event trace table
 ---@return table tEventTrace Event trace table
-function raiseOnDiscardRandomCardEvent(vCard, sIdentity, bFacedown, tEventTrace)
+function raiseOnDiscardRandomCardEvent(vCard, sIdentity, bFacedown, vDeck, tEventTrace)
 	local tArgs = { sCardNode = vCard.getNodeName(), sSender = sIdentity };
 	if bFacedown then
 		tArgs.bFacedown = "true";
+	end
+	if vDeck then
+		tArgs.sDeckNode = vDeck.getNodeName();
 	end
 	return DeckedOutEvents.raiseEvent(
 		DeckedOutEvents.DECKEDOUT_EVENT_HAND_DISCARD_RANDOM, 
@@ -309,7 +314,21 @@ function raiseOnHandDiscardedEvent(sIdentity, vDeck, tEventTrace)
 	);
 end
 
----Raises the onHandSicarded event.
+---Raises the onCardReturnedToDeck event
+---@param vCard databasenode
+---@param vDeck databasenode
+---@param sIdentity string
+---@param tEventTrace table
+---@return table tEventTrace
+function raiseOnCardReturnedToDeckEvent(vCard, vDeck, sIdentity, tEventTrace)
+	return DeckedOutEvents.raiseEvent(
+		DeckedOutEvents.DECKEDOUT_EVENT_CARD_PUT_BACK_IN_DECK,
+		{ sIdentity = sIdentity, sCardNode = vCard.getNodeName(), sDeckNode = vDeck.getNodeName() },
+		tEventTrace
+	);
+end
+
+---Raises the onHandReturnedToDeck event.
 ---@param sIdentity string Character identity (or 'gm') of the person discarding their hand
 ---@param vDeck databasenode optional. Deck node for which cards should be discarded
 ---@param tEventTrace table. Event trace table

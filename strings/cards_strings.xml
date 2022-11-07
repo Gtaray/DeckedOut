@@ -61,7 +61,7 @@
 	<string name="deckbox_setting_option_yes">Yes</string>
 	<string name="deckbox_setting_option_no">No</string>
 
-	<!-- DECKBOX TOoLTIPS -->
+	<!-- DECKBOX TOOLTIPS -->
 	<string name="deckbox_tooltip_deal_one_to_characters">Deal one card to all active characters (does not deal to characters that aren't being played currently)</string>
 	<string name="deckbox_tooltip_deal_multi_to_characters">Deal multiple card to all active characters (does not deal to characters that aren't being played currently)</string>
 	<string name="deckbox_tooltip_deal_one_to_gm">Deal one card to the GM</string>
@@ -72,28 +72,32 @@
 
 	<!-- DECKBOX MENU ITEMS -->
 	<string name="deckbox_menu_close_deck">Delete Deck</string>
-	<string name="deckbox_menu_play_top_card">Play and discard from the top of the deck</string>
+	<string name="deckbox_menu_play_top_card">Play the top card of the deck</string>
+	<string name="deckbox_menu_play_top_card_facedown">Play the top card of the deck facedown</string>
 	<string name="deckbox_menu_view_deck_cards">View all cards in this deck</string>
 	<string name="deckbox_menu_view_discard_cards">View all cards in the discard pile</string>
+	<string name="deckbox_menu_deal_one_to_charaters">Deal 1 card to all active PCs</string>
+	<string name="deckbox_menu_deal_multi_to_characters">Deal multiple cards to all active PCs</string>
 	<string name="deckbox_menu_deal_one_to_character">Deal one card to this character</string>
 	<string name="deckbox_menu_deal_multi_to_character">Deal multiple cards to this character</string>
-	<string name="deckbox_menu_discard_characters_hand">Discard all cards from this deck in this character's hand</string>
+	<string name="deckbox_menu_discard_character_hand">Discard all cards in this character's hand that originate from this deck</string>
+	<string name="deckbox_menu_discard_character_random">Discard a random card from this character's hand that originate from this deck</string>
 	<string name="deckbox_menu_reshuffle_characters_hand">Reshuffle all cards from this deck in this character's hand back into the deck</string>
 	<string name="deckbox_menu_view_pc_cards_in_hand">View all cards in this character's hand</string>
 
 	<!-- HAND MENU ITEMS AND TOOLTIPS -->
 	<string name="hand_menu_give_random">Give a random card from your hand to this character</string>
 	<string name="hand_menu_play_random">Play a card at random from your hand</string>
+	<string name="hand_menu_discard_hand">Discard cards from your hand</string>
 	<string name="hand_menu_discard_random">Discard a card at random from your hand</string>
-	<string name="hand_menu_discard_hand">Discard hand</string>
+	<string name="hand_menu_discard_hand_confirm">Are you sure you want to delete your whole hand?</string>
 	<string name="hand_tooltip_discard_card">Drop a card here to discard it</string>
 
 	<!-- CARD MENU ITEMS -->
 	<string name="card_menu_discard_card">Discard card</string>
 	<string name="card_menu_play_face_down">Put card in chat face down</string>
 	<string name="card_menu_play_face_up">Show card in chat</string>
-	<string name="hand_menu_discard_hand">Discard whole hand</string>
-	<string name="hand_menu_discard_hand_confirm">Are you sure you want to delete your whole hand?</string>
+	<string name="card_menu_reshuffle">Reshuffle this card back into its deck</string>
 
 	<string name="deck_label_cardback">Card Back</string>
 	<string name="deck_label_cards">Cards</string>
@@ -128,6 +132,7 @@
 	<string name="chat_msg_deal_card">%s dealt %s to %s</string>
 	<string name="chat_msg_deal_multiple_cards">%s dealt %s %s to %s</string>
 	<string name="chat_msg_group_deal">%s dealt %s %s to everyone</string>
+	<string name="chat_msg_card_put_back_in_deck">%s shuffled %s back into its deck</string>
 	<string name="chat_msg_hand_put_back_in_deck">%s shuffled %s hand back into %s</string>
 	<string name="chat_msg_not_enough_cards_in_deck">There are not enough cards in %s to deal</string>
 

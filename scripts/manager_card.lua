@@ -125,6 +125,25 @@ function discardCardsInHandFromDeck(vDeck, sIdentity, tEventTrace)
 	end
 end
 
+---Puts a card back into its deck
+---@param vCard databasenode
+---@param bFacedown boolean
+---@param tEventTrace table
+function putCardBackInDeck(vCard, bFacedown, tEventTrace)
+	vCard = DeckedOutUtilities.validateCard(vCard)
+	if not vCard then return end
+
+	local vDeck = CardManager.getDeckNodeFromCard(vCard);
+	if not DeckedOutUtilities.validateDeck(vDeck) then return end
+
+	local sIdentity = CardManager.getCardSource(vCard);
+	if not DeckedOutUtilities.validateIdentity(sIdentity) then return end
+
+	tEventTrace = DeckedOutEvents.addEventTrace(tEventTrace, DeckedOutEvents.DECKEDOUT_EVENT_CARD_PUT_BACK_IN_DECK);
+	local card = CardManager.moveCard(vCard, DeckManager.getCardsNode(vDeck), tEventTrace)
+	tEventTrace = DeckedOutEvents.raiseOnCardReturnedToDeckEvent(card, vDeck, sIdentity, {});
+end
+
 ---Puts all cards in a character's hand back into the appropriate decks.
 ---Raises the onHandReturnedToDeck event
 ---@param sIdentity string Character identity (or 'gm') for the person performing this action
@@ -226,7 +245,23 @@ function discardRandomCard(sIdentity, bFacedown, tEventTrace)
 	local aCards = CardManager.getRandomCardsInHand(sIdentity, 1);
 	
 	if aCards and aCards[1] then
-		DeckedOutEvents.raiseOnDiscardRandomCardEvent(aCards[1], bFacedown, tEventTrace)
+		DeckedOutEvents.raiseOnDiscardRandomCardEvent(aCards[1], sIdentity, bFacedown, nil, tEventTrace)
+		CardManager.discardCard(aCards[1], bFacedown, sIdentity, tEventTrace);
+	end
+end
+
+---Gets a random card from sIdentity's hand that originates from vDeck, and discards it.
+---@param vDeck databasenode
+---@param sIdentity string
+---@param bFacedown boolean
+---@param tEventTrace table
+function discardRandomCardFromDeck(vDeck, sIdentity, bFacedown, tEventTrace)
+	if not DeckedOutUtilities.validateIdentity(sIdentity) then return end
+
+	local aCards = CardManager.getRandomCardsInHand(sIdentity, 1, vDeck);
+
+	if aCards and aCards[1] then
+		DeckedOutEvents.raiseOnDiscardRandomCardEvent(aCards[1], sIdentity, bFacedown, vDeck, tEventTrace)
 		CardManager.discardCard(aCards[1], bFacedown, sIdentity, tEventTrace);
 	end
 end
@@ -297,12 +332,23 @@ end
 ---@param sIdentity string
 ---@param nNumberOfCards number
 ---@return table aCards
-function getRandomCardsInHand(sIdentity, nNumberOfCards)
+function getRandomCardsInHand(sIdentity, nNumberOfCards, vDeck)
 	if not DeckedOutUtilities.validateIdentity(sIdentity) then return end
+
+	local sDeckId = nil;
+	if vDeck then
+		sDeckId = DeckManager.getDeckId(vDeck);
+	end
 
 	local aCards = {};
 	for k,v in pairs(CardManager.getCardsInHand(sIdentity)) do
-		table.insert(aCards, v);
+		if sDeckId then
+			if CardManager.getDeckIdFromCard(v) == sDeckId then
+				table.insert(aCards, v);
+			end
+		else
+			table.insert(aCards, v);
+		end
 	end
 
 	if #aCards == 0 then

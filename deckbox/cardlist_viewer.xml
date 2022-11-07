@@ -71,14 +71,15 @@
 			end
 		</script>
 		<sheetdata>
-			<discardable_card name="image">
+			<token_card name="image">
 				<script file="common/scripts/onCardDrag.lua" />
+				<script file="common/scripts/standardCardRadialOptions.lua" />
 				<nodrag />
 				<anchored height="140" width="100">
 					<top />
 					<left />
 				</anchored>
-			</discardable_card>
+			</token_card>
 			<icon_missing_token name="missingtoken" />
 			<card_highlight name="highlight" />
 		</sheetdata>

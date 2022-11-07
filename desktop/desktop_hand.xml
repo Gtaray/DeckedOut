@@ -42,6 +42,18 @@
 			</windowlist>
 			<genericcontrol name="discard">
 				<script>
+					function isOwner()
+						return Session.IsHost or DB.isOwner(window.getDatabaseNode());
+					end
+					function onClickDown()
+						return self.isOwner();
+					end
+					function onClickRelease()
+						if self.isOwner() then
+							Interface.openRadialMenu();
+							return true;
+						end
+					end
 					function onDrop(x, y, dragdata)
 						if dragdata.isType("shortcut") then
 							local sClass, sRecord = dragdata.getShortcutData();
@@ -53,11 +65,12 @@
 						end
 					end
 				</script>
-				<icon>button_discard</icon>
+				<icon>icon_discard_pile</icon>
 				<anchored height="40" width="40">
-					<bottom offset="-10" />
-					<right offset="-10" />
+					<bottom offset="-15" />
+					<right offset="-15" />
 				</anchored>
+				<tooltip textres="hand_tooltip_discard_card"/>
 			</genericcontrol>
 		</sheetdata>
 	</windowclass>
@@ -88,7 +101,8 @@
 		</script>
 		<sheetdata>
 			<token_card name="image">
-				<script file="desktop/scripts/desktop_card.lua" />
+				<script file="common/scripts/onCardDrag.lua" />
+				<script file="common/scripts/standardCardRadialOptions.lua" />
 			</token_card>
 			<icon_missing_token name="missingtoken" />
 			<card_highlight name="highlight" />

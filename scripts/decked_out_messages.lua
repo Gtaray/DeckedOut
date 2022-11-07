@@ -12,6 +12,7 @@ function onInit()
 	DeckedOutEvents.registerEvent(DeckedOutEvents.DECKEDOUT_EVENT_HAND_DISCARDED, { fCallback = printHandDiscardedMessage, sTarget = "host" });
 	DeckedOutEvents.registerEvent(DeckedOutEvents.DECKEDOUT_EVENT_MULTIPLE_CARDS_DEALT, { fCallback = printMultipleCardsDealtMessage, sTarget = "host" });
 	DeckedOutEvents.registerEvent(DeckedOutEvents.DECKEDOUT_EVENT_GROUP_DEAL, { fCallback = printGroupDealMessage, sTarget = "host" });
+	DeckedOutEvents.registerEvent(DeckedOutEvents.DECKEDOUT_EVENT_CARD_PUT_BACK_IN_DECK, { fCallback = printCardPutBack, sTarget = "host" });
 	DeckedOutEvents.registerEvent(DeckedOutEvents.DECKEDOUT_EVENT_HAND_PUT_BACK_IN_DECK, { fCallback = printHandPutBack, sTarget = "host" });
 
 	-- These oob messages are needed because cards are printed to chat. the GM must copy referenced cards to card storage
@@ -198,6 +199,30 @@ function printHandDiscardedMessage(tEventArgs, tEventTrace)
 
 	sendMessageToGm(msg);
 	sendMessageToClients(msg);
+end
+
+function printCardPutBack(tEventArgs, tEventTrace)
+	if not DeckedOutUtilities.validateIdentity(tEventArgs.sIdentity) then return end;
+	local vCard = DeckedOutUtilities.validateCard(tEventArgs.sCardNode);
+	local vDeck = DeckedOutUtilities.validateDeck(tEventArgs.sDeckNode);
+
+	local sDeckName = "the deck";
+	if vDeck then
+		sDeckName = DeckManager.getDeckName(vDeck);
+	end
+
+	local msg = {};
+	msg.type = DeckedOutMessages.OOB_MSGTYPE_DECKEDOUT_STANDARD;
+	msg.sender = tEventArgs.sIdentity;
+	msg.action = "reshuffle";
+	msg.facedown = tEventArgs.bFacedown;
+
+	local sTextRes = "";
+	msg.text = Interface.getString("chat_msg_card_put_back_in_deck");
+	msg.text = string.format(msg.text, "[SENDER]", "[CARDNAME]");
+	msg.card_link = vCard.getNodeName();
+
+	Comm.deliverOOBMessage(msg, "");
 end
 
 function printHandPutBack(tEventArgs, tEventTrace)

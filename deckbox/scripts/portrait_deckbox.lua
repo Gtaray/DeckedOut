@@ -3,25 +3,28 @@ function onInit()
 		super.onInit()
 	end
 
-	registerMenuItem(Interface.getString("deckbox_menu_deal_one_to_character"), "deal", 2);
-	registerMenuItem(Interface.getString("deckbox_menu_deal_multi_to_character"), "deal_multiple", 3);
-	registerMenuItem(Interface.getString("deckbox_menu_discard_characters_hand"), "discard_hand", 4);
-	registerMenuItem(Interface.getString("deckbox_menu_reshuffle_characters_hand"), "reshuffle_hand", 5);
-	registerMenuItem(Interface.getString("deckbox_menu_view_pc_cards_in_hand"), "view_hand", 6);
+	registerMenuItem(Interface.getString("deckbox_menu_view_pc_cards_in_hand"), "view_hand", 2);
+	registerMenuItem(Interface.getString("deckbox_menu_deal_one_to_character"), "deal", 3);
+	registerMenuItem(Interface.getString("deckbox_menu_deal_multi_to_character"), "multideal", 4);
+	registerMenuItem(Interface.getString("deckbox_menu_reshuffle_characters_hand"), "reshuffle_hand", 6);
+	registerMenuItem(Interface.getString("deckbox_menu_discard_character_hand"), "discard_hand", 7);
+	registerMenuItem(Interface.getString("deckbox_menu_discard_character_random"), "discard_random", 8);
 
 	update();
 end
 
 function onMenuSelection(selection)
-	if selection == 2 then
-		DeckManager.dealCard(getDeckNode(), getIdentity(), false);
-	elseif selection == 3 then
-		DesktopManager.promptCardAmount(onCardAmountSelected);
+	if selection == 3 then
+		DeckManager.dealCard(getDeckNode(), getIdentity(), DeckedOutUtilities.getFacedownHotkey());
 	elseif selection == 4 then
+		DesktopManager.promptCardAmount(onCardAmountSelected)
+	elseif selection == 7 then
 		CardManager.discardCardsInHandFromDeck(getDeckNode(), getIdentity(), {});
-	elseif selection == 5 then
-		CardManager.putCardsFromDeckInHandBackIntoDeck(getDeckNode(), getIdentity());
+	elseif selection == 8 then
+		CardManager.discardRandomCardFromDeck(getDeckNode(), getIdentity(), DeckedOutUtilities.getFacedownHotkey(), {})
 	elseif selection == 6 then
+		CardManager.putCardsFromDeckInHandBackIntoDeck(getDeckNode(), getIdentity());
+	elseif selection == 1 then
 		DesktopManager.openCardList(CardManager.getHandNode(getIdentity()));
 	end
 end

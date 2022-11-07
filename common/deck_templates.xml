@@ -36,13 +36,7 @@
 			<static textres="deck_emptycardback" />
 		</stringcontrol>
 	</template>
-
-	<template name="discardable_card">
-		<token_card>
-			<script file="common/scripts/discardRadialOption.lua" />
-		</token_card>
-	</template>
-
+	
 	<template name="token_card">
 		<tokenfield>
 			<script>

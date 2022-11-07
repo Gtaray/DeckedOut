@@ -2,7 +2,8 @@ aRecords = {
 	["deck"] = {
 		bExport = true,
 		bID = false,
-		aDataMap = { "deck", "reference.decks" }
+		aDataMap = { "deck", "reference.decks" },
+		sIcon = "sidebar_icon_recordtype_deck"
 	}
 }
 
@@ -12,7 +13,7 @@ function onInit()
 	if Session.IsHost then
 		DesktopManager.registerSidebarToolButton({
 			tooltipres = "sidebar_tooltip_active_deckbox",
-			sIcon = "sidebar_icon_deck",
+			sIcon = "sidebar_icon_deckbox",
 			class = "deckbox",
 			path = "deckbox"
 		});

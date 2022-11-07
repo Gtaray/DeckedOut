@@ -14,6 +14,7 @@ function onInit()
 	-- registerMenuItem(Interface.getString("hand_menu_play_random"), "customdice", 4);
 	-- registerMenuItem(Interface.getString("hand_menu_discard_random"), "customdice", 6);
 	registerMenuItem(Interface.getString("hand_menu_discard_hand"), "discard_hand", 8);
+	registerMenuItem(Interface.getString("hand_menu_discard_random"), "discard_random", 8, 7);
 	registerMenuItem(Interface.getString("hand_menu_discard_hand_confirm"), "discard_hand", 8, 8);
 end
 
@@ -27,18 +28,12 @@ function onClose()
 end
 
 function onMenuSelection(selection, subselection)
-	-- if selection == 4 then
-	-- 	local sIdentity = self.getIdentity()
-	-- 	if sIdentity then
-	-- 		CardManager.playRandomCard(sIdentity, DeckedOutUtilities.getFacedownHotkey(), {})
-	-- 	end
-	-- elseif selection == 6 then
-	-- 	local sIdentity = self.getIdentity()
-	-- 	if sIdentity then
-	-- 		CardManager.discardRandomCard(sIdentity, DeckedOutUtilities.getFacedownHotkey(), {})
-	-- 	end
-	-- end
-	if selection == 8 and subselection == 8 then
+	if selection == 8 and subselection == 7 then
+		local sIdentity = self.getIdentity()
+		if sIdentity then
+			CardManager.discardRandomCard(sIdentity, DeckedOutUtilities.getFacedownHotkey(), {})
+		end
+	elseif selection == 8 and subselection == 8 then
 		local sIdentity = self.getIdentity()
 		if sIdentity then
 			-- Pass in empty list for tEventTrace since this is guaranteed to be the first place we have an event chain

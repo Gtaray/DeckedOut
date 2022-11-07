@@ -1,30 +1,6 @@
 TODO LIST: 
-* Add tooltip to trash bin in hand
 * Display icons in chat for card actions	
 	* Message data can have multiple icons, so this is basically easy
-* Make consistent the locations for various radial menu options (discard, view card list, deal, etc)
-
-ICONS
-Radial
-	Deal one card to one person
-	Deal multiple cards to one person
-	Deal one card to multiple people
-	Deal multiple cards to multiple people
-	View card list
-	View discard pile
-	View hand
-	Discard one card from your hand
-	Discard entire hand
-	Discard one card at random
-	Reshuffle back into deck
-	Play card from your hand face up
-	Play card from your hand face down
-	Give another player a random card from your hand
-Icons
-	Discard pile (this is currently the trash can icon, can probably be the same as the "view discard pile" radial icon)
-	Deck list (can probably be the same as the "view card list" radial icon)
-	Open Deckbox (for the toolbar tray in the upper right corner)
-	Decks (icon next to "Decks" in the sidebar)
 
 STRETCH GOALS
 * Hand actions - Moved to Stretch goal, because of some weirdness around message timing. Could get pulled in if requested though. Current workaround is to use dice
@@ -43,6 +19,8 @@ STRETCH GOALS
 * Add pre-check functions to all events, and get rid of immediate event type
 
 DONE
+* Make consistent the locations for various radial menu options (discard, view card list, deal, etc)
+* Add tooltip to trash bin in hand
 * Top deck actions
   * [x] Play card from top of deck (double click and right action)
 * Added documentation to all api functions
