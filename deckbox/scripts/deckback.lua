@@ -13,7 +13,7 @@ function onMenuSelection(selection)
 	if not Session.IsHost then
 		return;
 	end
-	if selection == 1 then
+	if selection == 2 then
 		playCard(DeckedOutUtilities.getFacedownHotkey());
 	elseif selection == 3 then
 		dealCards(1);

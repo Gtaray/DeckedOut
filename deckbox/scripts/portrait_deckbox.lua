@@ -24,7 +24,7 @@ function onMenuSelection(selection)
 		CardManager.discardRandomCardFromDeck(getDeckNode(), getIdentity(), DeckedOutUtilities.getFacedownHotkey(), {})
 	elseif selection == 6 then
 		CardManager.putCardsFromDeckInHandBackIntoDeck(getDeckNode(), getIdentity());
-	elseif selection == 1 then
+	elseif selection == 2 then
 		DesktopManager.openCardList(CardManager.getHandNode(getIdentity()));
 	end
 end
