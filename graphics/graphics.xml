@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <root>
+	<icon name="decked_out" file="graphics/icons/deckedout.png" />
+	
 	<!-- Sidebar -->
 	<icon name="sidebar_action_hand" file="graphics/sidebar/sidebar_hand.png" />
 	<icon name="sidebar_icon_deckbox" file="graphics/sidebar/sidebar_deckbox.png" />
