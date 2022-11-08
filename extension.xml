@@ -17,7 +17,9 @@
 
 		<includefile source="graphics/graphics.xml" />
 
+		<includefile source="desktop/desktop_panels.xml" />
 		<includefile source="desktop/desktop_hand.xml" />
+		<includefile source="desktop/desktop_card.xml" />
 
 		<includefile source="deckbox/deckbox.xml" />
 		<includefile source="deckbox/deckbox_settings.xml" />

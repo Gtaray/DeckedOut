@@ -1,15 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <root>
-	<panel name="handpanel">
-		<anchored height="150" width="450">
-			<bottom offset="-35" />
-			<right parent="shortcutsanchor" anchor="left" />
-		</anchored>
-		<class>desktop_hand</class>
-		<dynamic />
-		<locked />
-	</panel>
-
 	<windowclass name="desktop_hand">
 		<noclose/>
 		<sizelimits>
@@ -40,93 +30,16 @@
 					<bottom />
 				</anchored>
 			</windowlist>
-			<genericcontrol name="discard">
-				<script>
-					function isOwner()
-						return Session.IsHost or DB.isOwner(window.getDatabaseNode());
-					end
-					function onClickDown()
-						return self.isOwner();
-					end
-					function onClickRelease()
-						if self.isOwner() then
-							Interface.openRadialMenu();
-							return true;
-						end
-					end
-					function onDrop(x, y, dragdata)
-						if dragdata.isType("shortcut") then
-							local sClass, sRecord = dragdata.getShortcutData();
-
-							if sClass == "card" then
-								window.onDropCardOnDelete(sRecord);
-								return true;
-							end
-						end
-					end
-				</script>
-				<icon>icon_discard_pile</icon>
-				<anchored height="40" width="40">
+			<leftClickOpensRadial name="discard">
+				<script file="common/scripts/discardOnCardDrop.lua" />
+				
+				<anchored height="50" width="50">
 					<bottom offset="-15" />
 					<right offset="-15" />
 				</anchored>
 				<tooltip textres="hand_tooltip_discard_card"/>
-			</genericcontrol>
-		</sheetdata>
-	</windowclass>
-
-	<windowclass name="desktop_card">
-		<margins control="0,0,0,0" />
-		<script>
-			local bPopped = false;
-			
-			function onInit()
-				highlight.setEnabled(false);
-			end
-
-			function setCardSize(nWidth, nHeight)
-				image.setAnchoredWidth(nWidth);
-				image.setAnchoredHeight(nHeight);
-			end
-			
-			function onHover(hover)
-				if hover and not bPopped then
-					highlight.setVisible(true);
-					bPopped = true;
-				elseif not hover and bPopped then
-					highlight.setVisible(false);
-					bPopped = false;
-				end
-			end
-		</script>
-		<sheetdata>
-			<token_card name="image">
-				<script file="common/scripts/onCardDrag.lua" />
-				<script file="common/scripts/standardCardRadialOptions.lua" />
-			</token_card>
-			<icon_missing_token name="missingtoken" />
-			<card_highlight name="highlight" />
-		</sheetdata>
-	</windowclass>
-
-	<windowclass name="shortcuts" merge="join">
-		<sheetdata>
-			<buttoncontrol name="button_hand">
-				<frame name="sidebar_dock_entry_icon" />
-				<anchored to="button_visibility" position="above" height="40" />
-				<script>
-					function onButtonPress()
-						DesktopManager.toggleHandVisibility(getValue() == 1);
-					end
-				</script>
-				<state />
-				<state />
-			</buttoncontrol>
-			<genericcontrol name="button_hand_icon">
-				<anchored to="button_hand" position="insidetopleft" offset="5,5" width="30" height="30" />
-				<icon>sidebar_action_hand</icon>
-				<disabled />
-			</genericcontrol>
+				<icon>icon_discard_pile</icon>
+			</leftClickOpensRadial>
 		</sheetdata>
 	</windowclass>
 </root>

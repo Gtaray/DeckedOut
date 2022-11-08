@@ -2,7 +2,7 @@ function onInit()
 	registerMenuItem(Interface.getString("deckbox_menu_play_top_card"), "play_faceup", 1);
 	registerMenuItem(Interface.getString("deckbox_menu_play_top_card_facedown"), "play_facedown", 5)
 
-	registerMenuItem(Interface.getString("deckbox_menu_view_deck_cards"), "deck", 2);
+	registerMenuItem(Interface.getString("deckbox_menu_view_deck_cards"), "view_hand", 2);
 	registerMenuItem(Interface.getString("deckbox_menu_view_discard_cards"), "discard", 8);
 
 	registerMenuItem(Interface.getString("deckbox_menu_deal_one_to_charaters"), "deal_multiperson", 3)
@@ -24,7 +24,7 @@ function onMenuSelection(selection)
 	end
 	if selection == 1 then
 		playCard(DeckedOutUtilities.getFacedownHotkey());
-	elseif selection == 1 then
+	elseif selection == 2 then
 		DesktopManager.openCardList(DeckManager.getCardsNode(window.getDatabaseNode()));
 	elseif selection == 3 then
 		dealCards(1);

@@ -57,7 +57,7 @@
 						end
 					end
 				</script>
-				<anchored height="200">
+				<anchored height="160">
 					<top parent="decks" anchor="bottom" offset="5" />
 					<left />
 					<right />
@@ -66,7 +66,7 @@
 
 			<stringcontrol name="label_droptext">
 				<anchored to="dropframe" height="40">
-					<top offset="80"/>
+					<top offset="60"/>
 					<left />
 					<right />
 				</anchored>
@@ -98,6 +98,28 @@
 					<left offset="15" />
 				</anchored>
 			</deckback>
+			<leftClickOpensCardList name="button_view_deck">
+				<script>
+					function onDrop(x, y, draginfo)
+						CardManager.onDropCard(draginfo, window.getDatabaseNode(), DeckManager.DECK_CARDS_PATH);
+					end
+				</script>
+				<anchored to="back" height="36" width="36">
+					<bottom offset="10" />
+					<left offset="-10" />
+				</anchored>
+				<icon>deck</icon>
+				<cardlist>deck</cardlist>
+			</leftClickOpensCardList>
+			<leftClickOpensCardList name="button_view_discard">
+				<script file="common/scripts/discardOnCardDrop.lua" />
+				<anchored to="back" height="36" width="36">
+					<bottom offset="10" />
+					<right offset="10" />
+				</anchored>
+				<icon>icon_discard_pile</icon>
+				<cardlist>discard</cardlist>
+			</leftClickOpensCardList>
 
 			<!-- CARD COUNTS -->
 			<label name="label_cardcount">

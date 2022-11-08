@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <root>
 	<windowclass name="cardlist_viewer">
-		<margins control="10,10,10,10" />
+		<!-- <margins control="10,10,10,10" /> -->
 		<frame>partysheet</frame>
 		<placement>
 			<size width="500" height="500" />
@@ -37,10 +37,10 @@
 
 			<windowlist name="cards">
 				<anchored>
-					<top offset="45" />
-					<left offset="20" />
-					<bottom offset="-10"/>
-					<right offset="0"/>
+					<top offset="60" />
+					<left offset="40" />
+					<bottom offset="-40"/>
+					<right offset="-40"/>
 				</anchored>
 				<class>cardlist_viewer_item</class>
 				<columns width="105" fillwidth="true" />
