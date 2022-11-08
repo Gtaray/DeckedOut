@@ -19,7 +19,7 @@
 	<icon name="discard_random" file="graphics/radial/discard_random.png" />
 	<icon name="discard_hand" file="graphics/radial/discard_hand.png" />
 	<icon name="give_card" file="graphics/radial/deal.png" />
-	<icon name="give_random_card" file="graphics/radial/give_random_card.png" />
+	<!-- <icon name="give_random_card" file="graphics/radial/give_random_card.png" /> -->
 	<icon name="deal" file="graphics/radial/deal.png" />
 	<icon name="deal_multiperson" file="graphics/radial/deal_multiperson.png" />
 	<icon name="multideal" file="graphics/radial/multideal.png" />
