@@ -66,12 +66,14 @@ function printCardPlayedMessage(tEventArgs, tEventTrace)
 		else
 			msg.text = Interface.getString("chat_msg_card_played_facedown");
 		end
+		msg.icon = "play_facedown";
 	else
 		if bDiscard then
 			msg.text = Interface.getString("chat_msg_card_played_discarded_faceup");
 		else
 			msg.text = Interface.getString("chat_msg_card_played_faceup");
 		end
+		msg.icon = "play_faceup";
 	end
 
 	msg.text = string.format(msg.text, "[SENDER]", "[CARDNAME]");
@@ -103,12 +105,14 @@ function printRandomCardPlayedMessage(tEventArgs, tEventTrace)
 		else
 			msg.text = Interface.getString("chat_msg_card_randomly_played_facedown");
 		end
+		msg.icon = "play_facedown";
 	else
 		if bDiscard then
 			msg.text = Interface.getString("chat_msg_card_randomly_played_discarded_faceup");
 		else
 			msg.text = Interface.getString("chat_msg_card_randomly_played_faceup");
 		end
+		msg.icon = "play_faceup";
 	end
 
 	msg.text = string.format(msg.text, "[SENDER]", "[CARDNAME]");
@@ -145,6 +149,7 @@ function printCardDiscardedMessage(tEventArgs, tEventTrace)
 	msg.sender = tEventArgs.sSender;
 	msg.action = "discard";
 	msg.facedown = tEventArgs.bFacedown;
+	msg.icon = "discard_card";
 
 	local sTextRes = "";
 	if bFacedown then
@@ -171,6 +176,7 @@ function printRandomCardDiscardedMessage(tEventArgs, tEventTrace)
 	msg.sender = tEventArgs.sSender;
 	msg.action = "discard";
 	msg.facedown = tEventArgs.bFacedown;
+	msg.icon = "discard_random";
 
 	local sTextRes = "";
 	if bFacedown then
@@ -196,6 +202,7 @@ function printHandDiscardedMessage(tEventArgs, tEventTrace)
 	msg.sender = tEventArgs.sIdentity;
 	msg.text = Interface.getString("chat_msg_discarded_hand");
 	msg.text = string.format(msg.text, "[SENDER]", "[PRONOUN]")
+	msg.icon = "discard_hand";
 
 	sendMessageToGm(msg);
 	sendMessageToClients(msg);
@@ -216,6 +223,7 @@ function printCardPutBack(tEventArgs, tEventTrace)
 	msg.sender = tEventArgs.sIdentity;
 	msg.action = "reshuffle";
 	msg.facedown = tEventArgs.bFacedown;
+	msg.icon = "reshuffle_card";
 
 	local sTextRes = "";
 	msg.text = Interface.getString("chat_msg_card_put_back_in_deck");
@@ -238,6 +246,7 @@ function printHandPutBack(tEventArgs, tEventTrace)
 	msg.sender = tEventArgs.sIdentity;
 	msg.text = Interface.getString("chat_msg_hand_put_back_in_deck");
 	msg.text = string.format(msg.text, "[SENDER]", "[PRONOUN]", sDeckName)
+	msg.icon = "reshuffle_hand";
 
 	sendMessageToGm(msg);
 	sendMessageToClients(msg);
@@ -263,6 +272,7 @@ function printCardGivenMessage(tEventArgs, tEventTrace)
 	msg.card_link = vCard.getNodeName();
 	msg.action = "give";
 	msg.facedown = tEventArgs.bFacedown;
+	msg.icon = "give_card"
 
 	if bFacedown then
 		msg.text = Interface.getString("chat_msg_give_card_facedown");
@@ -301,6 +311,7 @@ function printCardDealtMessage(tEventArgs, tEventTrace)
 	msg.facedown = tEventArgs.bFacedown;
 	msg.text = Interface.getString("chat_msg_deal_card");
 	msg.text = string.format(msg.text, "[SENDER]", "[CARDNAME]", "[PRONOUN]");
+	msg.icon = "deal";
 
 	Comm.deliverOOBMessage(msg, "");
 end
@@ -325,6 +336,7 @@ function printMultipleCardsDealtMessage(tEventArgs, tEventTrace)
 	msg.receiver = tEventArgs.sReceiver;
 	msg.text = Interface.getString("chat_msg_deal_multiple_cards");
 	msg.text = string.format(msg.text, "[SENDER]", nCardsDealt, sCardPlural, "[PRONOUN]");
+	msg.icon = "multideal";
 
 	sendMessageToGm(msg);
 	sendMessageToClients(msg);
@@ -345,6 +357,7 @@ function printGroupDealMessage(tEventArgs, tEventTrace)
 	msg.sender = "gm"; 
 	msg.text = Interface.getString("chat_msg_group_deal");
 	msg.text = string.format(msg.text, "[SENDER]", nCardsDealt, sCardPlural);
+	msg.icon = "deal_multiperson";
 
 	sendMessageToGm(msg);
 	sendMessageToClients(msg);
@@ -510,13 +523,18 @@ function buildCardMessage(msgOOB, sRecipientIdentity)
 	local msg = {};
 
 	-- TODO: Add an extra icon here based on msg.action
+	msg.icon = {};
 	if msgOOB.sender == "gm" then
-		msg.icon = "portrait_gm_token";
+		table.insert(msg.icon, "portrait_gm_token");
 	else
 		local nodeActor = DB.findNode(DB.getPath("charsheet", msgOOB.sender));
 		if nodeActor then
-			msg.icon = "portrait_" .. nodeActor.getName() .. "_chat";
+			table.insert(msg.icon, "portrait_" .. nodeActor.getName() .. "_chat");
 		end
+	end
+
+	if msgOOB.icon then
+		table.insert(msg.icon, msgOOB.icon);
 	end
 
 	local sText, bShowCard = formatChatMessage(msgOOB, sRecipientIdentity);

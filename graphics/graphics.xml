@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <root>
+	<icon name="decked_out" file="graphics/icons/deckedout.png" />
+	
 	<!-- Sidebar -->
 	<icon name="sidebar_action_hand" file="graphics/sidebar/sidebar_hand.png" />
 	<icon name="sidebar_icon_deckbox" file="graphics/sidebar/sidebar_deckbox.png" />
@@ -16,6 +18,7 @@
 	<icon name="discard_card" file="graphics/radial/discard.png" />
 	<icon name="discard_random" file="graphics/radial/discard_random.png" />
 	<icon name="discard_hand" file="graphics/radial/discard_hand.png" />
+	<icon name="give_card" file="graphics/radial/deal.png" />
 	<icon name="give_random_card" file="graphics/radial/give_random_card.png" />
 	<icon name="deal" file="graphics/radial/deal.png" />
 	<icon name="deal_multiperson" file="graphics/radial/deal_multiperson.png" />
