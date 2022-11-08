@@ -7,6 +7,15 @@ function onInit()
 
 	registerMenuItem(Interface.getString("deckbox_menu_deal_one_to_charaters"), "deal_multiperson", 3)
 	registerMenuItem(Interface.getString("deckbox_menu_deal_multi_to_characters"), "multideal_multiperson", 4)
+
+	-- registerMenuItem(Interface.getString("deckbox_menu_deal_multi_to_characters"), "multideal_multiperson", 1)
+	-- registerMenuItem(Interface.getString("deckbox_menu_deal_multi_to_characters"), "multideal_multiperson", 2)
+	-- registerMenuItem(Interface.getString("deckbox_menu_deal_multi_to_characters"), "multideal_multiperson", 3)
+	-- registerMenuItem(Interface.getString("deckbox_menu_deal_multi_to_characters"), "multideal_multiperson", 4)
+	-- registerMenuItem(Interface.getString("deckbox_menu_deal_multi_to_characters"), "multideal_multiperson", 5)
+	-- registerMenuItem(Interface.getString("deckbox_menu_deal_multi_to_characters"), "multideal_multiperson", 6)
+	-- registerMenuItem(Interface.getString("deckbox_menu_deal_multi_to_characters"), "multideal_multiperson", 7)
+	-- registerMenuItem(Interface.getString("deckbox_menu_deal_multi_to_characters"), "multideal_multiperson", 8)
 end
 
 function onMenuSelection(selection)
