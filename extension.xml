@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <root version="3.3" release="1.0">
-	<announcement text="Decked Out v0.9.1 by Saagael." icon="decked_out" font="emotefont" />
+	<announcement text="Decked Out v1.0.0 by Saagael." icon="decked_out" font="emotefont" />
 	<properties>
 		<name>Feature: Decked Out</name>
-		<version>0.9.1</version>
-		<author>George Taray</author>
+		<version>1.0.0</version>
+		<author>Saagael</author>
 		<description>Adds decks of cards</description>
 	</properties>
 	<base>
