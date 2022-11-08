@@ -13,16 +13,16 @@ function onMenuSelection(selection)
 	if not Session.IsHost then
 		return;
 	end
-	if selection == 2 then
+	if selection == 1 then
 		playCard(DeckedOutUtilities.getFacedownHotkey());
+	elseif selection == 1 then
+		DesktopManager.openCardList(DeckManager.getCardsNode(window.getDatabaseNode()));
 	elseif selection == 3 then
 		dealCards(1);
 	elseif selection == 4 then
 		DesktopManager.promptCardAmount(dealCards);
 	elseif selection == 5 then
 		playCard(true);
-	elseif selection == 7 then
-		DesktopManager.openCardList(DeckManager.getCardsNode(window.getDatabaseNode()));
 	elseif selection == 8 then
 		DesktopManager.openCardList(DeckManager.getDiscardNode(window.getDatabaseNode()));
 	end
