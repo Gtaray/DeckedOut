@@ -6,9 +6,6 @@
 		<version>0.9.1</version>
 		<author>George Taray</author>
 		<description>Adds decks of cards</description>
-		<ruleset>
-			<name>CoreRPG</name>
-		</ruleset>
 	</properties>
 	<base>
 		<includefile source="campaign/record_char.xml" />
