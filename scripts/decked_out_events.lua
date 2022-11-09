@@ -290,8 +290,7 @@ function raiseOnDiscardRandomCardEvent(vCard, sIdentity, bFacedown, vDeck, tEven
 	return DeckedOutEvents.raiseEvent(
 		DeckedOutEvents.DECKEDOUT_EVENT_HAND_DISCARD_RANDOM, 
 		tArgs,
-		tEventTrace,
-		true
+		tEventTrace
 	);
 end
 

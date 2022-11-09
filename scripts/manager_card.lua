@@ -196,18 +196,6 @@ function playCard(vCard, bFacedown, bDiscard, tEventTrace)
 	local vDeck = DeckedOutUtilities.validateDeck(CardManager.getDeckNodeFromCard(vCard));
 	if not vDeck then return end
 
-	-- local bDiscard = false;
-	-- if CardManager.isCardInHand(vCard) then
-	-- 	bDiscard = DeckManager.getDeckSetting(vDeck, DeckManager.DECK_SETTING_AUTO_PLAY_FROM_HAND) == "yes";
-	-- elseif CardManager.isCardInDeck(vCard) then
-	-- 	bDiscard = DeckManager.getDeckSetting(vDeck, DeckManager.DECK_SETTING_AUTO_PLAY_FROM_DECK) == "yes";
-	-- end
-
-	-- -- The hotkey should take presedence over any other options.
-	-- if DeckedOutUtilities.getPlayAndDiscardHotkey() then
-	-- 	bDiscard = true;
-	-- end
-
 	DeckedOutEvents.raiseOnCardPlayedEvent(vCard, bFacedown, bDiscard, tEventTrace)
 
 	if bDiscard then
@@ -245,7 +233,7 @@ function discardRandomCard(sIdentity, bFacedown, tEventTrace)
 	local aCards = CardManager.getRandomCardsInHand(sIdentity, 1);
 	
 	if aCards and aCards[1] then
-		DeckedOutEvents.raiseOnDiscardRandomCardEvent(aCards[1], sIdentity, bFacedown, nil, tEventTrace)
+		tEventTrace = DeckedOutEvents.raiseOnDiscardRandomCardEvent(aCards[1], sIdentity, bFacedown, nil, tEventTrace)
 		CardManager.discardCard(aCards[1], bFacedown, sIdentity, tEventTrace);
 	end
 end
@@ -714,7 +702,7 @@ function handleAnyDrop(sSourceNode, sDestinationNode, sExtra, bFacedown)
 		if ActorManager.isPC(vDestination) then
 			-- If dropping on PC, give card to that PC
 			sReceivingIdentity = ActorManager.getCreatureNode(vDestination).getName();
-			vDestination = CardsManager.getHandNode(sReceivingIdentity);
+			vDestination = CardManager.getHandNode(sReceivingIdentity);
 		else
 			-- If dropping on NPC, give card to GM
 			vDestination = CardManager.getHandNode("gm");

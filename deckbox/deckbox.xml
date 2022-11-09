@@ -110,6 +110,7 @@
 				</anchored>
 				<icon>deck</icon>
 				<cardlist>deck</cardlist>
+				<tooltip textres="deckbox_tooltip_open_decklist" />
 			</leftClickOpensCardList>
 			<leftClickOpensCardList name="button_view_discard">
 				<script file="common/scripts/discardOnCardDrop.lua" />
@@ -119,6 +120,7 @@
 				</anchored>
 				<icon>icon_discard_pile</icon>
 				<cardlist>discard</cardlist>
+				<tooltip textres="deckbox_tooltip_open_discard" />
 			</leftClickOpensCardList>
 
 			<!-- CARD COUNTS -->

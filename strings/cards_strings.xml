@@ -69,6 +69,8 @@
 	<string name="deckbox_tooltip_discard_character_hands">Send all characters' cards from this deck to this deck's discard pile</string>
 	<string name="deckbox_tooltip_discard_all_hands">Send all cards in all hands from this deck to this deck's discard pile (includes the GM)</string>
 	<string name="deckbox_tooltip_shuffle_discard">Shuffle the discard pile back into the deck</string>
+	<string name="deckbox_tooltip_open_discard">Click to open the deck's discard pile. Drop a card here to discard it.</string>
+	<string name="deckbox_tooltip_open_decklist">Click to see all of the cards currently in the deck.</string>
 
 	<!-- DECKBOX MENU ITEMS -->
 	<string name="deckbox_menu_close_deck">Delete Deck</string>
@@ -90,7 +92,7 @@
 	<string name="hand_menu_play_random">Play a card at random from your hand</string>
 	<string name="hand_menu_discard_hand">Discard cards from your hand</string>
 	<string name="hand_menu_discard_random">Discard a card at random from your hand</string>
-	<string name="hand_menu_discard_hand_confirm">Are you sure you want to delete your whole hand?</string>
+	<string name="hand_menu_discard_hand_confirm">Discard your whole hand</string>
 	<string name="hand_tooltip_discard_card">Drop a card here to discard it</string>
 
 	<!-- CARD MENU ITEMS -->
