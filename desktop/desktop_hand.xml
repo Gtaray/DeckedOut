@@ -33,7 +33,7 @@
 			<leftClickOpensRadial name="discard">
 				<script file="common/scripts/discardOnCardDrop.lua" />
 				
-				<anchored height="50" width="50">
+				<anchored height="40" width="40">
 					<bottom offset="-15" />
 					<right offset="-15" />
 				</anchored>

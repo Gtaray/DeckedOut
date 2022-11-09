@@ -3,10 +3,12 @@ PLAYER_HAND_PATH = "cards";
 
 OOB_MSGTYPE_DROPCARD = "dropcard";
 OOB_MSGTYPE_DISCARD = "discard"
+OOB_MSGTYPE_PUTCARDBACKINDECK = "putcardbackindeck";
 
 function onInit()
 	OOBManager.registerOOBMsgHandler(CardManager.OOB_MSGTYPE_DROPCARD, handleCardDrop);
 	OOBManager.registerOOBMsgHandler(CardManager.OOB_MSGTYPE_DISCARD, handleDiscard);
+	OOBManager.registerOOBMsgHandler(CardManager.OOB_MSGTYPE_PUTCARDBACKINDECK, handlePutCardBackInDeck);
 end
 
 ------------------------------------------
@@ -20,6 +22,7 @@ end
 ---@return databasenode cardNode The card node in its new location
 function moveCard(vCard, vDestination, tEventTrace)
 	if not DeckedOutUtilities.validateHost() then return end
+
 	vCard = DeckedOutUtilities.validateCard(vCard);
 	if not vCard then return end
 	vDestination = DeckedOutUtilities.validateNode(vDestination, "vDestination");
@@ -133,6 +136,12 @@ function putCardBackInDeck(vCard, bFacedown, tEventTrace)
 	vCard = DeckedOutUtilities.validateCard(vCard)
 	if not vCard then return end
 
+	-- If we're not the host, then we need to send an OOB
+	if not Session.IsHost then
+		CardManager.sendPutCardBackInDeckMsg(vCard, bFacedown, tEventTrace);
+		return;
+	end
+
 	local vDeck = CardManager.getDeckNodeFromCard(vCard);
 	if not DeckedOutUtilities.validateDeck(vDeck) then return end
 
@@ -141,7 +150,9 @@ function putCardBackInDeck(vCard, bFacedown, tEventTrace)
 
 	tEventTrace = DeckedOutEvents.addEventTrace(tEventTrace, DeckedOutEvents.DECKEDOUT_EVENT_CARD_PUT_BACK_IN_DECK);
 	local card = CardManager.moveCard(vCard, DeckManager.getCardsNode(vDeck), tEventTrace)
-	tEventTrace = DeckedOutEvents.raiseOnCardReturnedToDeckEvent(card, vDeck, sIdentity, {});
+	if card then
+		tEventTrace = DeckedOutEvents.raiseOnCardReturnedToDeckEvent(card, vDeck, sIdentity, {});
+	end
 end
 
 ---Puts all cards in a character's hand back into the appropriate decks.
@@ -349,6 +360,55 @@ function getRandomCardsInHand(sIdentity, nNumberOfCards, vDeck)
 	end
 
 	return aResults;
+end
+
+------------------------------------------
+-- MOVE CARD
+------------------------------------------
+
+---Internal use only. Makes sure that a card being put back in deck only happens on the host
+---@param vCard databasenode
+---@param bFacedown boolean
+---@param tEventTrace table
+function sendPutCardBackInDeckMsg(vCard, bFacedown, tEventTrace)
+	local msg = {};
+	msg.type = CardManager.OOB_MSGTYPE_PUTCARDBACKINDECK;
+	msg.sCardRecord = vCard.getNodeName();
+	if bFacedown then
+		msg.bFacedown = "true";
+	else
+		msg.bFacedown = "false";
+	end
+
+	if tEventTrace and #tEventTrace > 0 then
+		for k,v in ipairs(tEventTrace or {}) do
+			msg["trace_" .. k] = v;
+		end
+	end
+
+	Comm.deliverOOBMessage(msg, "");
+end
+
+---Internal use only. Handles the put card back in deck message
+---@param msgOOB table
+function handlePutCardBackInDeck(msgOOB)
+	-- Only the GM should handle this
+	if not Session.IsHost then
+		return;	
+	end
+
+	local tEventTrace = {};
+	local i = 1;
+	local key = "trace_" .. i;
+	local value = msgOOB[key];
+	while value ~= nil do
+		tEventTrace[i] = value;
+		i = i + 1;
+		key = "trace_" .. i;
+		value = msgOOB[key];
+	end
+
+	CardManager.putCardBackInDeck(msgOOB.sCardRecord, msgOOB.bFacedown == "true", tEventTrace);
 end
 
 ------------------------------------------
