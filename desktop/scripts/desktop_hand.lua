@@ -82,6 +82,10 @@ function onSizeChanged(bIgnore)
 	updateHand();
 end
 
+function isVisible()
+	return frame.isVisible();
+end
+
 function updateVisibility(bShow)
 	setEnabled(bShow);
 	frame.setVisible(bShow);

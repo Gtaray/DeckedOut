@@ -47,14 +47,7 @@
 			<frame_deckbox name="dropframe">
 				<script>
 					function onDrop(x, y, dragdata)
-						if dragdata.isType("shortcut") then
-							local sClass, sRecord = dragdata.getShortcutData();
-
-							if sClass == "deck" then
-								window.loadDeck(sRecord);
-								return true;
-							end
-						end
+						window.onDeckDrop(dragdata)
 					end
 				</script>
 				<anchored height="160">
@@ -65,6 +58,11 @@
 			</frame_deckbox>
 
 			<stringcontrol name="label_droptext">
+				<script>
+					function onDrop(x, y, dragdata)
+						window.onDeckDrop(dragdata)
+					end
+				</script>
 				<anchored to="dropframe" height="40">
 					<top offset="60"/>
 					<left />

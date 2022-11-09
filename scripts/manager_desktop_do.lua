@@ -4,11 +4,14 @@ local fOnShortcutDropOnPortrait = nil;
 function onInit()
 	Interface.onDesktopInit = onDesktopInit;
 
-	fConfigureSidebarTheming = DesktopManager.configureSidebarTheming;
-	DesktopManager.configureSidebarTheming = configureSidebarTheming;
-
 	fOnShortcutDropOnPortrait = CharacterListManager.onShortcutDrop;
 	CharacterListManager.registerDropHandler("shortcut", onShortcutDropOnPortrait);
+
+	-- 2E doesn't use a sidebar, it uses better menus, so we don't configure the sidebar menu here.
+	if Session.RulesetName ~= "2E" then
+		fConfigureSidebarTheming = DesktopManager.configureSidebarTheming;
+		DesktopManager.configureSidebarTheming = configureSidebarTheming;
+	end
 
 	DesktopManager.setHandVisibility = setHandVisibility;
 	DesktopManager.toggleHandVisibility = toggleHandVisibility;
@@ -34,32 +37,26 @@ function configureSidebarTheming()
 	end
 
 	wShortcuts.button_hand.setAnchoredHeight(nDockIconWidth);
-	-- wShortcuts.button_hand.setAnchoredWidth(nDockIconWidth);
-
-	-- if nSidebarVisState == 2 then
-	-- 	wShortcuts.button_hand.setAnchor("left", "button_visibility", "left", "absolute", 0);
-	-- 	wShortcuts.button_hand.setAnchor("bottom", "button_visibility", "top", "absolute", 5);
-	-- else
-	-- 	wShortcuts.button_hand.setAnchor("top", "button_visibility", "top", "absolute", 0);
-	-- 	wShortcuts.button_hand.setAnchor("left", "button_visibility", "right", "absolute", 5);
-	-- end
-
 	wShortcuts.button_hand_icon.setColor(DesktopManager.getSidebarDockIconColor());
 end
 
 -- Kind of janky, but this lets us ensure that the state of the button matches
 -- incase we want to toggle the hand visibility outside of pressing the button
 function setHandVisibility(bShowHand)
-	local window = DesktopManager.getSidebarWindow();
-	if window then
-		local nState = 0;
-		if bShowHand then
-			nState = 1;
-		end
-		window.button_hand.setValue(nState);
+	-- 2e doesn't have a sidebar, so we can't use it to toggle hand visibility
+	if Session.RulesetName ~= "2E" then
 
-		DesktopManager.toggleHandVisibility(bShowHand);
+		local window = DesktopManager.getSidebarWindow();
+		if window then
+			local nState = 0;
+			if bShowHand then
+				nState = 1;
+			end
+			window.button_hand.setValue(nState);
+		end
 	end
+
+	DesktopManager.toggleHandVisibility(bShowHand);
 end
 
 function toggleHandVisibility(bShow)

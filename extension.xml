@@ -18,6 +18,7 @@
 		<includefile source="graphics/graphics.xml" />
 
 		<includefile source="desktop/desktop_panels.xml" />
+		<includefile source="desktop/desktop_adnd.xml" ruleset="2E" />
 		<includefile source="desktop/desktop_hand.xml" />
 		<includefile source="desktop/desktop_card.xml" />
 

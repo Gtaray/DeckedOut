@@ -1,5 +1,17 @@
+function onDeckDrop(dragdata)
+	if dragdata.isType("shortcut") then
+		local sClass, sRecord = dragdata.getShortcutData();
+
+		if sClass == "deck" then
+			window.loadDeck(sRecord);
+			return true;
+		end
+	end
+end
+
 function loadDeck(sRecord)
 	local deckNode = DB.findNode(sRecord);
+
 	if deckNode then
 		local decklistNode = DB.createChild(getDatabaseNode(), "decks");
 		decklistNode.setPublic(true);

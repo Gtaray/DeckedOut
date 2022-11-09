@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <root>
+	<string name="sidebar_hand">Hand</string>
 	<string name="sidebar_tooltip_active_cards">Open Hand of Cards</string>
 	<string name="sidebar_tooltip_active_deckbox">Open Deckbox</string>
 

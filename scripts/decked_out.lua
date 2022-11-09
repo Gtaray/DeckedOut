@@ -15,12 +15,18 @@ function onInit()
 			tooltipres = "sidebar_tooltip_active_deckbox",
 			sIcon = "sidebar_icon_deckbox",
 			class = "deckbox",
-			path = "deckbox"
+			path = "deckbox",
+			sButtonCustomText = "Deckbox"
 		});
 
 		-- Create the GM hand node if it doesn't exist
 		local node = DB.createNode(CardManager.GM_HAND_PATH);
 		node.setPublic(true);
+	end
+
+	-- If we're in 2e, then we need to handle the sidebar
+	if Session.RulesetName == "2E" then
+		
 	end
 	
 	OptionsManager.registerOption2("HOTKEY_FACEDOWN", true, "option_header_deckedout", "option_label_facedown_hotkey", "option_entry_cycler",
