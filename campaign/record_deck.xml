@@ -45,6 +45,19 @@
 	</windowclass>
 
 	<windowclass name="deck_main">
+		<script>
+			function onInit()
+				update();
+			end
+			function update()
+				local bReadOnly = WindowManager.getReadOnlyState(getDatabaseNode());
+				back.setReadOnly(bReadOnly)
+				for k,v in pairs(cards.getWindows()) do
+					v.image.setReadOnly(bReadOnly);
+					v.idelete.setVisibility(not bReadOnly)
+				end
+			end
+		</script>
 		<margins control="0,0,0,2" />
 		<sheetdata>			
 			<anchor_column name="columnanchor" />
