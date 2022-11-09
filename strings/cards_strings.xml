@@ -17,7 +17,7 @@
 	<string name="deckbox_opendeck">Drop decks here to\nload them for use.</string>
 
 	<string name="deckbox_label_deal">Dealing</string>
-	<string name="deckbox_button_deal_one_to_charaters">Deal 1 to PCs</string>
+	<string name="deckbox_button_deal_one_to_charaters">Deal 1 to Connected PCs</string>
 	<string name="deckbox_button_deal_multi_to_characters">Multi</string>
 	<string name="deckbox_button_deal_one_to_gm">Deal 1 to GM</string>
 	<string name="deckbox_button_deal_multi_to_gm">Multi</string>
