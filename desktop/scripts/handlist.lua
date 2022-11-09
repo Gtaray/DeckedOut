@@ -1,7 +1,7 @@
 HAND_MARGINS = {
-	["top"] = 30,
+	["top"] = 20,
 	["right"] = 7,
-	["bottom"] = 0,
+	["bottom"] = 20,
 	["left"] = 7,
 }
 CARD_PADDING = 0;

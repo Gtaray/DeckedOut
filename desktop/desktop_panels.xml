@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+	<panel name="handpanel">
+		<anchored height="150" width="450">
+			<bottom offset="-35" />
+			<right parent="shortcutsanchor" anchor="left" />
+		</anchored>
+		<class>desktop_hand</class>
+		<dynamic />
+		<locked />
+	</panel>
+
+	<windowclass name="shortcuts" merge="join">
+		<sheetdata>
+			<buttoncontrol name="button_hand">
+				<frame name="sidebar_dock_entry_icon" />
+				<anchored to="button_visibility" position="above" height="40" />
+				<script>
+					function onButtonPress()
+						DesktopManager.toggleHandVisibility(getValue() == 1);
+					end
+				</script>
+				<state />
+				<state />
+			</buttoncontrol>
+			<genericcontrol name="button_hand_icon">
+				<anchored to="button_hand" position="insidetopleft" offset="5,5" width="30" height="30" />
+				<icon>sidebar_action_hand</icon>
+				<disabled />
+			</genericcontrol>
+		</sheetdata>
+	</windowclass>
+</root>

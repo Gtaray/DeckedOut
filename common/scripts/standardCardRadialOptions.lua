@@ -17,7 +17,7 @@ function onMenuSelection(selection)
 	if selection == 1 then
 		playCard(DeckedOutUtilities.getFacedownHotkey())
 	elseif selection == 5 then
-		playCard(false);
+		playCard(true);
 	elseif selection == 6 then
 		CardManager.putCardBackInDeck(window.getDatabaseNode(), DeckedOutUtilities.getFacedownHotkey(), {});
 	elseif selection == 7 then

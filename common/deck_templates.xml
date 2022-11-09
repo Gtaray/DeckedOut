@@ -100,4 +100,15 @@
 			</anchored>
 		</genericcontrol>
 	</template>
+
+	<template name="leftClickOpensRadial">
+		<genericcontrol>
+			<script file="common/scripts/leftClickOpensRadial.lua" />
+		</genericcontrol>
+	</template>
+	<template name="leftClickOpensCardList">
+		<genericcontrol>
+			<script file="common/scripts/leftClickOpensCardList.lua" />
+		</genericcontrol>
+	</template>
 </root>
