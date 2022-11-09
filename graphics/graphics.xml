@@ -8,7 +8,7 @@
 	<icon name="sidebar_icon_recordtype_deck" file="graphics/sidebar/sidebar_decks.png" />
 
 	<!-- Radial -->
-	<icon name="deck" file="graphics/radial/view_cardlist.png" />
+	<icon name="deck" file="graphics/radial/view_hand.png" />
 	<icon name="discard" file="graphics/radial/view_discard.png" />
 	<icon name="view_hand" file="graphics/radial/view_hand.png" />
 	<icon name="reshuffle_hand" file="graphics/radial/reshuffle.png" />
@@ -28,6 +28,7 @@
 	<!-- Misc -->
 	<icon name="missing_token" file="graphics/icons/missing_token.png" />
 	<icon name="icon_discard_pile" file="graphics/icons/discard_pile.png" />
+	<icon name="icon_deck" file="graphics/icons/card_list.png" />
 
 	<!-- Frames -->
 	<framedef name="cardhighlight">

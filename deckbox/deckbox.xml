@@ -108,7 +108,7 @@
 					<bottom offset="10" />
 					<left offset="-10" />
 				</anchored>
-				<icon>deck</icon>
+				<icon>icon_deck</icon>
 				<cardlist>deck</cardlist>
 				<tooltip textres="deckbox_tooltip_open_decklist" />
 			</leftClickOpensCardList>
