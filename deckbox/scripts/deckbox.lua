@@ -3,7 +3,7 @@ function onDeckDrop(dragdata)
 		local sClass, sRecord = dragdata.getShortcutData();
 
 		if sClass == "deck" then
-			window.loadDeck(sRecord);
+			loadDeck(sRecord);
 			return true;
 		end
 	end
