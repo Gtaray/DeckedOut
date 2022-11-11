@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+	<string name="cards_tmt_yes">Yes</string>
+	<string name="cards_tmt_no">No</string>
+	<string name="cards_tmt_value">Value</string>
+
+	<string name="cards_tmt_event_played">Card Played</string>
+	<string name="cards_tmt_event_discarded">Card Discarded</string>
+
+	<string name="cards_tmt_condition_facedown">Card is Facedown</string>
+	<string name="cards_tmt_condition_discard">Card is Discarded</string>
+</root>

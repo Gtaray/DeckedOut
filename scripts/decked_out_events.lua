@@ -179,6 +179,8 @@ function raiseOnCardPlayedEvent(vCard, bFacedown, bDiscard, tEventTrace)
 	if bDiscard then
 		tArgs.bDiscard = "true";
 	end
+	
+	DeckedOutTriggers.fireEvent("cards_tmt_event_played", tArgs);
 	return DeckedOutEvents.raiseEvent(
 		DeckedOutEvents.DECKEDOUT_EVENT_CARD_PLAYED,
 		tArgs,

@@ -29,13 +29,14 @@
 		<includefile source="deckbox/deckbox_templates.xml" />
 		<includefile source="deckbox/dialog_dealcards.xml" />
 
-
+		<includefile source="strings/cards_tmt_strings.xml" />
 		<includefile source="strings/cards_strings.xml" />
 
 		<script name="DeckedOut" file="scripts/decked_out.lua" />
 		<script name="DeckedOutEvents" file="scripts/decked_out_events.lua" />
 		<script name="DeckedOutMessages" file="scripts/decked_out_messages.lua" />
 		<script name="DeckedOutUtilities" file="scripts/decked_out_utilities.lua" />
+		<script name="DeckedOutTriggers" file="scripts/decked_out_triggers.lua" />
 		
 		<script name="CardManager" file="scripts/manager_card.lua" />
 		<script name="DeckManager" file="scripts/manager_deck.lua" />
