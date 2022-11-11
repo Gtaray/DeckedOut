@@ -6,6 +6,7 @@
 		<version>1.0.4</version>
 		<author>Saagael</author>
 		<description>Adds decks of cards</description>
+		<loadorder>1000</loadorder>
 	</properties>
 	<base>
 		<includefile source="campaign/record_char.xml" />
@@ -18,7 +19,7 @@
 		<includefile source="graphics/graphics.xml" />
 
 		<includefile source="desktop/desktop_panels.xml" />
-		<includefile source="desktop/desktop_adnd.xml" ruleset="2E" />
+		<includefile source="desktop/desktop_better_menus.xml" />
 		<includefile source="desktop/desktop_hand.xml" />
 		<includefile source="desktop/desktop_card.xml" />
 

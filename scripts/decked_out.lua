@@ -34,3 +34,7 @@ function onInit()
 	OptionsManager.registerOption2("HOTKEY_DISCARD", true, "option_header_deckedout", "option_label_play_and_discard_hotkey", "option_entry_cycler", 
 			{ labels = "option_val_alt|option_val_shift", values = "alt|shift", baselabel = "option_val_ctrl", baseval = "control", default = "control" });
 end
+
+function isBetterMenusLoaded()
+	return Session.Ruleset == "2E" or MenuManager ~= nil;
+end

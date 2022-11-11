@@ -8,7 +8,7 @@ function onInit()
 	CharacterListManager.registerDropHandler("shortcut", onShortcutDropOnPortrait);
 
 	-- 2E doesn't use a sidebar, it uses better menus, so we don't configure the sidebar menu here.
-	if Session.RulesetName ~= "2E" then
+	if not DeckedOut.isBetterMenusLoaded() then
 		fConfigureSidebarTheming = DesktopManager.configureSidebarTheming;
 		DesktopManager.configureSidebarTheming = configureSidebarTheming;
 	end
@@ -44,7 +44,7 @@ end
 -- incase we want to toggle the hand visibility outside of pressing the button
 function setHandVisibility(bShowHand)
 	-- 2e doesn't have a sidebar, so we can't use it to toggle hand visibility
-	if Session.RulesetName ~= "2E" then
+	if not DeckedOut.isBetterMenusLoaded() then
 
 		local window = DesktopManager.getSidebarWindow();
 		if window then
