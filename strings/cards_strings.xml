@@ -33,9 +33,14 @@
 	<!-- DECKBOX SETTINGS -->
 	<string name="deckbox_settings_title">Settings - %s</string>
 	<string name="deckbox_settings_header_card_visibility">Action Visibility</string>
+	<string name="deckbox_settings_label_default_deal_facing">Are cards dealt face up or face down by default?</string>
+	<string name="deckbox_settings_option_faceup">Face up</string>
+	<string name="deckbox_settings_option_facedown">Face down</string>
 	<string name="deckbox_settings_label_deal_visibility">Who can see cards that are dealt?</string>
 	<string name="deckbox_settings_option_recipient">The player receiving the card</string>
 	<string name="deckbox_settings_option_gm_and_recipient">The GM and player receiving the card</string>
+	<string name="deckbox_settings_option_gm">The GM</string>
+	<string name="deckbox_settings_option_none">No one</string>
 
 	<string name="deckbox_settings_label_play_visibility">Who can see cards that are played?</string>
 	<string name="deckbox_settings_option_player">The player playing the card</string>
@@ -133,6 +138,7 @@
 	<string name="chat_msg_card_randomly_give_faceup">%s randomly gave %s to %s</string>
 	<string name="chat_msg_card_randomly_give_facedown">%s randomly gave %s to %s facedown</string>
 	<string name="chat_msg_deal_card">%s dealt %s to %s</string>
+	<string name="chat_msg_deal_card_facedown">%s dealt %s to %s facedown</string>
 	<string name="chat_msg_deal_multiple_cards">%s dealt %s %s to %s</string>
 	<string name="chat_msg_group_deal">%s dealt %s %s to everyone</string>
 	<string name="chat_msg_card_put_back_in_deck">%s shuffled %s back into its deck</string>

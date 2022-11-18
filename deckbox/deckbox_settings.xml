@@ -3,7 +3,7 @@
 	<windowclass name="deckbox_settings">
 		<frame>recordsheet</frame>
 		<placement>
-			<size width="700" height="400" />
+			<size width="700" height="500" />
 		</placement>
 		<script file="deckbox/scripts/deckbox_settings.lua" />
 		<sheetdata>
@@ -38,6 +38,13 @@
 				<static textres="deckbox_settings_header_card_visibility" />
 				<center />
 			</header_column>
+
+			<setting_label name="deal_facing_label">
+				<static textres="deckbox_settings_label_default_deal_facing" />
+			</setting_label>
+			<combobox_setting name="deal_facing" source="settings.defaultdealfacing">
+				<parameter>DECK_SETTING_DEFAULT_DEAL_FACING</parameter>
+			</combobox_setting>
 
 			<setting_label name="deal_vis_label">
 				<static textres="deckbox_settings_label_deal_visibility" />

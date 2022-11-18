@@ -1,5 +1,6 @@
 GM_HAND_PATH = "gmhand";
 PLAYER_HAND_PATH = "cards";
+CARD_FACING_PATH = "faceup";
 
 OOB_MSGTYPE_DROPCARD = "dropcard";
 OOB_MSGTYPE_DISCARD = "discard"
@@ -33,6 +34,11 @@ function moveCard(vCard, vDestination, tEventTrace)
 	DB.copyNode(vCard, newNode);
 	vCard.delete();
 
+	-- if the card was moved to anywhere other than a hand, delete the facing node
+	if not CardManager.isCardInHand(newNode) then
+		CardManager.deleteFacingNode(newNode);
+	end
+
 	tEventTrace = DeckedOutEvents.raiseOnCardMovedEvent(newNode, sOldCardNode, tEventTrace);
 	return newNode;
 end
@@ -40,9 +46,10 @@ end
 ---Adds a card to an identity's hand. Raises the onCardAddedToHand event
 ---@param vCard databasenode|string
 ---@param sIdentity string Character identity (or 'gm') for the person receiving the card
+---@param bFacedown boolean Should this card be facedown in the player's hand. This doesn't change
 ---@param tEventTrace table Event trace table
 ---@return databasenode cardNode The card node in its new location
-function addCardToHand(vCard, sIdentity, tEventTrace)
+function addCardToHand(vCard, sIdentity, bFacedown, tEventTrace)
 	if not DeckedOutUtilities.validateHost() then return end
 	vCard = DeckedOutUtilities.validateCard(vCard);
 	if not vCard then return end
@@ -52,7 +59,10 @@ function addCardToHand(vCard, sIdentity, tEventTrace)
 
 	tEventTrace = DeckedOutEvents.addEventTrace(tEventTrace, DeckedOutEvents.DECKEDOUT_EVENT_CARD_ADDED_TO_HAND);
 	local card = CardManager.moveCard(vCard, handNode, tEventTrace);
-	DeckedOutEvents.raiseOnCardAddedToHandEvent(card, sIdentity, tEventTrace);
+	if bFacedown then
+		CardManager.setCardFaceDown(card)
+	end
+	DeckedOutEvents.raiseOnCardAddedToHandEvent(card, sIdentity, bFacedown, tEventTrace);
 	
 	return card;
 end
@@ -168,7 +178,7 @@ function putHandBackIntoDeck(sIdentity, tEventTrace)
 	for k,card in pairs(CardManager.getHandNode(sIdentity).getChildren()) do
 		local vDeck = DeckedOutUtilities.validateDeck(CardManager.getDeckIdFromCard(card));
 		if vDeck then
-			CardManager.moveCard(card, DeckManager.getCardsNode(vDeck), tEventTrace)
+			local cardAfterMoved = CardManager.moveCard(card, DeckManager.getCardsNode(vDeck), tEventTrace)
 		end
 	end
 end
@@ -638,6 +648,99 @@ function isActorHoldingCard(vCard, rActor)
 
 	return rActor.sCreatureNode == DB.getPath("charsheet", sSource);
 end
+
+---Is card face down
+---@param vCard databasenode
+---@return boolean
+function isCardFaceUp(vCard)
+	vCard = DeckedOutUtilities.validateCard(vCard);
+	if not vCard then return false end
+
+	-- cards can only be facedown in hand. If the card isn't in a hand, then it's always face up
+	if not CardManager.isCardInHand(vCard) then
+		return true;
+	end
+
+	return CardManager.getCardFacing(vCard) == 1;
+end
+
+---Is Card Face up
+---@param vCard databasenode
+---@return boolean
+function isCardFaceDown(vCard)
+	vCard = DeckedOutUtilities.validateCard(vCard);
+	if not vCard then return false end
+
+	-- cards can only be facedown in hand. If the card isn't in a hand, then it's always face up
+	if not CardManager.isCardInHand(vCard) then
+		return false;
+	end
+
+	return CardManager.getCardFacing(vCard) == 0;
+end
+
+---Gets the card facing number. 1 = face up, 0 = face down
+---@param vCard databasenode
+---@return integer facing
+function getCardFacing(vCard)
+	vCard = DeckedOutUtilities.validateCard(vCard);
+	if not vCard then return 0 end
+
+	-- cards can only be facedown in hand. If the card isn't in a hand, then it's always face up
+	if not CardManager.isCardInHand(vCard) then
+		return 1;
+	end
+
+	return DB.getValue(vCard, CardManager.CARD_FACING_PATH, 1);
+end
+
+---Sets a card face up if it's in a hand
+---@param vCard databasenode
+function setCardFaceUp(vCard)
+	vCard = DeckedOutUtilities.validateCard(vCard);
+	if not vCard then return end
+
+	if CardManager.isCardInHand(vCard) then
+		CardManager.setCardFacing(vCard, 1);
+	end
+end
+
+---Sets a card face down if it's in a hand
+---@param vCard databasenode
+function setCardFaceDown(vCard)
+	vCard = DeckedOutUtilities.validateCard(vCard);
+	if not vCard then return end
+
+	if CardManager.isCardInHand(vCard) then
+		CardManager.setCardFacing(vCard, 0);
+	end
+end
+
+---Sets a card face up for face down
+---@param vCard databasenode
+---@param nFacing number. 0 = face down, 1 = face up
+function setCardFacing(vCard, nFacing)
+	vCard = DeckedOutUtilities.validateCard(vCard);
+	if not vCard then return end
+
+	-- if the card is in a hand, we can set the facing
+	if CardManager.isCardInHand(vCard) then
+		DB.setValue(vCard, CardManager.CARD_FACING_PATH, "number", nFacing)
+		return;
+	end
+
+	-- If the card isn't in a hand, we delete any face up node that does exist
+	CardManager.deleteFacingNode();
+end
+
+---Deletes the facup node for a card
+---@param vCard databasenode
+function deleteFacingNode(vCard)
+	vCard = DeckedOutUtilities.validateCard(vCard);
+	if not vCard then return end
+
+	DB.deleteChild(vCard, CardManager.CARD_FACING_PATH);
+end
 ------------------------------------------
 -- DRAG DROP
 ------------------------------------------
@@ -654,7 +757,10 @@ function onDragFromDeck(vDeck, draginfo)
 
 	CardManager.onDragCard(vCard, draginfo);
 
-	if DeckManager.getDeckSetting(vDeck, DeckManager.DECK_SETTING_DEAL_VISIBILITY) == "actor" then
+	local bFacedown = DeckManager.dealFacedownByDefault(vDeck);
+	local sDealVisSetting = DeckManager.getDeckSetting(vDeck, DeckManager.DECK_SETTING_DEAL_VISIBILITY);
+
+	if sDealVisSetting == "actor" or sDealVisSetting == "none" or bFacedown then
 		-- If only the person receiving the card should see the card, then we replace the image
 		-- That's dragged with the back image
 		draginfo.setTokenData(CardManager.getCardBack(vCard));
@@ -801,14 +907,20 @@ function handleAnyDrop(sSourceNode, sDestinationNode, sExtra, bFacedown)
 			if CardManager.isCardInHand(vCard) then
 				local sGiverIdentity = CardManager.getCardSource(vCard);
 				tEventTrace = DeckedOutEvents.addEventTrace(tEventTrace, DeckedOutEvents.DECKEDOUT_EVENT_CARD_GIVEN);
-				local card = CardManager.addCardToHand(vCard, sReceivingIdentity, tEventTrace);
+				local card = CardManager.addCardToHand(vCard, sReceivingIdentity, false, tEventTrace);
 				DeckedOutEvents.raiseOnGiveCardEvent(card, sGiverIdentity, sReceivingIdentity, bFacedown, tEventTrace)
 				return true;
 
 			-- If the card being dropped is currently in a deck or discard pile, we fire the deal event
 			elseif CardManager.isCardInDeck(vCard) or CardManager.isCardDiscarded(vCard) then
+				-- Since we're dealing the card from a deck, we need to get the deck's default deal facing
+				local bDefaultFacing = DeckManager.getDeckSetting(
+					CardManager.getDeckNodeFromCard(vCard), 
+					DeckManager.DECK_SETTING_DEFAULT_DEAL_FACING)
+				bFacedown = bFacedown or bDefaultFacing == "facedown";
+				
 				tEventTrace = DeckedOutEvents.addEventTrace(tEventTrace, DeckedOutEvents.DECKEDOUT_EVENT_CARD_DEALT);
-				local card = CardManager.addCardToHand(vCard, sReceivingIdentity, tEventTrace);
+				local card = CardManager.addCardToHand(vCard, sReceivingIdentity, bFacedown, tEventTrace);
 				DeckedOutEvents.raiseOnDealCardEvent(card, sReceivingIdentity, bFacedown, tEventTrace)
 				return true;
 			end

@@ -38,13 +38,15 @@ function dealCard(vDeck, sIdentity, bFacedown, tEventTrace)
 	
 	local aCards = DeckManager.getRandomCardsInDeck(vDeck, 1);
 
+	bFacedown = bFacedown or DeckManager.dealFacedownByDefault(vDeck);
+
 	if aCards and aCards[1] then
 		-- We place a trace event above the addCardToHand call since that call generates more events
 		-- We can't call the raise event before addCardToHand, because the card isn't in the hand, yet
 		-- and sCardNode would be nil by the time a handler got to it otherwise (as it was moved from the deck)
 		-- This makes sure that the trace stack is preserved, while still having the event fire second
 		tEventTrace = DeckedOutEvents.addEventTrace(tEventTrace, DeckedOutEvents.DECKEDOUT_EVENT_CARD_DEALT);
-		local card = CardManager.addCardToHand(aCards[1], sIdentity, tEventTrace);
+		local card = CardManager.addCardToHand(aCards[1], sIdentity, bFacedown, tEventTrace);
 		DeckedOutEvents.raiseOnDealCardEvent(card, sIdentity, bFacedown, tEventTrace);
 		return card;
 	end
@@ -55,7 +57,7 @@ end
 ---@param sIdentity string Character identity (or 'gm') that's receiving the card
 ---@param nCardAmount number Number of cards to deal
 ---@param tEventTrace table Event trace table
-function dealCards(vDeck, sIdentity, nCardAmount, tEventTrace)
+function dealCards(vDeck, sIdentity, nCardAmount, bFacedown, tEventTrace)
 	if not DeckedOutUtilities.validateHost() then return end
 	vDeck = DeckedOutUtilities.validateDeck(vDeck);
 	if not vDeck then return end
@@ -288,6 +290,11 @@ end
 -- DECK SETTINGS
 ------------------------------------------
 -- These setting values need to match the settings.* source nodes for all settings
+-- Are cards dealt from this deck dealt faceup or facedown by default
+-- Default: faceup
+DECK_SETTING_DEFAULT_DEAL_FACING = "defaultdealfacing"
+-- Who can see cards that are being dealt: player, player and GM, everyone
+-- Default: player and GM
 DECK_SETTING_DEAL_VISIBILITY = "dealvisibility";
 -- Who can see cards that are being played: player, player and GM, everyone
 -- Default: player and GM
@@ -309,12 +316,21 @@ DECK_SETTING_AUTO_PLAY_FROM_HAND = "autoplayfromhand";
 DECK_SETTING_AUTO_PLAY_FROM_DECK = "autoplayfromdeck";
 
 local _tSettingOptions = {
+	[DECK_SETTING_DEFAULT_DEAL_FACING] = {
+		default = "faceup",
+		options = {
+			{ sTextRes = "deckbox_settings_option_faceup", sValue = "faceup" },
+			{ sTextRes = "deckbox_settings_option_facedown", sValue = "facedown" }
+		}
+	},
 	[DECK_SETTING_DEAL_VISIBILITY] = {
 		default = "gmandactor",
 		options = {
 			{ sTextRes = "deckbox_settings_option_recipient", sValue = "actor" },
+			{ sTextRes = "deckbox_settings_option_gm", sValue = "gm" },
 			{ sTextRes = "deckbox_settings_option_gm_and_recipient", sValue = "gmandactor" },
-			{ sTextRes = "deckbox_settings_option_everyone", sValue = "everyone" }
+			{ sTextRes = "deckbox_settings_option_everyone", sValue = "everyone" },
+			{ sTextRes = "deckbox_settings_option_none", sValue = "none" }
 		}
 	},
 	[DECK_SETTING_PLAY_VISIBILITY] = {
@@ -399,4 +415,11 @@ function getDeckSettingsNode(vDeck)
 	if not vDeck then return end
 
 	return vDeck.createChild(DeckManager.DECK_SETTINGS_PATH);
+end
+
+---Gets whether the deck should deal cards facedown by default
+---@param vDeck databasenode
+function dealFacedownByDefault(vDeck)
+	local sDefaultFacing = DeckManager.getDeckSetting(vDeck, DeckManager.DECK_SETTING_DEFAULT_DEAL_FACING)
+	return sDefaultFacing == "facedown";
 end

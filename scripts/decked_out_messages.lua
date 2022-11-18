@@ -299,6 +299,8 @@ function printCardDealtMessage(tEventArgs, tEventTrace)
 		return;
 	end
 
+	local bFacedown = tEventArgs.bFacedown == "true";
+
 	local msg = {};
 	msg.type = DeckedOutMessages.OOB_MSGTYPE_DECKEDOUT_STANDARD;
 	-- The GM should always be the card source here. 
@@ -309,7 +311,11 @@ function printCardDealtMessage(tEventArgs, tEventTrace)
 	msg.card_link = vCard.getNodeName();
 	msg.action = "deal";
 	msg.facedown = tEventArgs.bFacedown;
-	msg.text = Interface.getString("chat_msg_deal_card");
+	if bFacedown then
+		msg.text = Interface.getString("chat_msg_deal_card_facedown");
+	else
+		msg.text = Interface.getString("chat_msg_deal_card");
+	end
 	msg.text = string.format(msg.text, "[SENDER]", "[CARDNAME]", "[PRONOUN]");
 	msg.icon = "deal";
 
@@ -439,7 +445,7 @@ function resolveCardVisibility(msg, sSenderName, sReceiverName, sMessageId)
 	-- We resolve facedown cards first because by default they're never visible
 	-- So it's facedown, we don't have to look any futher
 	local bGmSeesFacedown = DeckManager.getDeckSetting(vDeck, DeckManager.DECK_SETTING_GM_SEE_FACEDOWN_CARDS) == "yes";
-	if msg.facedown == "true" and msg.action ~= "deal"then
+	if msg.facedown == "true" and msg.action ~= "deal" then
 		-- If this is the deal action, then we don't want to worry about the facedown status.
 		-- We let the logic below this control who can see deals
 		-- This is so if only the player being dealt shoudl see the message, we don't have to worry about whether the GM
@@ -462,6 +468,8 @@ function resolveCardVisibility(msg, sSenderName, sReceiverName, sMessageId)
 		return true;
 	end
 
+	local bGmSeesCard = (not msg.facedown) or (msg.facedown and bGmSeesFacedown)
+
 	-- If only the person giving/receiving a card should see the card
 	-- Then we only return true when the sender is 'you'
 	if sSetting == "actor" then
@@ -471,7 +479,11 @@ function resolveCardVisibility(msg, sSenderName, sReceiverName, sMessageId)
 		end
 		return sSenderName == "you" or sReceiverName == "you";
 	elseif sSetting == "gmandactor" then
-		return sMessageId == "gm" or sSenderName == "you" or sReceiverName == "you";
+		return (sMessageId == "gm" and bGmSeesCard) or sSenderName == "you" or sReceiverName == "you";
+	elseif sSetting == "gm" then
+		return sMessageId == "gm" and bGmSeesCard;
+	elseif sSetting == "none" then
+		return false;
 	end
 
 	-- If we get here and sSetting is not everyone, then something went wrong

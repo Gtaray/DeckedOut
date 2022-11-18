@@ -204,10 +204,15 @@ end
 ---@param sIdentity string Character identity (or 'gm') of the person whose hand the card is being added to
 ---@param tEventTrace table. Event trace table
 ---@return table tEventTrace Event trace table
-function raiseOnCardAddedToHandEvent(vCard, sIdentity, tEventTrace)
+function raiseOnCardAddedToHandEvent(vCard, sIdentity, bFacedown, tEventTrace)
+	local tArgs = { sCardNode = vCard.getNodeName(), sIdentity = sIdentity, bFacedown = "false" };
+	if bFacedown then
+		tArgs.bFacedown = "true";
+	end
+
 	return DeckedOutEvents.raiseEvent(
 		DeckedOutEvents.DECKEDOUT_EVENT_CARD_ADDED_TO_HAND, 
-		{ sCardNode = vCard.getNodeName(), sIdentity = sIdentity },
+		tArgs,
 		tEventTrace,
 		true -- True because this event technically happens after moveCard, and by then the trace is already updated
 	);
