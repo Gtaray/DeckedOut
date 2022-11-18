@@ -14,11 +14,10 @@ function onClose()
 	DB.removeHandler(DB.getPath(node, CardManager.CARD_FACING_PATH), "onUpdate", onFacingChanged)
 end
 
-function onFacingChanged()
+function onFacingChanged(nodeUpdated)
 	local bFaceUp = CardManager.isCardFaceUp(getDatabaseNode());
 	image.setVisible(bFaceUp);
 	image.setEnabled(bFaceUp);
-	Debug.chat(cardback.getSize())
 	cardback.setVisible(not bFaceUp);
 	cardback.setEnabled(not bFaceUp);
 

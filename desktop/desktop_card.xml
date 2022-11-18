@@ -9,8 +9,8 @@
 				<script file="common/scripts/standardCardRadialOptions.lua" />
 			</token_card>
 			<token_card_back name="cardback">
-				<!-- <script file="common/scripts/onCardDrag.lua" />
-				<script file="common/scripts/standardCardRadialOptions.lua" /> -->
+				<script file="common/scripts/onCardDrag.lua" />
+				<script file="common/scripts/standardCardRadialOptions.lua" />
 			</token_card_back>
 			<icon_missing_token name="missingtoken" />
 			<card_highlight name="highlight" />

@@ -1,4 +1,19 @@
 TODO LIST: 
+	* Current sticking point: the deck's card back token isn't available to clients to display in their hands.
+		So card backs will need to be copied to cards when they're added to hands
+	* Another sticking point:
+		The onCardDrop function currently checks to see if the dragged token matches the deck's card back, and uses that to determine face-down-ness
+		Except that now face down means something more, so there needs to be a way to hide the card from the GM's drag, but still drop the card face up in the
+		player's hand. Can be replicated by dropping cards when the default is face down, deal vis is set to actor only, and GM sees face down cards is set to false
+ 	* Face down cards in hand
+		* [x] Card Manager infrastructure
+		* [x] Update desktop_card windowclass to show facedown cards in hand
+		* [ ] Implement drag/drop for face down cards in hand
+		* [ ] Update card list view to show cards as facedown 
+		* [ ] Implement flip radial option for cards in hand and card list
+		* [ ] Implement flip event and chat message handler
+		* [ ] Implement peek radial option for cards in hand and card list
+		* [ ] Implement peek event and chat message handler
 
 STRETCH GOALS
 * Hand actions - Moved to Stretch goal, because of some weirdness around message timing. Could get pulled in if requested though. Current workaround is to use dice
@@ -9,7 +24,6 @@ STRETCH GOALS
 * Figure out how to handle card tokens being on the map and ALSO in a person's hand
 	* Potential solution: Add a new location similar to storage where tokens get moved to if they're on an image. The data is in the deckbox, but the tokens are on a map.
 	* Cards should also be able to be face down on the map, with a radial menu to flip face up
-* Cards can exist in someone's hand face down
 * Trigger me Timbers support
 * Tooltips when hovering over cards in hand
 	* Even more stretch, make the tooltip only appear when the size of the tokenfield is really small

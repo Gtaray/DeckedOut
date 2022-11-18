@@ -305,6 +305,9 @@ DECK_SETTING_DISCARD_VISIBILITY = "discardvisibility";
 -- Who can see cards that are being given: giver and receiver, giver and receiver and gm, everyone
 -- Default: giver and receiver and gm
 DECK_SETTING_GIVE_VISIBILITY = "givevisibility";
+-- Who can see cards that are flipped: flipper, flipper and gm
+-- Default: flipper and gm
+DECK_SETTING_FLIP_VISIBILITY = "flipvisibility";
 -- Can the GM see what cards are being face down: yes or no
 -- Default: yes
 DECK_SETTING_GM_SEE_FACEDOWN_CARDS = "gmseesfacedowncards";
@@ -355,6 +358,13 @@ local _tSettingOptions = {
 			{ sTextRes = "deckbox_settings_option_giver", sValue = "actor" },
 			{ sTextRes = "deckbox_settings_option_gm_and_giver", sValue = "gmandactor" },
 			{ sTextRes = "deckbox_settings_option_everyone", sValue = "everyone" }
+		}
+	},
+	[DECK_SETTING_FLIP_VISIBILITY] = {
+		default = "gmandactor",
+		options = {
+			{ sTextRes = "deckbox_settings_option_flipper", sValue = "actor" },
+			{ sTextRes = "deckbox_settings_option_gm_and_flipper", sValue = "gmandactor" }
 		}
 	},
 	[DECK_SETTING_GM_SEE_FACEDOWN_CARDS] = {

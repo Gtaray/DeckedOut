@@ -57,11 +57,15 @@ function addCardToHand(vCard, sIdentity, bFacedown, tEventTrace)
 	local handNode = DeckedOutUtilities.validateHandNode(sIdentity);
 	if not handNode then return end
 
+	if bFacedown then
+		CardManager.setCardFaceDown(vCard)
+	else
+		CardManager.setCardFaceUp(vCard);
+	end
+
 	tEventTrace = DeckedOutEvents.addEventTrace(tEventTrace, DeckedOutEvents.DECKEDOUT_EVENT_CARD_ADDED_TO_HAND);
 	local card = CardManager.moveCard(vCard, handNode, tEventTrace);
-	if bFacedown then
-		CardManager.setCardFaceDown(card)
-	end
+
 	DeckedOutEvents.raiseOnCardAddedToHandEvent(card, sIdentity, bFacedown, tEventTrace);
 	
 	return card;
@@ -222,6 +226,10 @@ function playCard(vCard, bFacedown, bDiscard, tEventTrace)
 	if bDiscard then
 		local sIdentity = CardManager.getCardSource(vCard);
 		CardManager.discardCard(vCard, bFacedown, sIdentity, tEventTrace);
+	else
+		-- The most minor of optimizations
+		-- Don't flip the card face up if it's getting discarded
+		CardManager.setCardFaceUp(vCard);
 	end
 end
 
@@ -272,6 +280,21 @@ function discardRandomCardFromDeck(vDeck, sIdentity, bFacedown, tEventTrace)
 	if aCards and aCards[1] then
 		DeckedOutEvents.raiseOnDiscardRandomCardEvent(aCards[1], sIdentity, bFacedown, vDeck, tEventTrace)
 		CardManager.discardCard(aCards[1], bFacedown, sIdentity, tEventTrace);
+	end
+end
+
+---Flips a card from face up to face down or visa versa
+---@param vCard databasenode
+function flipCardFacing(vCard, tEventTrace)
+	vCard = DeckedOutUtilities.validateCard(vCard);
+	if not vCard then return end
+
+	if CardManager.isCardFaceUp(vCard) then
+		DeckedOutEvents.raiseOnCardFlippedEvent(vCard, CardManager.getCardSource(vCard), 0, tEventTrace)
+		CardManager.setCardFaceDown(vCard);
+	else
+		DeckedOutEvents.raiseOnCardFlippedEvent(vCard, CardManager.getCardSource(vCard), 1, tEventTrace)
+		CardManager.setCardFaceUp(vCard);
 	end
 end
 
@@ -700,9 +723,7 @@ function setCardFaceUp(vCard)
 	vCard = DeckedOutUtilities.validateCard(vCard);
 	if not vCard then return end
 
-	if CardManager.isCardInHand(vCard) then
-		CardManager.setCardFacing(vCard, 1);
-	end
+	CardManager.setCardFacing(vCard, 1);
 end
 
 ---Sets a card face down if it's in a hand
@@ -711,9 +732,7 @@ function setCardFaceDown(vCard)
 	vCard = DeckedOutUtilities.validateCard(vCard);
 	if not vCard then return end
 
-	if CardManager.isCardInHand(vCard) then
-		CardManager.setCardFacing(vCard, 0);
-	end
+	CardManager.setCardFacing(vCard, 0);
 end
 
 ---Sets a card face up for face down
@@ -724,13 +743,7 @@ function setCardFacing(vCard, nFacing)
 	if not vCard then return end
 
 	-- if the card is in a hand, we can set the facing
-	if CardManager.isCardInHand(vCard) then
-		DB.setValue(vCard, CardManager.CARD_FACING_PATH, "number", nFacing)
-		return;
-	end
-
-	-- If the card isn't in a hand, we delete any face up node that does exist
-	CardManager.deleteFacingNode();
+	DB.setValue(vCard, CardManager.CARD_FACING_PATH, "number", nFacing)
 end
 
 ---Deletes the facup node for a card
@@ -780,9 +793,11 @@ function onDragCard(vCard, draginfo)
 		return true;
 	end
 
+	local bFacedown = DeckedOutUtilities.getFacedownHotkey() or CardManager.isCardFaceDown(vCard);
+
 	draginfo.setType("shortcut");
 	draginfo.setShortcutData("card", vCard.getPath());
-	if DeckedOutUtilities.getFacedownHotkey() then
+	if bFacedown then
 		draginfo.setTokenData(CardManager.getCardBack(vCard));
 	else
 		draginfo.setTokenData(DB.getValue(vCard, "image", ""));

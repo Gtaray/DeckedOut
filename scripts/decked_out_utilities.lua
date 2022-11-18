@@ -130,3 +130,18 @@ function validateHost()
 	end
 	return true;
 end
+
+---Adds an onUpdate handler for the given card.
+---@param vCard databasenode
+---@param fCallback function
+function addOnCardFlippedHandler(vCard, fCallback)
+	if not validateCard(vCard) then return end;
+	DB.addHandler(DB.getPath(vCard, CardManager.CARD_FACING_PATH), "onUpdate", fCallback);
+end
+---Removes an onUpdate handler for the given card.
+---@param vCard databasenode
+---@param fCallback function
+function removeOnCardFlippedHandler(vCard, fCallback)
+	if not vCard then return end;
+	DB.removeHandler(DB.getPath(vCard, CardManager.CARD_FACING_PATH), "onUpdate", fCallback);
+end

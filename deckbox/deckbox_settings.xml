@@ -74,6 +74,13 @@
 				<parameter>DECK_SETTING_GIVE_VISIBILITY</parameter>
 			</combobox_setting>
 
+			<setting_label name="flip_vis_label">
+				<static textres="deckbox_settings_label_flip_visibility" />
+			</setting_label>
+			<combobox_setting name="give_vis" source="settings.flipvisibility">
+				<parameter>DECK_SETTING_FLIP_VISIBILITY</parameter>
+			</combobox_setting>
+
 			<setting_label name="gm_sees_facedown_label">
 				<static textres="deckbox_settings_label_gm_sees_facedown" />
 			</setting_label>

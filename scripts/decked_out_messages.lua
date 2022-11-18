@@ -14,6 +14,7 @@ function onInit()
 	DeckedOutEvents.registerEvent(DeckedOutEvents.DECKEDOUT_EVENT_GROUP_DEAL, { fCallback = printGroupDealMessage, sTarget = "host" });
 	DeckedOutEvents.registerEvent(DeckedOutEvents.DECKEDOUT_EVENT_CARD_PUT_BACK_IN_DECK, { fCallback = printCardPutBack, sTarget = "host" });
 	DeckedOutEvents.registerEvent(DeckedOutEvents.DECKEDOUT_EVENT_HAND_PUT_BACK_IN_DECK, { fCallback = printHandPutBack, sTarget = "host" });
+	DeckedOutEvents.registerEvent(DeckedOutEvents.DECKEDOUT_EVENT_CARD_FLIPPED, { fCallback = printCardFlippedMessage, sTarget = "host" });
 
 	-- These oob messages are needed because cards are printed to chat. the GM must copy referenced cards to card storage
 	-- Before sending the message to chat. Clients can't copy to storage.
@@ -347,6 +348,30 @@ function printMultipleCardsDealtMessage(tEventArgs, tEventTrace)
 	sendMessageToGm(msg);
 	sendMessageToClients(msg);
 end
+-----------------------------------------------------
+-- FLIPPING AND PEEKING
+-----------------------------------------------------
+
+function printCardFlippedMessage(tEventArgs, tEventTrace)
+	local vCard = DeckedOutUtilities.validateCard(tEventArgs.sCardNode);
+	if not vCard then return end
+
+	local sFacing = "face up";
+	if tonumber(tEventArgs.nFacing) == 0 then
+		sFacing = "face down";
+	end
+	
+	local msg = {};
+	msg.type = DeckedOutMessages.OOB_MSGTYPE_DECKEDOUT_STANDARD;
+	msg.card_link = vCard.getNodeName();
+	msg.action = "flip";
+	msg.sender = tEventArgs.sIdentity;
+	msg.text = Interface.getString("chat_msg_card_flipped");
+	msg.text = string.format(msg.text, "[SENDER]", "[CARDNAME]", sFacing);
+	msg.icon = "flip";
+
+	Comm.deliverOOBMessage(msg, "");
+end
 
 -----------------------------------------------------
 -- DEALING CARDS TO GROUP
@@ -461,6 +486,8 @@ function resolveCardVisibility(msg, sSenderName, sReceiverName, sMessageId)
 		sSetting = DeckManager.getDeckSetting(vDeck, DeckManager.DECK_SETTING_GIVE_VISIBILITY);
 	elseif msg.action == "discard" then
 		sSetting = DeckManager.getDeckSetting(vDeck, DeckManager.DECK_SETTING_DISCARD_VISIBILITY);
+	elseif msg.action == "flip" then
+		sSetting = DeckManager.getDeckSetting(vDeck, DeckManager.DECK_SETTING_FLIP_VISIBILITY);
 	end
 
 	-- If no action is present, then return false. i.e Card is not hidden

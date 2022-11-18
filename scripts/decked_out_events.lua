@@ -6,6 +6,7 @@ DECKEDOUT_EVENT_CARD_ADDED_TO_STORAGE = "cardaddedtostorage";
 DECKEDOUT_EVENT_CARD_MOVED = "cardmoved";
 DECKEDOUT_EVENT_CARD_PUT_BACK_IN_DECK = "cardputbackindeck";
 DECKEDOUT_EVENT_CARD_ADDED_TO_HAND = "cardaddedtohand";
+DECKEDOUT_EVENT_CARD_FLIPPED = "cardflipped"
 DECKEDOUT_EVENT_MULTIPLE_CARDS_DEALT = "multiplecardsdealt";
 DECKEDOUT_EVENT_GROUP_DEAL = "groupdeal";
 
@@ -389,6 +390,20 @@ function raiseOnDealCardEvent(vCard, sIdentity, bFacedown, tEventTrace)
 	);
 end
 
+---Raises the onCardFlipped event
+---@param vCard databasenode
+---@param sIdentity string Charater identity (or 'gm') of the person flipping the card
+---@param nFacing number 1 = face up, 0 = face down
+---@param tEventTrace table
+---@return table tEventTrace
+function raiseOnCardFlippedEvent(vCard, sIdentity, nFacing, tEventTrace)
+	return DeckedOutEvents.raiseEvent(
+		DeckedOutEvents.DECKEDOUT_EVENT_CARD_FLIPPED,
+		{ sCardNode = vCard.getNodeName(), sIdentity = sIdentity, nFacing = nFacing },
+		tEventTrace
+	);
+end
+
 ---Raises the onMultipleCardsDealt event
 ---@param vDeck databasenode Deck node for the deck the cards are dealt from
 ---@param nCardsDealt number Number of cards being dealt
@@ -533,7 +548,7 @@ function onCardDroppedInChat(draginfo)
 
 	-- We specifically don't want to copy cards to storage here, since the message
 	-- handler will will copy it to chat. We only want to raise the event
-	CardManager.playCard(sRecord, DeckedOutUtilities.getFacedownHotkey(), DeckedOutUtilities.shouldPlayAndDiscard(), tEventTrace)
+	CardManager.playCard(sRecord, DeckedOutUtilities.getFacedownHotkey(), DeckedOutUtilities.shouldPlayAndDiscard(sRecord), tEventTrace)
 	return true;
 end
 

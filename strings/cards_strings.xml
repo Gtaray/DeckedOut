@@ -33,9 +33,11 @@
 	<!-- DECKBOX SETTINGS -->
 	<string name="deckbox_settings_title">Settings - %s</string>
 	<string name="deckbox_settings_header_card_visibility">Action Visibility</string>
+
 	<string name="deckbox_settings_label_default_deal_facing">Are cards dealt face up or face down by default?</string>
 	<string name="deckbox_settings_option_faceup">Face up</string>
 	<string name="deckbox_settings_option_facedown">Face down</string>
+
 	<string name="deckbox_settings_label_deal_visibility">Who can see cards that are dealt?</string>
 	<string name="deckbox_settings_option_recipient">The player receiving the card</string>
 	<string name="deckbox_settings_option_gm_and_recipient">The GM and player receiving the card</string>
@@ -53,6 +55,10 @@
 	<string name="deckbox_settings_label_give_visibility">Who can see cards that are given?</string>
 	<string name="deckbox_settings_option_giver">The players giving and receiving the card</string>
 	<string name="deckbox_settings_option_gm_and_giver">The GM and players giving and receiving the card</string>
+
+	<string name="deckbox_settings_label_flip_visibility">Who can see cards that are flipped?</string>
+	<string name="deckbox_settings_option_flipper">The player flipping the card</string>
+	<string name="deckbox_settings_option_gm_and_flipper">The GM and the player flipping the card</string>
 
 	<string name="deckbox_settings_label_gm_sees_facedown">Can the GM see cards played facedown?</string>
 
@@ -106,6 +112,9 @@
 	<string name="card_menu_play_face_down">Put card in chat face down</string>
 	<string name="card_menu_play_face_up">Show card in chat</string>
 	<string name="card_menu_reshuffle">Reshuffle this card back into its deck</string>
+	<string name="card_menu_flip_faceup">Flip card face up</string>
+	<string name="card_menu_flip_facedown">Flip card face down</string>
+	<string name="card_menu_peek">Peek at this this card without flipping it</string>
 
 	<string name="deck_label_cardback">Card Back</string>
 	<string name="deck_label_cards">Cards</string>
@@ -144,6 +153,7 @@
 	<string name="chat_msg_card_put_back_in_deck">%s shuffled %s back into its deck</string>
 	<string name="chat_msg_hand_put_back_in_deck">%s shuffled %s hand back into %s</string>
 	<string name="chat_msg_not_enough_cards_in_deck">There are not enough cards in %s to deal</string>
+	<string name="chat_msg_card_flipped">%s flipped %s %s</string>
 
 	<!-- GAME OPTIONS -->
 	<string name="option_header_deckedout">Decked Out</string>
