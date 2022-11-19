@@ -427,9 +427,22 @@ function getDeckSettingsNode(vDeck)
 	return vDeck.createChild(DeckManager.DECK_SETTINGS_PATH);
 end
 
+---Returns true if the GM can see facedown cards for a given deck
+---@param vDeck databasenode (or string)
+---@return boolean
+function canGmSeeFacedownCards(vDeck)
+	vDeck = DeckedOutUtilities.validateDeck(vDeck);
+	if not vDeck then return end
+	
+	return DeckManager.getDeckSetting(vDeck, DeckManager.DECK_SETTING_GM_SEE_FACEDOWN_CARDS) == "yes";
+end
+
 ---Gets whether the deck should deal cards facedown by default
 ---@param vDeck databasenode
 function dealFacedownByDefault(vDeck)
+	vDeck = DeckedOutUtilities.validateDeck(vDeck);
+	if not vDeck then return end
+
 	local sDefaultFacing = DeckManager.getDeckSetting(vDeck, DeckManager.DECK_SETTING_DEFAULT_DEAL_FACING)
 	return sDefaultFacing == "facedown";
 end

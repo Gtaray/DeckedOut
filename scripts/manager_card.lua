@@ -770,13 +770,23 @@ function onDragFromDeck(vDeck, draginfo)
 
 	CardManager.onDragCard(vCard, draginfo);
 
-	local bFacedown = DeckManager.dealFacedownByDefault(vDeck);
-	local sDealVisSetting = DeckManager.getDeckSetting(vDeck, DeckManager.DECK_SETTING_DEAL_VISIBILITY);
+	local bFacedown = DeckManager.dealFacedownByDefault(vDeck) 
+					  or DeckedOutUtilities.getFacedownHotkey();
 
-	if sDealVisSetting == "actor" or sDealVisSetting == "none" or bFacedown then
-		-- If only the person receiving the card should see the card, then we replace the image
-		-- That's dragged with the back image
+	if bFacedown then
+		draginfo.setNumberData(0);
+	else
+		draginfo.setNumberData(1);
+	end
+
+	local sDealVisSetting = DeckManager.getDeckSetting(vDeck, DeckManager.DECK_SETTING_DEAL_VISIBILITY);
+	local bGmSeesFacedown = DeckManager.canGmSeeFacedownCards(vDeck);
+
+	-- Check if the GM should see the card being dealt (which is separate from the card being dealt face down)
+	if sDealVisSetting == "actor" or sDealVisSetting == "none" or (bFacedown and not bGmSeesFacedown) then
 		draginfo.setTokenData(CardManager.getCardBack(vCard));
+	else
+		draginfo.setTokenData(DB.getValue(vCard, "image", ""));
 	end
 end
 
@@ -793,14 +803,22 @@ function onDragCard(vCard, draginfo)
 		return true;
 	end
 
-	local bFacedown = DeckedOutUtilities.getFacedownHotkey() or CardManager.isCardFaceDown(vCard);
+	local bFacedown = DeckedOutUtilities.getFacedownHotkey();
+
+	-- This determines whether the GM should see the card being dragged
+	local bShowCardBack = bFacedown or CardManager.isCardFaceDown(vCard);
 
 	draginfo.setType("shortcut");
 	draginfo.setShortcutData("card", vCard.getPath());
-	if bFacedown then
+
+	-- The number data is used to determine whether cards should be dealt facedown
+	-- which can be independent of the token that's displayed
+	if bShowCardBack then
 		draginfo.setTokenData(CardManager.getCardBack(vCard));
+		draginfo.setNumberData(0);
 	else
 		draginfo.setTokenData(DB.getValue(vCard, "image", ""));
+		draginfo.setNumberData(1);
 	end
 	draginfo.setDescription(DB.getValue(vCard, "name", ""));
 end
@@ -840,7 +858,7 @@ function onDropCard(draginfo, vDestination, sExtra)
 	end
 
 	-- Figure out if the card should be passed facedown
-	local bFacedown = CardManager.getCardBack(sRecord) == draginfo.getTokenData();
+	local bFacedown = draginfo.getNumberData() == 0;
 
 	sDestPath = vDestination.getNodeName();
 
