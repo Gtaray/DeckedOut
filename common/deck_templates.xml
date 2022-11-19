@@ -55,7 +55,7 @@
 	</template>
 	
 	<template name="token_card_back">
-		<tokenfield>
+		<tokencontrol>
 			<script>
 				function onInit()
 					local node = window.getDatabaseNode();
@@ -78,13 +78,13 @@
 				<left />
 				<top />
 			</anchored>
-		</tokenfield>
+		</tokencontrol>
 	</template>
 
 	<template name="card_highlight">
 		<genericcontrol name="highlight">
 			<frame>cardhighlight</frame>
-			<anchored to="image">
+			<anchored>
 				<top offset="0"/>
 				<bottom offset="0" />
 				<left offset="0" />

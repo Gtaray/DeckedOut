@@ -1,7 +1,7 @@
 local bPopped = false;
 			
 function onInit()
-	highlight.setEnabled(false);
+	-- highlight.setEnabled(false);
 
 	local node = getDatabaseNode();
 	DB.addHandler(DB.getPath(node, CardManager.CARD_FACING_PATH), "onUpdate", onFacingChanged)
@@ -30,12 +30,12 @@ function setCardSize(nWidth, nHeight)
 	cardback.setAnchoredHeight(nHeight);
 end
 
-function onHover(hover)
-	if hover and not bPopped then
-		highlight.setVisible(true);
-		bPopped = true;
-	elseif not hover and bPopped then
-		highlight.setVisible(false);
-		bPopped = false;
-	end
-end
+-- function onHover(hover)
+-- 	if hover and not bPopped then
+-- 		highlight.setVisible(true);
+-- 		bPopped = true;
+-- 	elseif not hover and bPopped then
+-- 		highlight.setVisible(false);
+-- 		bPopped = false;
+-- 	end
+-- end

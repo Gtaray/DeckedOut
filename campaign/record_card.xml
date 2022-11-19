@@ -19,6 +19,7 @@
 			<subwindow_record name="main">
 				<class>card_main</class>
 				<activate />
+				<fastinit />
 			</subwindow_record>
 
 			<close_recordsheet />
@@ -41,6 +42,33 @@
 
 	<windowclass name="card_main">
 		<margins control="0,0,0,2" />
+		<script>
+			local bPeek = false;
+			function onInit()
+				local node = getDatabaseNode();
+				DB.addHandler(DB.getPath(node, CardManager.CARD_FACING_PATH), "onUpdate", onFacingChanged)
+
+				onFacingChanged();
+			end
+
+			function onClose()
+				local node = getDatabaseNode();
+				DB.removeHandler(DB.getPath(node, CardManager.CARD_FACING_PATH), "onUpdate", onFacingChanged)
+			end
+
+			function onFacingChanged()
+				local bFaceUp = CardManager.isCardFaceUp(getDatabaseNode()) or bPeek;
+				image.setVisible(bFaceUp);
+				image.setEnabled(bFaceUp);
+				back.setVisible(not bFaceUp);
+				back.setEnabled(not bFaceUp);
+			end
+
+			function peek()
+				bPeek = true;
+				onFacingChanged()
+			end
+		</script>
 		<sheetdata>			
 			<anchor_column name="columnanchor" />
 			<token_column name="image">
@@ -49,6 +77,13 @@
 				<anchored width="250" height="350" />
 				<gmdrag />
 			</token_column>
+			<token_card_back name="back">
+				<nodrag />
+				<anchored height="350" width="250">
+					<top parent="columnanchor" anchor="bottom" relation="relative" offset="7" />
+					<left />
+				</anchored>
+			</token_card_back>
 		</sheetdata>
 	</windowclass>
 </root>

@@ -11,9 +11,10 @@
 			<token_card_back name="cardback">
 				<script file="common/scripts/onCardDrag.lua" />
 				<script file="common/scripts/standardCardRadialOptions.lua" />
+				<canpeek />
 			</token_card_back>
 			<icon_missing_token name="missingtoken" />
-			<card_highlight name="highlight" />
+			<!-- <card_highlight name="highlight" /> -->
 		</sheetdata>
 	</windowclass>
 </root>

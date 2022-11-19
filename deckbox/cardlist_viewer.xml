@@ -53,23 +53,7 @@
 
 	<windowclass name="cardlist_viewer_item">
 		<margins control="0,0,0,2" />
-		<script>
-			local bPopped = false;
-			
-			function onInit()
-				highlight.setEnabled(false);
-			end
-			
-			function onHover(hover)
-				if hover and not bPopped then
-					highlight.setVisible(true);
-					bPopped = true;
-				elseif not hover and bPopped then
-					highlight.setVisible(false);
-					bPopped = false;
-				end
-			end
-		</script>
+		<script file="desktop/scripts/desktop_card.lua" />
 		<sheetdata>
 			<token_card name="image">
 				<script file="common/scripts/onCardDrag.lua" />
@@ -80,8 +64,17 @@
 					<left />
 				</anchored>
 			</token_card>
+			<token_card_back name="cardback">
+				<script file="common/scripts/onCardDrag.lua" />
+				<script file="common/scripts/standardCardRadialOptions.lua" />
+				<nodrag />
+				<anchored height="140" width="100">
+					<top />
+					<left />
+				</anchored>
+			</token_card_back>
 			<icon_missing_token name="missingtoken" />
-			<card_highlight name="highlight" />
+			<!-- <card_highlight name="highlight" /> -->
 		</sheetdata>
 	</windowclass>
 </root>

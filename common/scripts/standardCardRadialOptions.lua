@@ -14,6 +14,10 @@ function onInit()
 		registerMenuItem(Interface.getString("card_menu_discard_card"), "discard_card", 7);
 	end
 
+	if canpeek then
+		registerMenuItem(Interface.getString("card_menu_peek"), "peek", 2);
+	end
+
 	DeckedOutUtilities.addOnCardFlippedHandler(card, onCardFlipped);
 	onCardFlipped();
 end
@@ -46,6 +50,8 @@ end
 function onMenuSelection(selection)
 	if selection == 1 then
 		playCard(DeckedOutUtilities.getFacedownHotkey())
+	elseif selection == 2 then
+		DesktopManager.peekCard(window.getDatabaseNode());
 	elseif selection == 3 then
 		CardManager.flipCardFacing(window.getDatabaseNode(), {})
 	elseif selection == 5 then

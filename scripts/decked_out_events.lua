@@ -7,6 +7,7 @@ DECKEDOUT_EVENT_CARD_MOVED = "cardmoved";
 DECKEDOUT_EVENT_CARD_PUT_BACK_IN_DECK = "cardputbackindeck";
 DECKEDOUT_EVENT_CARD_ADDED_TO_HAND = "cardaddedtohand";
 DECKEDOUT_EVENT_CARD_FLIPPED = "cardflipped"
+DECKEDOUT_EVENT_CARD_PEEK = "cardpeek";
 DECKEDOUT_EVENT_MULTIPLE_CARDS_DEALT = "multiplecardsdealt";
 DECKEDOUT_EVENT_GROUP_DEAL = "groupdeal";
 
@@ -400,6 +401,19 @@ function raiseOnCardFlippedEvent(vCard, sIdentity, nFacing, tEventTrace)
 	return DeckedOutEvents.raiseEvent(
 		DeckedOutEvents.DECKEDOUT_EVENT_CARD_FLIPPED,
 		{ sCardNode = vCard.getNodeName(), sIdentity = sIdentity, nFacing = nFacing },
+		tEventTrace
+	);
+end
+
+---Raises the onPeekCard event
+---@param vCard databasenode
+---@param sIdentity string Character identity (or 'gm') of the person peeking the card
+---@param tEventTrace table
+---@return table tEventTrace
+function raiseOnCardPeekEvent(vCard, sIdentity, tEventTrace)
+	return raiseEvent(
+		DeckedOutEvents.DECKEDOUT_EVENT_CARD_PEEK,
+		{ sCardNode = vCard.getNodeName(), sIdentity = sIdentity },
 		tEventTrace
 	);
 end

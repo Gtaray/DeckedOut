@@ -308,6 +308,9 @@ DECK_SETTING_GIVE_VISIBILITY = "givevisibility";
 -- Who can see cards that are flipped: flipper, flipper and gm
 -- Default: flipper and gm
 DECK_SETTING_FLIP_VISIBILITY = "flipvisibility";
+--- Who can see cards that are peeked: peeker, peeker and gm, everyone
+-- Default: peeker and gm
+DECK_SETTING_PEEK_VISIBILITY = "peekvisibility";
 -- Can the GM see what cards are being face down: yes or no
 -- Default: yes
 DECK_SETTING_GM_SEE_FACEDOWN_CARDS = "gmseesfacedowncards";
@@ -367,6 +370,14 @@ local _tSettingOptions = {
 			{ sTextRes = "deckbox_settings_option_gm_and_flipper", sValue = "gmandactor" }
 		}
 	},
+	[DECK_SETTING_PEEK_VISIBILITY] = {
+		default = "gmandactor",
+		options = {
+			{ sTextRes = "deckbox_settings_option_peeker", sValue = "actor" },
+			{ sTextRes = "deckbox_settings_option_gm_and_peeker", sValue = "gmandactor" },
+			{ sTextRes = "deckbox_settings_option_everyone", sValue = "everyone" }
+		}
+	},
 	[DECK_SETTING_GM_SEE_FACEDOWN_CARDS] = {
 		default = "yes",
 		options = {
@@ -414,7 +425,11 @@ function getDeckSetting(vDeck, sKey)
 	local settings = DeckedOutUtilities.validateNode(DeckManager.getDeckSettingsNode(vDeck), "settings");
 	if not settings then return end
 
-	return DB.getValue(settings, sKey, "");
+	local value = DB.getValue(settings, sKey, "");
+	if value == "" then
+		value = _tSettingOptions[sKey].default;
+	end
+	return value
 end
 
 ---Gets the settings node for a deck

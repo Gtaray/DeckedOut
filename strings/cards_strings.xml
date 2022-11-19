@@ -60,6 +60,10 @@
 	<string name="deckbox_settings_option_flipper">The player flipping the card</string>
 	<string name="deckbox_settings_option_gm_and_flipper">The GM and the player flipping the card</string>
 
+	<string name="deckbox_settings_label_peek_visibility">Who can see cards that are peeked at?</string>
+	<string name="deckbox_settings_option_peeker">The player peeking the card</string>
+	<string name="deckbox_settings_option_gm_and_peeker">The GM and the player peeking the card</string>
+
 	<string name="deckbox_settings_label_gm_sees_facedown">Can the GM see cards played facedown?</string>
 
 	<string name="deckbox_settings_header_autoplay">Auto Play and Discard</string>
@@ -154,6 +158,7 @@
 	<string name="chat_msg_hand_put_back_in_deck">%s shuffled %s hand back into %s</string>
 	<string name="chat_msg_not_enough_cards_in_deck">There are not enough cards in %s to deal</string>
 	<string name="chat_msg_card_flipped">%s flipped %s %s</string>
+	<string name="chat_msg_peek">%s peeked at %s</string>
 
 	<!-- GAME OPTIONS -->
 	<string name="option_header_deckedout">Decked Out</string>
