@@ -375,6 +375,11 @@ function printCardFlippedMessage(tEventArgs, tEventTrace)
 end
 
 function printPeekCardMessage(tEventArgs, tEventTrace)
+	-- Check if we should post a message when a GM performs the peek action
+	if tEventArgs.sIdentity == "gm" and not DeckedOutUtilities.showGmPeekMessage() then
+		return
+	end
+
 	local vCard = DeckedOutUtilities.validateCard(tEventArgs.sCardNode);
 	if not vCard then return end
 	

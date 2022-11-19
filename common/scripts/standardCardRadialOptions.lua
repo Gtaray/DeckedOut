@@ -14,7 +14,7 @@ function onInit()
 		registerMenuItem(Interface.getString("card_menu_discard_card"), "discard_card", 7);
 	end
 
-	if canpeek then
+	if canpeek and DeckedOutUtilities.canPeekAtCards() then
 		registerMenuItem(Interface.getString("card_menu_peek"), "peek", 2);
 	end
 
@@ -30,6 +30,10 @@ function onClose()
 end
 
 function onCardFlipped()
+	if not DeckedOutUtilities.canFlipCards() then
+		return
+	end
+
 	local vCard = window.getDatabaseNode();
 	if not CardManager.isCardInHand(vCard) then
 		return;

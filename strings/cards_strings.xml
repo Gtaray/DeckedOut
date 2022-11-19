@@ -167,4 +167,11 @@
 	<string name="option_val_ctrl">Control</string>
 	<string name="option_val_shift">Shift</string>
 	<string name="option_val_alt">Alt</string>
+
+	<string name="option_label_permission_flip">Are players allowed to flip cards</string>
+	<string name="option_label_permission_peek">Are players allowed to peek at facedown cards</string>
+	<string name="option_val_yes">Yes</string>
+	<string name="option_val_no">No</string>
+
+	<string name="option_label_show_gm_peek">Show chat messages when a GM peeks at a card</string>
 </root>
