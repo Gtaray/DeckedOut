@@ -1,14 +1,4 @@
 TODO LIST: 
- 	* Face down cards in hand
-		* [x] Card Manager infrastructure
-		* [x] Update desktop_card windowclass to show facedown cards in hand
-		* [x] Implement drag/drop for face down cards in hand
-		* [x] Update card list view to show cards as facedown 
-		* [x] Implement flip radial option for cards in hand and card list
-		* [x] Implement flip event and chat message handler
-		* [x] Implement peek radial option for cards in hand and card list
-		* [x] Implement peek event and chat message handler
-		* [x] Implement new game options
 
 STRETCH GOALS
 * Hand actions - Moved to Stretch goal, because of some weirdness around message timing. Could get pulled in if requested though. Current workaround is to use dice
@@ -24,6 +14,16 @@ STRETCH GOALS
 * Add pre-check functions to all events, and get rid of immediate event type
 
 DONE
+* Face down cards in hand
+	* [x] Card Manager infrastructure
+	* [x] Update desktop_card windowclass to show facedown cards in hand
+	* [x] Implement drag/drop for face down cards in hand
+	* [x] Update card list view to show cards as facedown 
+	* [x] Implement flip radial option for cards in hand and card list
+	* [x] Implement flip event and chat message handler
+	* [x] Implement peek radial option for cards in hand and card list
+	* [x] Implement peek event and chat message handler
+	* [x] Implement new game options
 * Merge played and discarded messages into a single message when done together
 * Display icons in chat for card actions	
 	* Message data can have multiple icons, so this is basically easy
