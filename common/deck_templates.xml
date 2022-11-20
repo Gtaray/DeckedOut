@@ -53,11 +53,38 @@
 			</anchored>
 		</tokenfield>
 	</template>
+	
+	<template name="token_card_back">
+		<tokencontrol>
+			<script>
+				function onInit()
+					local node = window.getDatabaseNode();
+					DB.addHandler(DB.getPath(node, "deckid"), "onUpdate", update);
+					update();
+				end
+				function onClose()
+					local node = window.getDatabaseNode();
+					DB.removeHandler(DB.getPath(node, "deckid"), "onUpdate", update);
+				end
+				function update()
+					local vCard = window.getDatabaseNode();
+					if DB.getValue(vCard, "deckid", "") == "" then
+						return;
+					end
+					setPrototype(CardManager.getCardBack(vCard));
+				end
+			</script>
+			<anchored>
+				<left />
+				<top />
+			</anchored>
+		</tokencontrol>
+	</template>
 
 	<template name="card_highlight">
 		<genericcontrol name="highlight">
 			<frame>cardhighlight</frame>
-			<anchored to="image">
+			<anchored>
 				<top offset="0"/>
 				<bottom offset="0" />
 				<left offset="0" />

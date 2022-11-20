@@ -17,6 +17,7 @@ function onInit()
 	DesktopManager.toggleHandVisibility = toggleHandVisibility;
 	DesktopManager.openCardList = openCardList;
 	DesktopManager.promptCardAmount = promptCardAmount;
+	DesktopManager.peekCard = peekCard;
 end
 
 function onDesktopInit()
@@ -108,4 +109,15 @@ end
 function promptCardAmount(fCallback)
 	local w = Interface.openWindow("dealcards_dialog", "");
 	w.setCallback(fCallback);
+end
+
+function peekCard(vCard)
+	vCard = DeckedOutUtilities.validateCard(vCard);
+	if not vCard then return end
+
+	local w = Interface.openWindow("card", vCard.getNodeName());
+	if w then
+		w.main.subwindow.peek();
+		DeckedOutEvents.raiseOnCardPeekEvent(vCard, CardManager.getCardSource(vCard), {});
+	end
 end

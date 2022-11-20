@@ -48,7 +48,10 @@ function setComboValue(sValue)
 		if (sValue or "") == "" then
 			self.setListIndex(1);
 			sValue = self.getSelectedValue();
-			DB.setValue(getDatabaseNode().getPath(), "string", sValue);
+			local node = getDatabaseNode();
+			if node then
+				DB.setValue(node.getPath(), "string", sValue);
+			end
 		elseif hasValue(sValue) then
 			for nIndex,sKnownValue in ipairs(getValues()) do
 				if sValue == sKnownValue then

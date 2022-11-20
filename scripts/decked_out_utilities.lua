@@ -10,6 +10,28 @@ function getPlayAndDiscardHotkey()
 	return DeckedOutUtilities.getHotkey(OptionsManager.getOption("HOTKEY_DISCARD"));
 end
 
+---Returns true if the current user is allowed to flip cards
+---@return boolean
+function canFlipCards()
+	return OptionsManager.getOption("FLIP_PERMISSION") == "yes" or Session.IsHost;
+end
+
+---Returns true if current user is allowed to peek at cards
+---@return boolean
+function canPeekAtCards()
+	return OptionsManager.getOption("PEEK_PERMISSION") == "yes" or Session.IsHost;
+end
+
+---Returns true if a message should be put in chat when a GM peeks at a card
+---@return boolean
+function showGmPeekMessage()
+	return OptionsManager.getOption("SHOW_GM_PEEK_MSG") == "yes";
+end
+
+---Returns whether a card should be discarded after playing
+---@param vCard databasenode (or string)
+---@param vDeck databasenode (or string)
+---@return boolean
 function shouldPlayAndDiscard(vCard, vDeck)
 	-- The hotkey should take presedence over any other options.
 	if DeckedOutUtilities.getPlayAndDiscardHotkey() then
@@ -129,4 +151,19 @@ function validateHost()
 		return false;
 	end
 	return true;
+end
+
+---Adds an onUpdate handler for the given card.
+---@param vCard databasenode
+---@param fCallback function
+function addOnCardFlippedHandler(vCard, fCallback)
+	if not validateCard(vCard) then return end;
+	DB.addHandler(DB.getPath(vCard, CardManager.CARD_FACING_PATH), "onUpdate", fCallback);
+end
+---Removes an onUpdate handler for the given card.
+---@param vCard databasenode
+---@param fCallback function
+function removeOnCardFlippedHandler(vCard, fCallback)
+	if not vCard then return end;
+	DB.removeHandler(DB.getPath(vCard, CardManager.CARD_FACING_PATH), "onUpdate", fCallback);
 end

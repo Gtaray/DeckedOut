@@ -29,6 +29,10 @@ function addCardToStorage(vCard, tEventTrace)
 
 	local newCard = DB.copyNode(vCard, DB.createChild(CardStorage.getCardStorageNode()));
 	local sToken = CardManager.getCardFront(vCard);
+
+	-- We don't want card facing to be stored
+	CardManager.deleteFacingNode(newCard);
+
 	_storage[sToken] = newCard;
 
 	tEventTrace = DeckedOutEvents.raiseOnCardAddedToStorageEvent(newCard, tEventTrace);

@@ -14,6 +14,8 @@ function onInit()
 	DeckedOutEvents.registerEvent(DeckedOutEvents.DECKEDOUT_EVENT_GROUP_DEAL, { fCallback = printGroupDealMessage, sTarget = "host" });
 	DeckedOutEvents.registerEvent(DeckedOutEvents.DECKEDOUT_EVENT_CARD_PUT_BACK_IN_DECK, { fCallback = printCardPutBack, sTarget = "host" });
 	DeckedOutEvents.registerEvent(DeckedOutEvents.DECKEDOUT_EVENT_HAND_PUT_BACK_IN_DECK, { fCallback = printHandPutBack, sTarget = "host" });
+	DeckedOutEvents.registerEvent(DeckedOutEvents.DECKEDOUT_EVENT_CARD_FLIPPED, { fCallback = printCardFlippedMessage, sTarget = "host" });
+	DeckedOutEvents.registerEvent(DeckedOutEvents.DECKEDOUT_EVENT_CARD_PEEK, { fCallback = printPeekCardMessage, sTarget = "host" });
 
 	-- These oob messages are needed because cards are printed to chat. the GM must copy referenced cards to card storage
 	-- Before sending the message to chat. Clients can't copy to storage.
@@ -299,6 +301,8 @@ function printCardDealtMessage(tEventArgs, tEventTrace)
 		return;
 	end
 
+	local bFacedown = tEventArgs.bFacedown == "true";
+
 	local msg = {};
 	msg.type = DeckedOutMessages.OOB_MSGTYPE_DECKEDOUT_STANDARD;
 	-- The GM should always be the card source here. 
@@ -309,7 +313,11 @@ function printCardDealtMessage(tEventArgs, tEventTrace)
 	msg.card_link = vCard.getNodeName();
 	msg.action = "deal";
 	msg.facedown = tEventArgs.bFacedown;
-	msg.text = Interface.getString("chat_msg_deal_card");
+	if bFacedown then
+		msg.text = Interface.getString("chat_msg_deal_card_facedown");
+	else
+		msg.text = Interface.getString("chat_msg_deal_card");
+	end
 	msg.text = string.format(msg.text, "[SENDER]", "[CARDNAME]", "[PRONOUN]");
 	msg.icon = "deal";
 
@@ -340,6 +348,51 @@ function printMultipleCardsDealtMessage(tEventArgs, tEventTrace)
 
 	sendMessageToGm(msg);
 	sendMessageToClients(msg);
+end
+-----------------------------------------------------
+-- FLIPPING AND PEEKING
+-----------------------------------------------------
+
+function printCardFlippedMessage(tEventArgs, tEventTrace)
+	local vCard = DeckedOutUtilities.validateCard(tEventArgs.sCardNode);
+	if not vCard then return end
+
+	local sFacing = "face up";
+	if tonumber(tEventArgs.nFacing) == 0 then
+		sFacing = "face down";
+	end
+	
+	local msg = {};
+	msg.type = DeckedOutMessages.OOB_MSGTYPE_DECKEDOUT_STANDARD;
+	msg.card_link = vCard.getNodeName();
+	msg.action = "flip";
+	msg.sender = tEventArgs.sIdentity;
+	msg.text = Interface.getString("chat_msg_card_flipped");
+	msg.text = string.format(msg.text, "[SENDER]", "[CARDNAME]", sFacing);
+	msg.icon = "flip";
+
+	Comm.deliverOOBMessage(msg, "");
+end
+
+function printPeekCardMessage(tEventArgs, tEventTrace)
+	-- Check if we should post a message when a GM performs the peek action
+	if tEventArgs.sIdentity == "gm" and not DeckedOutUtilities.showGmPeekMessage() then
+		return
+	end
+
+	local vCard = DeckedOutUtilities.validateCard(tEventArgs.sCardNode);
+	if not vCard then return end
+	
+	local msg = {};
+	msg.type = DeckedOutMessages.OOB_MSGTYPE_DECKEDOUT_STANDARD;
+	msg.card_link = vCard.getNodeName();
+	msg.action = "peek";
+	msg.sender = tEventArgs.sIdentity;
+	msg.text = Interface.getString("chat_msg_peek");
+	msg.text = string.format(msg.text, "[SENDER]", "[CARDNAME]");
+	msg.icon = "peek";
+
+	Comm.deliverOOBMessage(msg, "");
 end
 
 -----------------------------------------------------
@@ -439,7 +492,7 @@ function resolveCardVisibility(msg, sSenderName, sReceiverName, sMessageId)
 	-- We resolve facedown cards first because by default they're never visible
 	-- So it's facedown, we don't have to look any futher
 	local bGmSeesFacedown = DeckManager.getDeckSetting(vDeck, DeckManager.DECK_SETTING_GM_SEE_FACEDOWN_CARDS) == "yes";
-	if msg.facedown == "true" and msg.action ~= "deal"then
+	if msg.facedown == "true" and msg.action ~= "deal" then
 		-- If this is the deal action, then we don't want to worry about the facedown status.
 		-- We let the logic below this control who can see deals
 		-- This is so if only the player being dealt shoudl see the message, we don't have to worry about whether the GM
@@ -455,12 +508,18 @@ function resolveCardVisibility(msg, sSenderName, sReceiverName, sMessageId)
 		sSetting = DeckManager.getDeckSetting(vDeck, DeckManager.DECK_SETTING_GIVE_VISIBILITY);
 	elseif msg.action == "discard" then
 		sSetting = DeckManager.getDeckSetting(vDeck, DeckManager.DECK_SETTING_DISCARD_VISIBILITY);
+	elseif msg.action == "flip" then
+		sSetting = DeckManager.getDeckSetting(vDeck, DeckManager.DECK_SETTING_FLIP_VISIBILITY);
+	elseif msg.action == "peek" then
+		sSetting = DeckManager.getDeckSetting(vDeck, DeckManager.DECK_SETTING_PEEK_VISIBILITY);
 	end
 
 	-- If no action is present, then return false. i.e Card is not hidden
 	if not sSetting then
 		return true;
 	end
+
+	local bGmSeesCard = (not msg.facedown) or (msg.facedown and bGmSeesFacedown)
 
 	-- If only the person giving/receiving a card should see the card
 	-- Then we only return true when the sender is 'you'
@@ -471,7 +530,11 @@ function resolveCardVisibility(msg, sSenderName, sReceiverName, sMessageId)
 		end
 		return sSenderName == "you" or sReceiverName == "you";
 	elseif sSetting == "gmandactor" then
-		return sMessageId == "gm" or sSenderName == "you" or sReceiverName == "you";
+		return (sMessageId == "gm" and bGmSeesCard) or sSenderName == "you" or sReceiverName == "you";
+	elseif sSetting == "gm" then
+		return sMessageId == "gm" and bGmSeesCard;
+	elseif sSetting == "none" then
+		return false;
 	end
 
 	-- If we get here and sSetting is not everyone, then something went wrong

@@ -38,13 +38,15 @@ function dealCard(vDeck, sIdentity, bFacedown, tEventTrace)
 	
 	local aCards = DeckManager.getRandomCardsInDeck(vDeck, 1);
 
+	bFacedown = bFacedown or DeckManager.dealFacedownByDefault(vDeck);
+
 	if aCards and aCards[1] then
 		-- We place a trace event above the addCardToHand call since that call generates more events
 		-- We can't call the raise event before addCardToHand, because the card isn't in the hand, yet
 		-- and sCardNode would be nil by the time a handler got to it otherwise (as it was moved from the deck)
 		-- This makes sure that the trace stack is preserved, while still having the event fire second
 		tEventTrace = DeckedOutEvents.addEventTrace(tEventTrace, DeckedOutEvents.DECKEDOUT_EVENT_CARD_DEALT);
-		local card = CardManager.addCardToHand(aCards[1], sIdentity, tEventTrace);
+		local card = CardManager.addCardToHand(aCards[1], sIdentity, bFacedown, tEventTrace);
 		DeckedOutEvents.raiseOnDealCardEvent(card, sIdentity, bFacedown, tEventTrace);
 		return card;
 	end
@@ -55,7 +57,7 @@ end
 ---@param sIdentity string Character identity (or 'gm') that's receiving the card
 ---@param nCardAmount number Number of cards to deal
 ---@param tEventTrace table Event trace table
-function dealCards(vDeck, sIdentity, nCardAmount, tEventTrace)
+function dealCards(vDeck, sIdentity, nCardAmount, bFacedown, tEventTrace)
 	if not DeckedOutUtilities.validateHost() then return end
 	vDeck = DeckedOutUtilities.validateDeck(vDeck);
 	if not vDeck then return end
@@ -288,6 +290,11 @@ end
 -- DECK SETTINGS
 ------------------------------------------
 -- These setting values need to match the settings.* source nodes for all settings
+-- Are cards dealt from this deck dealt faceup or facedown by default
+-- Default: faceup
+DECK_SETTING_DEFAULT_DEAL_FACING = "defaultdealfacing"
+-- Who can see cards that are being dealt: player, player and GM, everyone
+-- Default: player and GM
 DECK_SETTING_DEAL_VISIBILITY = "dealvisibility";
 -- Who can see cards that are being played: player, player and GM, everyone
 -- Default: player and GM
@@ -298,6 +305,12 @@ DECK_SETTING_DISCARD_VISIBILITY = "discardvisibility";
 -- Who can see cards that are being given: giver and receiver, giver and receiver and gm, everyone
 -- Default: giver and receiver and gm
 DECK_SETTING_GIVE_VISIBILITY = "givevisibility";
+-- Who can see cards that are flipped: flipper, flipper and gm
+-- Default: flipper and gm
+DECK_SETTING_FLIP_VISIBILITY = "flipvisibility";
+--- Who can see cards that are peeked: peeker, peeker and gm, everyone
+-- Default: peeker and gm
+DECK_SETTING_PEEK_VISIBILITY = "peekvisibility";
 -- Can the GM see what cards are being face down: yes or no
 -- Default: yes
 DECK_SETTING_GM_SEE_FACEDOWN_CARDS = "gmseesfacedowncards";
@@ -309,12 +322,21 @@ DECK_SETTING_AUTO_PLAY_FROM_HAND = "autoplayfromhand";
 DECK_SETTING_AUTO_PLAY_FROM_DECK = "autoplayfromdeck";
 
 local _tSettingOptions = {
+	[DECK_SETTING_DEFAULT_DEAL_FACING] = {
+		default = "faceup",
+		options = {
+			{ sTextRes = "deckbox_settings_option_faceup", sValue = "faceup" },
+			{ sTextRes = "deckbox_settings_option_facedown", sValue = "facedown" }
+		}
+	},
 	[DECK_SETTING_DEAL_VISIBILITY] = {
 		default = "gmandactor",
 		options = {
 			{ sTextRes = "deckbox_settings_option_recipient", sValue = "actor" },
+			{ sTextRes = "deckbox_settings_option_gm", sValue = "gm" },
 			{ sTextRes = "deckbox_settings_option_gm_and_recipient", sValue = "gmandactor" },
-			{ sTextRes = "deckbox_settings_option_everyone", sValue = "everyone" }
+			{ sTextRes = "deckbox_settings_option_everyone", sValue = "everyone" },
+			{ sTextRes = "deckbox_settings_option_none", sValue = "none" }
 		}
 	},
 	[DECK_SETTING_PLAY_VISIBILITY] = {
@@ -338,6 +360,21 @@ local _tSettingOptions = {
 		options = {
 			{ sTextRes = "deckbox_settings_option_giver", sValue = "actor" },
 			{ sTextRes = "deckbox_settings_option_gm_and_giver", sValue = "gmandactor" },
+			{ sTextRes = "deckbox_settings_option_everyone", sValue = "everyone" }
+		}
+	},
+	[DECK_SETTING_FLIP_VISIBILITY] = {
+		default = "gmandactor",
+		options = {
+			{ sTextRes = "deckbox_settings_option_flipper", sValue = "actor" },
+			{ sTextRes = "deckbox_settings_option_gm_and_flipper", sValue = "gmandactor" }
+		}
+	},
+	[DECK_SETTING_PEEK_VISIBILITY] = {
+		default = "gmandactor",
+		options = {
+			{ sTextRes = "deckbox_settings_option_peeker", sValue = "actor" },
+			{ sTextRes = "deckbox_settings_option_gm_and_peeker", sValue = "gmandactor" },
 			{ sTextRes = "deckbox_settings_option_everyone", sValue = "everyone" }
 		}
 	},
@@ -388,7 +425,11 @@ function getDeckSetting(vDeck, sKey)
 	local settings = DeckedOutUtilities.validateNode(DeckManager.getDeckSettingsNode(vDeck), "settings");
 	if not settings then return end
 
-	return DB.getValue(settings, sKey, "");
+	local value = DB.getValue(settings, sKey, "");
+	if value == "" then
+		value = _tSettingOptions[sKey].default;
+	end
+	return value
 end
 
 ---Gets the settings node for a deck
@@ -399,4 +440,24 @@ function getDeckSettingsNode(vDeck)
 	if not vDeck then return end
 
 	return vDeck.createChild(DeckManager.DECK_SETTINGS_PATH);
+end
+
+---Returns true if the GM can see facedown cards for a given deck
+---@param vDeck databasenode (or string)
+---@return boolean
+function canGmSeeFacedownCards(vDeck)
+	vDeck = DeckedOutUtilities.validateDeck(vDeck);
+	if not vDeck then return end
+	
+	return DeckManager.getDeckSetting(vDeck, DeckManager.DECK_SETTING_GM_SEE_FACEDOWN_CARDS) == "yes";
+end
+
+---Gets whether the deck should deal cards facedown by default
+---@param vDeck databasenode
+function dealFacedownByDefault(vDeck)
+	vDeck = DeckedOutUtilities.validateDeck(vDeck);
+	if not vDeck then return end
+
+	local sDefaultFacing = DeckManager.getDeckSetting(vDeck, DeckManager.DECK_SETTING_DEFAULT_DEAL_FACING)
+	return sDefaultFacing == "facedown";
 end
