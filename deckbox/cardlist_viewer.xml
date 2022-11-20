@@ -68,6 +68,7 @@
 				<script file="common/scripts/onCardDrag.lua" />
 				<script file="common/scripts/standardCardRadialOptions.lua" />
 				<nodrag />
+				<canpeek />
 				<anchored height="140" width="100">
 					<top />
 					<left />
