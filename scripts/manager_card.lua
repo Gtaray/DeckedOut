@@ -834,27 +834,27 @@ end
 function onDropCard(draginfo, vDestination, sExtra)
 	if not draginfo then
 		Debug.console("ERROR: CardManager.onDropCard(): draginfo was nil or not found.");
-		return;
+		return false;
 	end
 	local vDestination = DeckedOutUtilities.validateNode(vDestination, "vDestination");
-	if not vDestination then return end
+	if not vDestination then return false end
 
 	-- Only handle shortcut drops
 	if not draginfo.isType("shortcut") then
-		return;
+		return false;
 	end
 
 	local sClass,sRecord = draginfo.getShortcutData();
 	-- Only handle card drops
 	if sClass ~= "card" then
-		return;
+		return false;
 	end
 
 	-- If this item was dragged from card storage (i.e. the chat) then do nothing
 	-- Items in chat should never be moved or handled by anything, they're read only
 	if CardStorage.doesCardComeFromStorage(sRecord) then
 		Debug.console("WARNING: Tried to drag/drop a card from chat. Card links in chat cannot be moved and are read-only.");
-		return;
+		return false;
 	end
 
 	-- Figure out if the card should be passed facedown
@@ -912,7 +912,7 @@ function handleAnyDrop(sSourceNode, sDestinationNode, sExtra, bFacedown)
 		-- Check that the card being dropped belongs in this deck
 		if CardManager.getDeckIdFromCard(vCard) ~= DeckManager.getDeckId(vDestination) then
 			Debug.console("WARNING: CardManager.handleAnyDrop(): Tried to move a card to another deck.")
-			return;
+			return false;
 		end
 
 		-- Currently we only care about if sExtra for dropping on to the discard
