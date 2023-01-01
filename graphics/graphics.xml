@@ -24,6 +24,8 @@
 	<icon name="deal_multiperson" file="graphics/radial/deal_multiperson.png" />
 	<icon name="multideal" file="graphics/radial/multideal.png" />
 	<icon name="multideal_multiperson" file="graphics/radial/multideal_multiperson.png" />
+	<icon name="peek" file="graphics/radial/peekcard.png" />
+	<icon name="flip" file="graphics/radial/flipcard.png" />
 
 	<!-- Misc -->
 	<icon name="missing_token" file="graphics/icons/missing_token.png" />

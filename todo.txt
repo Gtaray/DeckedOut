@@ -2,14 +2,11 @@ TODO LIST:
 
 STRETCH GOALS
 * Hand actions - Moved to Stretch goal, because of some weirdness around message timing. Could get pulled in if requested though. Current workaround is to use dice
-	* [ ] Discard at random (can also be used for 'play at random')
 	* [ ] Play at random
 	* [ ] Give to other person at random
-* Merge played and discarded messages into a single message when done together
 * Figure out how to handle card tokens being on the map and ALSO in a person's hand
 	* Potential solution: Add a new location similar to storage where tokens get moved to if they're on an image. The data is in the deckbox, but the tokens are on a map.
 	* Cards should also be able to be face down on the map, with a radial menu to flip face up
-* Cards can exist in someone's hand face down
 * Trigger me Timbers support
 * Tooltips when hovering over cards in hand
 	* Even more stretch, make the tooltip only appear when the size of the tokenfield is really small
@@ -17,6 +14,17 @@ STRETCH GOALS
 * Add pre-check functions to all events, and get rid of immediate event type
 
 DONE
+* Face down cards in hand
+	* [x] Card Manager infrastructure
+	* [x] Update desktop_card windowclass to show facedown cards in hand
+	* [x] Implement drag/drop for face down cards in hand
+	* [x] Update card list view to show cards as facedown 
+	* [x] Implement flip radial option for cards in hand and card list
+	* [x] Implement flip event and chat message handler
+	* [x] Implement peek radial option for cards in hand and card list
+	* [x] Implement peek event and chat message handler
+	* [x] Implement new game options
+* Merge played and discarded messages into a single message when done together
 * Display icons in chat for card actions	
 	* Message data can have multiple icons, so this is basically easy
 * Make consistent the locations for various radial menu options (discard, view card list, deal, etc)
@@ -58,6 +66,7 @@ DONE
 	* [x] Discard hand
 	* [x] Show in Chat
 	* [x] Place face down in chat
+	* [x] Discard at random (can also be used for 'play at random')
 * OOB handler for when players drop cards from their hand onto other PCs
 * Add way to view the discard pile of a deck
 * Add check so when decks in the deckbox are deleted, cards from that deck are removed from all hands
