@@ -1,4 +1,5 @@
 CARD_STORAGE_PATH = "deckbox.storage";
+CARD_ORIGIN_PATH = "origin"
 
 -- Indexed by the token string, contains the DB node in storage
 local _storage =  {};
@@ -24,7 +25,12 @@ function addCardToStorage(vCard, tEventTrace)
 	if not vCard then return end
 
 	if CardStorage.isCardInStorage(vCard) then
-		return CardStorage.getCardFromStorage(vCard);
+		local storageCard = CardStorage.getCardFromStorage(vCard);
+		
+		-- Update the card's origin every time we re-get it
+		CardStorage.setCardOrigin(storageCard, vCard.getNodeName());
+
+		return storageCard;
 	end
 
 	local newCard = DB.copyNode(vCard, DB.createChild(CardStorage.getCardStorageNode()));
@@ -32,6 +38,10 @@ function addCardToStorage(vCard, tEventTrace)
 
 	-- We don't want card facing to be stored
 	CardManager.deleteFacingNode(newCard);
+
+	-- Save the actual location of the card so that we can drag/drop from this entry
+	-- This is a crude way of getting cards back from the discard
+	CardStorage.setCardOrigin(newCard, vCard.getNodeName());
 
 	_storage[sToken] = newCard;
 
@@ -63,6 +73,7 @@ function getCardFromStorage(vCard)
 	if not vCard then return end
 
 	local sToken = CardManager.getCardFront(vCard);
+
 	return _storage[sToken];
 end
 
@@ -81,4 +92,32 @@ end
 ---@return string
 function getCardStorageNode()
 	return DB.findNode(CardStorage.CARD_STORAGE_PATH);
+end
+
+---Sets the origin value of a card that's in storage
+---@param storageCardNode databasenode
+---@param sOrigin string
+function setCardOrigin(storageCardNode, sOrigin)
+	DB.setValue(storageCardNode, CardStorage.CARD_ORIGIN_PATH, "string", sOrigin); 
+end
+
+---Gets the origin value for a card that's in storage
+---@param vCard databasenode|string
+---@return string
+function getCardOrigin(vCard)
+	local vCard = DeckedOutUtilities.validateCard(vCard);
+	if not vCard then return end
+
+	return DB.getValue(vCard, CardStorage.CARD_ORIGIN_PATH, "");
+end
+
+---Checks if the origin for a card in storage is a discard pile
+---@param vCard databasenode|string
+---@return boolean
+function isCardOriginADiscardPile(vCard)
+	local vCard = DeckedOutUtilities.validateCard(vCard);
+	if not vCard then return end
+
+	local sOrigin = CardStorage.getCardOrigin(vCard);
+	return string.find(sOrigin, "." .. DeckManager.DECK_DISCARD_PATH .. ".") ~= nil;
 end

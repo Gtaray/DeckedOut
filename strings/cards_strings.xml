@@ -72,6 +72,7 @@
 
 	<string name="deckbox_settings_header_misc">Miscellaneous</string>
 	<string name="deckbox_settings_label_discard_to_deck">Put discarded cards back into the deck?</string>
+	<string name="deckbox_setting_label_allow_picking_from_discard">Allow players to pick up cards that are discarded from chat?</string>
 
 	<string name="deckbox_settings_option_gm">The GM</string>
 	<string name="deckbox_settings_option_everyone">Everyone</string>
@@ -153,6 +154,8 @@
 	<string name="chat_msg_card_randomly_give_facedown">%s randomly gave %s to %s facedown</string>
 	<string name="chat_msg_deal_card">%s dealt %s to %s</string>
 	<string name="chat_msg_deal_card_facedown">%s dealt %s to %s facedown</string>
+	<string name="chat_msg_deal_card_from_discard">%s grabbed %s from the discard pile</string>
+	<string name="chat_msg_deal_card_from_discard_facedown">%s grabbed %s from the discard pile facedown</string>
 	<string name="chat_msg_deal_multiple_cards">%s dealt %s %s to %s</string>
 	<string name="chat_msg_group_deal">%s dealt %s %s to everyone</string>
 	<string name="chat_msg_card_put_back_in_deck">%s shuffled %s back into its deck</string>

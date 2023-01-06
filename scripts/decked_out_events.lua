@@ -2,6 +2,7 @@ DECKEDOUT_EVENT_CARD_PLAYED = "cardplayed";
 DECKEDOUT_EVENT_CARD_DISCARDED = "carddiscarded";
 DECKEDOUT_EVENT_CARD_GIVEN = "cardgiven";
 DECKEDOUT_EVENT_CARD_DEALT = "carddealt";
+DECKEDOUT_EVENT_DEALT_FROM_DISCARD = "dealtfromdiscard";
 DECKEDOUT_EVENT_CARD_ADDED_TO_STORAGE = "cardaddedtostorage";
 DECKEDOUT_EVENT_CARD_MOVED = "cardmoved";
 DECKEDOUT_EVENT_CARD_PUT_BACK_IN_DECK = "cardputbackindeck";
@@ -324,12 +325,17 @@ end
 ---@param vCard databasenode
 ---@param vDeck databasenode
 ---@param sIdentity string
+---@param bFacedown boolean
 ---@param tEventTrace table
 ---@return table tEventTrace
-function raiseOnCardReturnedToDeckEvent(vCard, vDeck, sIdentity, tEventTrace)
+function raiseOnCardReturnedToDeckEvent(vCard, vDeck, sIdentity, bFacedown, tEventTrace)
+	local tArgs = { sIdentity = sIdentity, sCardNode = vCard.getNodeName(), sDeckNode = vDeck.getNodeName() }
+	if bFacedown then
+		tArgs.bFacedown = "true";
+	end
 	return DeckedOutEvents.raiseEvent(
 		DeckedOutEvents.DECKEDOUT_EVENT_CARD_PUT_BACK_IN_DECK,
-		{ sIdentity = sIdentity, sCardNode = vCard.getNodeName(), sDeckNode = vDeck.getNodeName() },
+		tArgs,
 		tEventTrace
 	);
 end
@@ -388,6 +394,25 @@ function raiseOnDealCardEvent(vCard, sIdentity, bFacedown, tEventTrace)
 		tArgs,
 		tEventTrace,
 		true -- true because this event technically happens after addCardToHand, and by then the trace is already updated
+	);
+end
+
+---Raises the onCardDealtFromDiscard event event.
+---@param vCard databasenode Card that is added to hand, AFTER is is added to the hand
+---@param sIdentity string Character identity (or 'gm') of the person whose hand the card is being added to
+---@param tEventTrace table. Event trace table
+---@return table tEventTrace Event trace table
+function raiseOnCardDealtFromDiscardEvent(vCard, sIdentity, bFacedown, tEventTrace)
+	local tArgs = { sCardNode = vCard.getNodeName(), sIdentity = sIdentity, bFacedown = "false" };
+	if bFacedown then
+		tArgs.bFacedown = "true";
+	end
+
+	return DeckedOutEvents.raiseEvent(
+		DeckedOutEvents.DECKEDOUT_EVENT_DEALT_FROM_DISCARD, 
+		tArgs,
+		tEventTrace,
+		true -- True because this event technically happens after moveCard, and by then the trace is already updated
 	);
 end
 

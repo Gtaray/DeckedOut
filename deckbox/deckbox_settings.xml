@@ -125,6 +125,13 @@
 			<combobox_setting name="discard_to_deck" source="settings.discardtodeck">
 				<parameter>DECK_SETTING_DISCARD_TO_DECK</parameter>
 			</combobox_setting>
+
+			<setting_label name="players_can_grab_discards_label">
+				<static textres="deckbox_setting_label_allow_picking_from_discard" />
+			</setting_label>
+			<combobox_setting name="players_can_grab_discards" source="settings.playerscangrabdiscards">
+				<parameter>DECK_SETTING_PLAYERS_CAN_GRAB_DISCARDS</parameter>
+			</combobox_setting>
 		</sheetdata>
 	</windowclass>
 </root>

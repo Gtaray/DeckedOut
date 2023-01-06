@@ -9,6 +9,7 @@ function onInit()
 	DeckedOutEvents.registerEvent(DeckedOutEvents.DECKEDOUT_EVENT_HAND_DISCARD_RANDOM, { fCallback = printRandomCardDiscardedMessage, sTarget = "host" });
 	DeckedOutEvents.registerEvent(DeckedOutEvents.DECKEDOUT_EVENT_CARD_GIVEN, { fCallback = printCardGivenMessage, sTarget = "host" });
 	DeckedOutEvents.registerEvent(DeckedOutEvents.DECKEDOUT_EVENT_CARD_DEALT, { fCallback = printCardDealtMessage, sTarget = "host" });
+	DeckedOutEvents.registerEvent(DeckedOutEvents.DECKEDOUT_EVENT_DEALT_FROM_DISCARD, { fCallback = printCardDealtFromDiscardMessage, sTarget = "host" });
 	DeckedOutEvents.registerEvent(DeckedOutEvents.DECKEDOUT_EVENT_HAND_DISCARDED, { fCallback = printHandDiscardedMessage, sTarget = "host" });
 	DeckedOutEvents.registerEvent(DeckedOutEvents.DECKEDOUT_EVENT_MULTIPLE_CARDS_DEALT, { fCallback = printMultipleCardsDealtMessage, sTarget = "host" });
 	DeckedOutEvents.registerEvent(DeckedOutEvents.DECKEDOUT_EVENT_GROUP_DEAL, { fCallback = printGroupDealMessage, sTarget = "host" });
@@ -319,6 +320,37 @@ function printCardDealtMessage(tEventArgs, tEventTrace)
 		msg.text = Interface.getString("chat_msg_deal_card");
 	end
 	msg.text = string.format(msg.text, "[SENDER]", "[CARDNAME]", "[PRONOUN]");
+	msg.icon = "deal";
+
+	Comm.deliverOOBMessage(msg, "");
+end
+
+function printCardDealtFromDiscardMessage(tEventArgs, tEventTrace)
+	local vCard = DeckedOutUtilities.validateCard(tEventArgs.sCardNode);
+	if not vCard then return end
+
+	local sCardSource = CardManager.getCardSource(vCard);
+	if (not sCardSource) or sCardSource == "storage" then
+		return;
+	end
+
+	local bFacedown = tEventArgs.bFacedown == "true";
+
+	local msg = {};
+	msg.type = DeckedOutMessages.OOB_MSGTYPE_DECKEDOUT_STANDARD;
+	-- The GM should always be the card source here. 
+	-- If we use value returned from getCardSource, 
+	-- it will always say the PC since we dealt them the card prior to this event
+	msg.sender = tEventArgs.sIdentity;
+	msg.card_link = vCard.getNodeName();
+	msg.action = "deal";
+	msg.facedown = tEventArgs.bFacedown;
+	if bFacedown then
+		msg.text = Interface.getString("chat_msg_deal_card_from_discard_facedown");
+	else
+		msg.text = Interface.getString("chat_msg_deal_card_from_discard");
+	end
+	msg.text = string.format(msg.text, "[SENDER]", "[CARDNAME]");
 	msg.icon = "deal";
 
 	Comm.deliverOOBMessage(msg, "");

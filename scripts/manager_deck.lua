@@ -323,6 +323,9 @@ DECK_SETTING_AUTO_PLAY_FROM_DECK = "autoplayfromdeck";
 -- Are cards that are discarded put directly back in the deck
 -- Default: no
 DECK_SETTING_DISCARD_TO_DECK = "discardtodeck";
+-- Are players allowed to grab discarded cards from chat and drag them to their hand
+-- Default: no
+DECK_SETTING_PLAYERS_CAN_GRAB_DISCARDS = "playerscangrabdiscards"
 
 local _tSettingOptions = {
 	[DECK_SETTING_DEFAULT_DEAL_FACING] = {
@@ -403,6 +406,13 @@ local _tSettingOptions = {
 		}
 	},
 	[DECK_SETTING_DISCARD_TO_DECK] = {
+		default = "no",
+		options = {
+			{ sTextRes = "deckbox_setting_option_yes", sValue = "yes" },
+			{ sTextRes = "deckbox_setting_option_no", sValue = "no" },
+		}
+	},
+	[DECK_SETTING_PLAYERS_CAN_GRAB_DISCARDS] = {
 		default = "no",
 		options = {
 			{ sTextRes = "deckbox_setting_option_yes", sValue = "yes" },

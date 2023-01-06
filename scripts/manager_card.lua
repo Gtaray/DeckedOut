@@ -855,15 +855,43 @@ function onDropCard(draginfo, vDestination, sExtra)
 		return false;
 	end
 
+	-- Figure out if the card should be passed facedown
+	-- This happens before the card storage check because doing stuff
+	-- from card storage will reset the facedown flag
+	-- (since it doesn't preserve in storage)
+	local bFacedown = draginfo.getNumberData() == 0;
+
 	-- If this item was dragged from card storage (i.e. the chat) then do nothing
 	-- Items in chat should never be moved or handled by anything, they're read only
 	if CardStorage.doesCardComeFromStorage(sRecord) then
-		Debug.console("WARNING: Tried to drag/drop a card from chat. Card links in chat cannot be moved and are read-only.");
-		return false;
-	end
+		-- Check the deck setting for the card to see if players are allowed
+		-- to grab cards from chat. GMs can always do this, and they're allowed
+		-- to grab from anywhere, not just discards
+		local bAllowPlayerGrab = DeckManager.getDeckSetting(
+			CardManager.getDeckNodeFromCard(sRecord), 
+			DeckManager.DECK_SETTING_PLAYERS_CAN_GRAB_DISCARDS) == "yes";
 
-	-- Figure out if the card should be passed facedown
-	local bFacedown = draginfo.getNumberData() == 0;
+		-- Do all the negative checks first for ease of readability.
+		if not Session.IsHost then
+			if not bAllowPlayerGrab then
+				Comm.addChatMessage( { font = "systemfont", text = "You are not allowed to grab cards from chat."});
+				return false;
+			end
+			if not CardStorage.isCardOriginADiscardPile(sRecord) then
+				Comm.addChatMessage( { font = "systemfont", text = "The card you are trying to drag from chat is not currently discarded."});
+				return false;
+			end
+		end
+
+		local cardnode = DB.findNode(CardStorage.getCardOrigin(sRecord));
+		if cardnode then
+			sRecord = cardnode.getNodeName();
+			bFacedown = DeckedOutUtilities.getFacedownHotkey();
+		else
+			Comm.addChatMessage( { font = "systemfont", text = "The card you're trying to grab cannot be located." } );
+			return false;
+		end
+	end
 
 	sDestPath = vDestination.getNodeName();
 
@@ -957,14 +985,39 @@ function handleAnyDrop(sSourceNode, sDestinationNode, sExtra, bFacedown)
 					DeckManager.DECK_SETTING_DEFAULT_DEAL_FACING)
 				bFacedown = bFacedown or bDefaultFacing == "facedown";
 				
-				tEventTrace = DeckedOutEvents.addEventTrace(tEventTrace, DeckedOutEvents.DECKEDOUT_EVENT_CARD_DEALT);
-				local card = CardManager.addCardToHand(vCard, sReceivingIdentity, bFacedown, tEventTrace);
-				DeckedOutEvents.raiseOnDealCardEvent(card, sReceivingIdentity, bFacedown, tEventTrace)
+				-- If we're fishing this card from the discard pile, then we want to raise a different event
+				if CardManager.isCardDiscarded(vCard) then
+					tEventTrace = DeckedOutEvents.addEventTrace(tEventTrace, DeckedOutEvents.DECKEDOUT_EVENT_DEALT_FROM_DISCARD);
+					local card = CardManager.addCardToHand(vCard, sReceivingIdentity, bFacedown, tEventTrace);
+					DeckedOutEvents.raiseOnCardDealtFromDiscardEvent(card, sReceivingIdentity, bFacedown, tEventTrace)
+				else	
+					tEventTrace = DeckedOutEvents.addEventTrace(tEventTrace, DeckedOutEvents.DECKEDOUT_EVENT_CARD_DEALT);
+					local card = CardManager.addCardToHand(vCard, sReceivingIdentity, bFacedown, tEventTrace);
+					DeckedOutEvents.raiseOnDealCardEvent(card, sReceivingIdentity, bFacedown, tEventTrace)
+				end
 				return true;
 			end
 		else
-			local card = CardManager.moveCard(vCard, vDestination, tEventTrace);
-			return true;
+			if StringManager.startsWith(vDestination.getNodeName(), "deckbox") then
+				-- We dropped onto the deck, so we fire the return to deck event
+				if vDestination.getName() == DeckManager.DECK_CARDS_PATH then
+					local sGiverIdentity = CardManager.getCardSource(vCard);
+					DeckedOutEvents.raiseOnCardReturnedToDeckEvent(
+						vCard, 
+						CardManager.getDeckNodeFromCard(vCard), 
+						sGiverIdentity, 
+						bFacedown,
+						tEventTrace);
+					CardManager.moveCard(vCard, vDestination, tEventTrace);
+					return true;
+				elseif vDestination.getName() == DeckManager.DECK_DISCARD_PATH then
+					local sGiverIdentity = CardManager.getCardSource(vCard);
+					local card = discardCard(vCard, bFacedown, sGiverIdentity, tEventTrace);
+				end
+			else
+				local card = CardManager.moveCard(vCard, vDestination, tEventTrace);
+				return true;
+			end
 		end
 	end
 
