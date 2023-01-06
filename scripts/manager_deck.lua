@@ -320,6 +320,9 @@ DECK_SETTING_AUTO_PLAY_FROM_HAND = "autoplayfromhand";
 -- Should cards played from a deck be automatically discarded: yes or no
 -- Default: yes
 DECK_SETTING_AUTO_PLAY_FROM_DECK = "autoplayfromdeck";
+-- Are cards that are discarded put directly back in the deck
+-- Default: no
+DECK_SETTING_DISCARD_TO_DECK = "discardtodeck";
 
 local _tSettingOptions = {
 	[DECK_SETTING_DEFAULT_DEAL_FACING] = {
@@ -394,6 +397,13 @@ local _tSettingOptions = {
 	},
 	[DECK_SETTING_AUTO_PLAY_FROM_DECK] = {
 		default = "yes",
+		options = {
+			{ sTextRes = "deckbox_setting_option_yes", sValue = "yes" },
+			{ sTextRes = "deckbox_setting_option_no", sValue = "no" },
+		}
+	},
+	[DECK_SETTING_DISCARD_TO_DECK] = {
+		default = "no",
 		options = {
 			{ sTextRes = "deckbox_setting_option_yes", sValue = "yes" },
 			{ sTextRes = "deckbox_setting_option_no", sValue = "no" },

@@ -113,6 +113,18 @@
 			<combobox_setting name="autoplay_from_deck" source="settings.autoplayfromdeck">
 				<parameter>DECK_SETTING_AUTO_PLAY_FROM_DECK</parameter>
 			</combobox_setting>
+
+			<header_column name="header_misc">
+				<static textres="deckbox_settings_header_misc" />
+				<center />
+			</header_column>
+
+			<setting_label name="discard_to_deck_label">
+				<static textres="deckbox_settings_label_discard_to_deck" />
+			</setting_label>
+			<combobox_setting name="discard_to_deck" source="settings.discardtodeck">
+				<parameter>DECK_SETTING_DISCARD_TO_DECK</parameter>
+			</combobox_setting>
 		</sheetdata>
 	</windowclass>
 </root>

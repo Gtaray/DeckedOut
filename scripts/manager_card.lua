@@ -104,8 +104,13 @@ function discardCard(vCard, bFacedown, sIdentity, tEventTrace)
 		sIdentity = "gm";
 	end
 
+	local discardNode = DeckManager.getDiscardNode(vDeck);
+	if DeckManager.getDeckSetting(vDeck, DeckManager.DECK_SETTING_DISCARD_TO_DECK) == "yes" then
+		discardNode = DeckManager.getCardsNode(vDeck);
+	end
+
 	tEventTrace = DeckedOutEvents.addEventTrace(tEventTrace, DeckedOutEvents.DECKEDOUT_EVENT_CARD_DISCARDED);
-	local card = CardManager.moveCard(vCard, DeckManager.getDiscardNode(vDeck), tEventTrace);
+	local card = CardManager.moveCard(vCard, discardNode, tEventTrace);
 	DeckedOutEvents.raiseOnDiscardFromHandEvent(card, sIdentity, bFacedown, tEventTrace);
 end
 

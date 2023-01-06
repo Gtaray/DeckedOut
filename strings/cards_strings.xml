@@ -71,6 +71,7 @@
 	<string name="deckbox_settings_label_autoplay_from_deck">Automatically discard cards played from decks?</string>
 
 	<string name="deckbox_settings_header_misc">Miscellaneous</string>
+	<string name="deckbox_settings_label_discard_to_deck">Put discarded cards back into the deck?</string>
 
 	<string name="deckbox_settings_option_gm">The GM</string>
 	<string name="deckbox_settings_option_everyone">Everyone</string>
