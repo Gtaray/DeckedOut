@@ -65,6 +65,23 @@ function getHotkey(sOption)
 	end
 end
 
+---Gets the size of the card tooltips (when hovering in a hand)
+---@return integer width
+---@return integer height
+function getCardTooltipSize()
+	local sOption = OptionsManager.getOption("CARD_TOOLTIP_SIZE");
+	if sOption == "disabled" then
+		return 0, 0;
+	end
+
+	local nSize = DeckedOut.tCardTooltipSizes[sOption];
+	if not nSize then
+		return 0, 0;
+	end
+
+	return nSize, nSize * 1.4
+end
+
 ---Validates that a parameter is not nil. If it is nil, an error and the stack trace is printed in the console
 ---@param vParam any The parameter to validate
 ---@param sDisplayName string Display name for the parameter to be validated

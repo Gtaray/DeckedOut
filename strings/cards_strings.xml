@@ -72,7 +72,7 @@
 
 	<string name="deckbox_settings_header_misc">Miscellaneous</string>
 	<string name="deckbox_settings_label_discard_to_deck">Put discarded cards back into the deck?</string>
-	<string name="deckbox_setting_label_allow_picking_from_discard">Allow players to pick up cards that are discarded from chat?</string>
+	<string name="deckbox_setting_label_allow_picking_from_discard">Allow players to grab discarded cards from chat?</string>
 
 	<string name="deckbox_settings_option_gm">The GM</string>
 	<string name="deckbox_settings_option_everyone">Everyone</string>
@@ -178,4 +178,11 @@
 	<string name="option_val_no">No</string>
 
 	<string name="option_label_show_gm_peek">Show chat messages when a GM peeks at a card</string>
+
+	<string name="option_label_card_tooltip_size">Card tooltip size</string>
+	<string name="option_val_cardtooltip_disabled">Disabled</string>
+	<string name="option_val_cardtooltip_normal">Normal</string>
+	<string name="option_val_cardtooltip_large">Large</string>
+	<string name="option_val_cardtooltip_extralarge">Extra Large</string>
+	<string name="option_val_cardtooltip_huge">Huge</string>
 </root>
