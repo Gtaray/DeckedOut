@@ -31,7 +31,7 @@ function standardMessageHandler(msgOOB)
 	-- Before we do anything else, we need to copy the card link
 	-- into card storage
 	local newCard = CardStorage.addCardToStorage(msgOOB.card_link);
-	msgOOB.card_link = newCard.getNodeName();
+	msgOOB.card_link = newCard.getNodeName(); -- DB CHANGE
 
 	sendMessageToGm(msgOOB);
 	sendMessageToClients(msgOOB);
@@ -79,7 +79,7 @@ function printCardPlayedMessage(tEventArgs, tEventTrace)
 	end
 
 	msg.text = string.format(msg.text, "[SENDER]", "[CARDNAME]");
-	msg.card_link = vCard.getNodeName();
+	msg.card_link = vCard.getNodeName(); -- DB CHANGE
 
 	Comm.deliverOOBMessage(msg, "");
 end
@@ -118,7 +118,7 @@ function printRandomCardPlayedMessage(tEventArgs, tEventTrace)
 	end
 
 	msg.text = string.format(msg.text, "[SENDER]", "[CARDNAME]");
-	msg.card_link = vCard.getNodeName();
+	msg.card_link = vCard.getNodeName(); -- DB CHANGE
 
 	Comm.deliverOOBMessage(msg, "");
 end
@@ -161,7 +161,7 @@ function printCardDiscardedMessage(tEventArgs, tEventTrace)
 	end
 
 	msg.text = string.format(msg.text, "[SENDER]", "[CARDNAME]");
-	msg.card_link = vCard.getNodeName();
+	msg.card_link = vCard.getNodeName(); -- DB CHANGE
 
 	Comm.deliverOOBMessage(msg, "");
 end
@@ -188,7 +188,7 @@ function printRandomCardDiscardedMessage(tEventArgs, tEventTrace)
 	end
 
 	msg.text = string.format(msg.text, "[SENDER]", "[CARDNAME]");
-	msg.card_link = vCard.getNodeName();
+	msg.card_link = vCard.getNodeName(); -- DB CHANGE
 
 	Comm.deliverOOBMessage(msg, "");
 end
@@ -230,7 +230,7 @@ function printCardPutBack(tEventArgs, tEventTrace)
 	local sTextRes = "";
 	msg.text = Interface.getString("chat_msg_card_put_back_in_deck");
 	msg.text = string.format(msg.text, "[SENDER]", "[CARDNAME]");
-	msg.card_link = vCard.getNodeName();
+	msg.card_link = vCard.getNodeName(); -- DB CHANGE
 
 	Comm.deliverOOBMessage(msg, "");
 end
@@ -271,7 +271,7 @@ function printCardGivenMessage(tEventArgs, tEventTrace)
 	msg.type = DeckedOutMessages.OOB_MSGTYPE_DECKEDOUT_STANDARD;
 	msg.sender = tEventArgs.sGiver;
 	msg.receiver = tEventArgs.sReceiver;
-	msg.card_link = vCard.getNodeName();
+	msg.card_link = vCard.getNodeName(); -- DB CHANGE
 	msg.action = "give";
 	msg.facedown = tEventArgs.bFacedown;
 	msg.icon = "give_card"
@@ -310,7 +310,7 @@ function printCardDealtMessage(tEventArgs, tEventTrace)
 	-- it will always say the PC since we dealt them the card prior to this event
 	msg.sender = "gm"; 
 	msg.receiver = tEventArgs.sReceiver;
-	msg.card_link = vCard.getNodeName();
+	msg.card_link = vCard.getNodeName(); -- DB CHANGE
 	msg.action = "deal";
 	msg.facedown = tEventArgs.bFacedown;
 	if bFacedown then
@@ -364,7 +364,7 @@ function printCardFlippedMessage(tEventArgs, tEventTrace)
 	
 	local msg = {};
 	msg.type = DeckedOutMessages.OOB_MSGTYPE_DECKEDOUT_STANDARD;
-	msg.card_link = vCard.getNodeName();
+	msg.card_link = vCard.getNodeName(); -- DB CHANGE
 	msg.action = "flip";
 	msg.sender = tEventArgs.sIdentity;
 	msg.text = Interface.getString("chat_msg_card_flipped");
@@ -385,7 +385,7 @@ function printPeekCardMessage(tEventArgs, tEventTrace)
 	
 	local msg = {};
 	msg.type = DeckedOutMessages.OOB_MSGTYPE_DECKEDOUT_STANDARD;
-	msg.card_link = vCard.getNodeName();
+	msg.card_link = vCard.getNodeName(); -- DB CHANGE
 	msg.action = "peek";
 	msg.sender = tEventArgs.sIdentity;
 	msg.text = Interface.getString("chat_msg_peek");

@@ -171,7 +171,7 @@ end
 ---@param tEventTrace table Event trace table
 ---@return table tEventTrace Event trace table
 function raiseOnCardPlayedEvent(vCard, bFacedown, bDiscard, tEventTrace)
-	local tArgs = { sCardNode = vCard.getNodeName() };
+	local tArgs = { sCardNode = vCard.getNodeName() }; -- DB CHANGE
 	tArgs.bFacedown = "false";
 	if bFacedown then
 		tArgs.bFacedown = "true";
@@ -196,7 +196,7 @@ end
 function raiseOnCardMovedEvent(vCard, sOldCardNode, tEventTrace)
 	return DeckedOutEvents.raiseEvent(
 		DeckedOutEvents.DECKEDOUT_EVENT_CARD_MOVED, 
-		{ sCardNode = vCard.getNodeName(), sOldCardNode = sOldCardNode },
+		{ sCardNode = vCard.getNodeName(), sOldCardNode = sOldCardNode }, -- DB CHANGE
 		tEventTrace
 	);
 end
@@ -207,7 +207,7 @@ end
 ---@param tEventTrace table. Event trace table
 ---@return table tEventTrace Event trace table
 function raiseOnCardAddedToHandEvent(vCard, sIdentity, bFacedown, tEventTrace)
-	local tArgs = { sCardNode = vCard.getNodeName(), sIdentity = sIdentity, bFacedown = "false" };
+	local tArgs = { sCardNode = vCard.getNodeName(), sIdentity = sIdentity, bFacedown = "false" }; -- DB CHANGE
 	if bFacedown then
 		tArgs.bFacedown = "true";
 	end
@@ -227,7 +227,7 @@ end
 ---@param tEventTrace table. Event trace table
 ---@return table tEventTrace Event trace table
 function raiseOnDiscardFromHandEvent(vCard, sIdentity, bFacedown, tEventTrace)
-	local tArgs = { sCardNode = vCard.getNodeName(), sSender = sIdentity };
+	local tArgs = { sCardNode = vCard.getNodeName(), sSender = sIdentity }; -- DB CHANGE
 	if bFacedown then
 		tArgs.bFacedown = "true";
 	end
@@ -247,7 +247,7 @@ end
 ---@param tEventTrace table
 ---@return table tEventTrace
 function raiseOnGiveRandomCardEvent(vCard, sGiverIdentity, sReceiverIdentity, bFacedown, tEventTrace)
-	local tArgs = { sCardNode = vCard.getNodeName(), sGiver = sGiverIdentity, sReceiver = sReceiverIdentity };
+	local tArgs = { sCardNode = vCard.getNodeName(), sGiver = sGiverIdentity, sReceiver = sReceiverIdentity }; -- DB CHANGE
 	if bFacedown then
 		tArgs.bFacedown = "true";
 	end
@@ -266,7 +266,7 @@ end
 ---@param tEventTrace table Event trace table
 ---@return table tEventTrace Event trace table
 function raiseOnPlayRandomCardEvent(vCard, bFacedown, tEventTrace)
-	local tArgs = { sCardNode = vCard.getNodeName() };
+	local tArgs = { sCardNode = vCard.getNodeName() }; -- DB CHANGE
 	tArgs.bFacedown = "false";
 	if bFacedown then
 		tArgs.bFacedown = "true";
@@ -287,12 +287,12 @@ end
 ---@param tEventTrace table. Event trace table
 ---@return table tEventTrace Event trace table
 function raiseOnDiscardRandomCardEvent(vCard, sIdentity, bFacedown, vDeck, tEventTrace)
-	local tArgs = { sCardNode = vCard.getNodeName(), sSender = sIdentity };
+	local tArgs = { sCardNode = vCard.getNodeName(), sSender = sIdentity }; -- DB CHANGE
 	if bFacedown then
 		tArgs.bFacedown = "true";
 	end
 	if vDeck then
-		tArgs.sDeckNode = vDeck.getNodeName();
+		tArgs.sDeckNode = vDeck.getNodeName(); -- DB CHANGE
 	end
 	return DeckedOutEvents.raiseEvent(
 		DeckedOutEvents.DECKEDOUT_EVENT_HAND_DISCARD_RANDOM, 
@@ -311,7 +311,7 @@ end
 function raiseOnHandDiscardedEvent(sIdentity, vDeck, tEventTrace)
 	local tArgs = { sIdentity = sIdentity };
 	if vDeck then
-		tArgs.sDeckNode = vDeck.getNodeName();
+		tArgs.sDeckNode = vDeck.getNodeName(); -- DB CHANGE
 	end
 	return DeckedOutEvents.raiseEvent(
 		DeckedOutEvents.DECKEDOUT_EVENT_HAND_DISCARDED, 
@@ -329,7 +329,7 @@ end
 function raiseOnCardReturnedToDeckEvent(vCard, vDeck, sIdentity, tEventTrace)
 	return DeckedOutEvents.raiseEvent(
 		DeckedOutEvents.DECKEDOUT_EVENT_CARD_PUT_BACK_IN_DECK,
-		{ sIdentity = sIdentity, sCardNode = vCard.getNodeName(), sDeckNode = vDeck.getNodeName() },
+		{ sIdentity = sIdentity, sCardNode = vCard.getNodeName(), sDeckNode = vDeck.getNodeName() }, -- DB CHANGE
 		tEventTrace
 	);
 end
@@ -342,7 +342,7 @@ end
 function raiseOnHandReturnedToDeckEvent(sIdentity, vDeck, tEventTrace)
 	local tArgs = { sIdentity = sIdentity };
 	if vDeck then
-		tArgs.sDeckNode = vDeck.getNodeName();
+		tArgs.sDeckNode = vDeck.getNodeName(); -- DB CHANGE
 	end
 	return DeckedOutEvents.raiseEvent(
 		DeckedOutEvents.DECKEDOUT_EVENT_HAND_PUT_BACK_IN_DECK, 
@@ -359,7 +359,7 @@ end
 ---@param tEventTrace table. Event trace table
 ---@return table tEventTrace Event trace table
 function raiseOnGiveCardEvent(vCard, sGiverIdentity, sReceiverIdentity, bFacedown, tEventTrace)
-	local tArgs = { sCardNode = vCard.getNodeName(), sGiver = sGiverIdentity, sReceiver = sReceiverIdentity };
+	local tArgs = { sCardNode = vCard.getNodeName(), sGiver = sGiverIdentity, sReceiver = sReceiverIdentity }; -- DB CHANGE
 	if bFacedown then
 		tArgs.bFacedown = "true";
 	end
@@ -379,7 +379,7 @@ end
 ---@param tEventTrace table. Event trace table
 ---@return table tEventTrace Event trace table
 function raiseOnDealCardEvent(vCard, sIdentity, bFacedown, tEventTrace)
-	local tArgs = { sCardNode = vCard.getNodeName(), sReceiver = sIdentity }
+	local tArgs = { sCardNode = vCard.getNodeName(), sReceiver = sIdentity } -- DB CHANGE
 	if bFacedown then
 		tArgs.bFacedown = "true";
 	end
@@ -400,7 +400,7 @@ end
 function raiseOnCardFlippedEvent(vCard, sIdentity, nFacing, tEventTrace)
 	return DeckedOutEvents.raiseEvent(
 		DeckedOutEvents.DECKEDOUT_EVENT_CARD_FLIPPED,
-		{ sCardNode = vCard.getNodeName(), sIdentity = sIdentity, nFacing = nFacing },
+		{ sCardNode = vCard.getNodeName(), sIdentity = sIdentity, nFacing = nFacing }, -- DB CHANGE
 		tEventTrace
 	);
 end
@@ -413,7 +413,7 @@ end
 function raiseOnCardPeekEvent(vCard, sIdentity, tEventTrace)
 	return raiseEvent(
 		DeckedOutEvents.DECKEDOUT_EVENT_CARD_PEEK,
-		{ sCardNode = vCard.getNodeName(), sIdentity = sIdentity },
+		{ sCardNode = vCard.getNodeName(), sIdentity = sIdentity }, -- DB CHANGE
 		tEventTrace
 	);
 end
@@ -427,7 +427,7 @@ end
 function raiseOnMultipleCardsDealtEvent(vDeck, nCardsDealt, sIdentity, tEventTrace)
 	return DeckedOutEvents.raiseEvent(
 		DeckedOutEvents.DECKEDOUT_EVENT_MULTIPLE_CARDS_DEALT, 
-		{ sDeckNode = vDeck.getNodeName(), nCardsDealt = nCardsDealt, sReceiver = sIdentity },
+		{ sDeckNode = vDeck.getNodeName(), nCardsDealt = nCardsDealt, sReceiver = sIdentity }, -- DB CHANGE
 		tEventTrace
 	);
 end
@@ -440,7 +440,7 @@ end
 function raiseOnDealCardsToActiveIdentitiesEvent(vDeck, nCardsDealt, tEventTrace)
 	return DeckedOutEvents.raiseEvent(
 		DeckedOutEvents.DECKEDOUT_EVENT_GROUP_DEAL, 
-		{ sDeckNode = vDeck.getNodeName(), nCardsDealt = nCardsDealt },
+		{ sDeckNode = vDeck.getNodeName(), nCardsDealt = nCardsDealt }, -- DB CHANGE
 		tEventTrace
 	);
 end
@@ -452,7 +452,7 @@ end
 function raiseOnCardAddedToStorageEvent(vCard, tEventTrace)
 	return DeckedOutEvents.raiseEvent(
 		DeckedOutEvents.DECKEDOUT_EVENT_CARD_ADDED_TO_STORAGE, 
-		{ sCardNode = vCard.getNodeName() },
+		{ sCardNode = vCard.getNodeName() }, -- DB CHANGE
 		tEventTrace
 	);
 end
@@ -464,7 +464,7 @@ end
 function raiseOnDeckCreatedEvent(vDeck, tEventTrace)
 	return DeckedOutEvents.raiseEvent(
 		DeckedOutEvents.DECKEDOUT_EVENT_DECK_CREATED, 
-		{ sDeckNode = vDeck.getNodeName() },
+		{ sDeckNode = vDeck.getNodeName() }, -- DB CHANGE
 		tEventTrace
 	);
 end
@@ -476,7 +476,7 @@ end
 function raiseOnDeckDeletedEvent(vDeck, tEventTrace)
 	return DeckedOutEvents.raiseEvent(
 		DeckedOutEvents.DECKEDOUT_EVENT_DECK_DELETED, 
-		{ sDeckNode = vDeck.getNodeName() },
+		{ sDeckNode = vDeck.getNodeName() }, -- DB CHANGE
 		tEventTrace
 	);
 end
@@ -491,7 +491,7 @@ end
 function raiseOnDeckSettingChangedEvent(vDeck, sSettingKey, sPreviousValue, sCurrentValue, tEventTrace)
 	return DeckedOutEvents.raiseEvent(
 		DeckedOutEvents.DECKEDOUT_EVENT_DECK_SETTING_CHANGED, 
-		{ sDeckNode = vDeck.getNodeName(), sSettingKey = sSettingKey, sPrev = sPreviousValue, sCur = sCurrentValue },
+		{ sDeckNode = vDeck.getNodeName(), sSettingKey = sSettingKey, sPrev = sPreviousValue, sCur = sCurrentValue }, -- DB CHANGE
 		tEventTrace
 	);
 end
@@ -527,7 +527,7 @@ function deleteCardsFromDecksThatAreDeleted(tEventArgs, tEventTrace)
 	for k,v in pairs(DB.getChildren("charsheet")) do
 		for _, card in pairs(DB.getChildren(v, CardManager.PLAYER_HAND_PATH)) do
 			if CardManager.getDeckIdFromCard(card) == tEventArgs.sDeckNode then
-				card.delete();
+				DB.deleteNode(card);
 			end
 		end
 	end
@@ -535,7 +535,7 @@ function deleteCardsFromDecksThatAreDeleted(tEventArgs, tEventTrace)
 	-- Go through the GM hand
 	for _, card in pairs(DB.getChildren(CardManager.GM_HAND_PATH)) do
 		if CardManager.getDeckIdFromCard(card) == tEventArgs.sDeckNode then
-			card.delete();
+			DB.deleteNode(card);
 		end
 	end
 end
@@ -629,7 +629,7 @@ function onCardDroppedOnHotkey(dragdata)
 	end
 	local vCard = CardStorage.addCardToStorage(sRecord);
 	dragdata.setDatabaseNode(vCard);
-	dragdata.setShortcutData(sClass, vCard.getNodeName());
+	dragdata.setShortcutData(sClass, vCard.getNodeName()); -- DB CHANGE
 end
 
 -----------------------------------------------------

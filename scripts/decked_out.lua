@@ -21,7 +21,7 @@ function onInit()
 
 		-- Create the GM hand node if it doesn't exist
 		local node = DB.createNode(CardManager.GM_HAND_PATH);
-		node.setPublic(true);
+		DB.setPublic(node, true);
 	end
 
 	-- If we're in 2e, then we need to handle the sidebar

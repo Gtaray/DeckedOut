@@ -14,22 +14,22 @@ function loadDeck(sRecord)
 
 	if deckNode then
 		local decklistNode = DB.createChild(getDatabaseNode(), "decks");
-		decklistNode.setPublic(true);
+		DB.setPublic(decklistNode, true);
 
-		local newDeckNode = decklistNode.createChild();
+		local newDeckNode = DB.createChild(decklistNode);
 		DB.copyNode(deckNode, newDeckNode);
-		newDeckNode.setPublic(true);
+		DB.setPublic(newDeckNode, true);
 
-		local cardsNode = newDeckNode.getChild("cards");
+		local cardsNode = DB.getChild(newDeckNode, "cards");
 		local sDeckName = DB.getValue(newDeckNode, "name", "");
-		local sDeckId = newDeckNode.getNodeName();
-		for k,v in pairs(cardsNode.getChildren()) do
+		local sDeckId = newDeckNode.getNodeName(); -- DB CHANGE
+		for k,v in pairs(DB.getChildren(cardsNode)) do
 			DB.setValue(v, "deckname", "string", sDeckName);
 			DB.setValue(v, "deckid", "string", sDeckId);
 		end
 
-		local settings = newDeckNode.createChild("settings");
-		settings.setPublic(true);
+		local settings = DB.createChild(newDeckNode, "settings");
+		DB.setPublic(settings, true);
 
 		for key,option in pairs(DeckManager.getSettingOptions()) do
 			if option.default then

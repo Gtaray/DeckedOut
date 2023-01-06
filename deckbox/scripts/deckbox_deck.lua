@@ -6,7 +6,7 @@ end
 function onMenuSelection(selection, subselection)
 	if Session.IsHost then
 		if selection == 7 and subselection == 7 then
-			getDatabaseNode().delete();
+			getDatabaseNode().delete(); -- DB CHANGE
 		end
 	end
 end

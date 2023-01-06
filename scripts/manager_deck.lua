@@ -7,12 +7,12 @@ function onInit()
 end
 
 function onCharacterDeleted(node)
-	local handnode = node.getChild(CardManager.PLAYER_HAND_PATH);
+	local handnode = DB.getChild(node, CardManager.PLAYER_HAND_PATH);
 	if not handnode then
 		return
 	end
 
-	for k,card in pairs(handnode.getChildren()) do
+	for k,card in pairs(DB.getChildren(handnode)) do
 		local deck = CardManager.getDeckNodeFromCard(card);
 		if deck then
 			CardManager.moveCard(card, DeckManager.getDiscardNode(deck), {});
@@ -122,11 +122,11 @@ function setDeckSetting(vDeck, sKey, sValue, tEventTrace)
 	local tEventTrace = DeckedOutEvents.raiseOnDeckSettingChangedEvent(
 		vDeck, 
 		sKey, 
-		node.getValue(),
+		DB.getValue(node),
 		sValue,
 		tEventTrace);
 
-		node.setValue(sValue);
+		DB.setValue(node, sValue); -- DB CHANGE
 end
 
 
@@ -169,7 +169,7 @@ function moveDiscardPileIntoDeck(vDeck)
 	if not vDeck then return end
 
 	local cardsNode = DeckManager.getCardsNode(vDeck);
-	for k,cardNode in pairs(DeckManager.getDiscardNode(vDeck).getChildren()) do
+	for k,cardNode in pairs(DB.getChildren(DeckManager.getDiscardNode(vDeck))) do
 		CardManager.moveCard(cardNode, cardsNode);
 	end
 end
@@ -226,7 +226,7 @@ function getNumberOfCardsInDiscardPile(vDeck)
 		return;
 	end
 
-	return discard.getChildCount();
+	return DB.getChildCount(discard);
 end
 
 ---Gets a number of random cards in a deck, without removing them
@@ -238,7 +238,7 @@ function getRandomCardsInDeck(vDeck, nNumberOfCards)
 	if not vDeck then return end
 
 	local aCards = {};
-	for k,v in pairs(DeckManager.getCardsNode(vDeck).getChildren()) do
+	for k,v in pairs(DB.getChildren(DeckManager.getCardsNode(vDeck))) do
 		table.insert(aCards, v);
 	end
 
@@ -273,7 +273,7 @@ function getDeckId(vDeck)
 	vDeck = DeckedOutUtilities.validateDeck(vDeck);
 	if not vDeck then return end
 
-	return vDeck.getNodeName();
+	return vDeck.getNodeName(); -- DB CHANGE
 end
 
 ---Gets the name of the deck
@@ -439,7 +439,7 @@ function getDeckSettingsNode(vDeck)
 	vDeck = DeckedOutUtilities.validateDeck(vDeck);
 	if not vDeck then return end
 
-	return vDeck.createChild(DeckManager.DECK_SETTINGS_PATH);
+	return DB.createChild(vDeck, DeckManager.DECK_SETTINGS_PATH);
 end
 
 ---Returns true if the GM can see facedown cards for a given deck

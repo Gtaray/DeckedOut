@@ -29,10 +29,10 @@ function moveCard(vCard, vDestination, tEventTrace)
 	vDestination = DeckedOutUtilities.validateNode(vDestination, "vDestination");
 	if not vDestination then return end
 
-	local sOldCardNode = vCard.getNodeName();
+	local sOldCardNode = vCard.getNodeName(); -- DB CHANGE
 	local newNode = DB.createChild(vDestination);
 	DB.copyNode(vCard, newNode);
-	vCard.delete();
+	DB.deleteNode(vCard);
 
 	-- if the card was moved to anywhere other than a hand, delete the facing node
 	if not CardManager.isCardInHand(newNode) then
@@ -94,7 +94,7 @@ function discardCard(vCard, bFacedown, sIdentity, tEventTrace)
 		-- If there's no vDeck present, then this could be a case of a dead card
 		-- Check to see if it's other data is empty, and if so, delete it.
 		if (CardManager.getCardFront(vCard) or "") == "" then
-			vCard.delete();
+			DB.deleteNode(vCard);
 			return;
 		end
 	end
@@ -406,7 +406,7 @@ end
 function sendPutCardBackInDeckMsg(vCard, bFacedown, tEventTrace)
 	local msg = {};
 	msg.type = CardManager.OOB_MSGTYPE_PUTCARDBACKINDECK;
-	msg.sCardRecord = vCard.getNodeName();
+	msg.sCardRecord = vCard.getNodeName(); -- DB CHANGE
 	if bFacedown then
 		msg.bFacedown = "true";
 	else
@@ -456,7 +456,7 @@ end
 function sendDiscardMsg(vCard, bFacedown, sIdentity, tEventTrace)
 	local msg = {};
 	msg.type = CardManager.OOB_MSGTYPE_DISCARD;
-	msg.sCardRecord = vCard.getNodeName();
+	msg.sCardRecord = vCard.getNodeName(); -- DB CHANGE
 	msg.sSender = sIdentity;
 
 	if tEventTrace and #tEventTrace > 0 then
@@ -501,8 +501,8 @@ function isCardInDeck(vCard)
 	vCard = DeckedOutUtilities.validateCard(vCard);
 	if not vCard then return end
 
-	local sNodeParentName = vCard.getChild("..").getName();
-	return StringManager.startsWith(vCard.getNodeName(), "deckbox") and sNodeParentName == DeckManager.DECK_CARDS_PATH;
+	local sNodeParentName = DB.getParent(vCard).getName(); -- DB CHANGE
+	return StringManager.startsWith(vCard.getNodeName(), "deckbox") and sNodeParentName == DeckManager.DECK_CARDS_PATH; -- DB CHANGE
 end
 
 ---Checks if a card is currently discarded
@@ -512,8 +512,8 @@ function isCardDiscarded(vCard)
 	vCard = DeckedOutUtilities.validateCard(vCard);
 	if not vCard then return end
 
-	local sNodeParentName = vCard.getChild("..").getName();
-	return StringManager.startsWith(vCard.getNodeName(), "deckbox") and sNodeParentName == DeckManager.DECK_DISCARD_PATH;
+	local sNodeParentName = DB.getParent(vCard).getName(); -- DB CHANGE
+	return StringManager.startsWith(vCard.getNodeName(), "deckbox") and sNodeParentName == DeckManager.DECK_DISCARD_PATH; -- DB CHANGE
 end
 
 ---Checks if a card is currently in someone's hand
@@ -532,7 +532,7 @@ end
 function isCardOwnedByCharacter(vCard)
 	vCard = DeckedOutUtilities.validateCard(vCard);
 	if not vCard then return end
-	return StringManager.startsWith(vCard.getNodeName(), "charsheet");
+	return StringManager.startsWith(vCard.getNodeName(), "charsheet"); -- DB CHANGE
 end
 
 ---Checks if a card is currently in the GM's hand
@@ -541,7 +541,7 @@ end
 function isCardOwnedByGm(vCard)
 	vCard = DeckedOutUtilities.validateCard(vCard);
 	if not vCard then return end
-	return StringManager.startsWith(vCard.getNodeName(), CardManager.GM_HAND_PATH);
+	return StringManager.startsWith(vCard.getNodeName(), CardManager.GM_HAND_PATH); -- DB CHANGE
 end
 
 ---Gets the full database path of the deck from which a card originates
@@ -633,7 +633,7 @@ function getCardSource(vCard)
 
 	if CardManager.isCardInHand(vCard) then
 		if StringManager.startsWith(vCard.getNodeName(), "charsheet") then
-			return vCard.getChild("...").getName();
+			return vCard.getChild("...").getName(); -- DB CHANGE
 		end
 	end
 
@@ -651,7 +651,7 @@ function getActorHoldingCard(vCard)
 		return;
 	end
 
-	return ActorManager.resolveActor(vCard.getChild("..."));
+	return ActorManager.resolveActor(DB.getChild(vCard, "..."));
 end
 
 ---Checks if an actor is holding a card. Only works for PCs
@@ -817,7 +817,7 @@ function onDragCard(vCard, draginfo)
 		draginfo.setTokenData(CardManager.getCardBack(vCard));
 		draginfo.setNumberData(0);
 	else
-		draginfo.setTokenData(DB.getValue(vCard, "image", ""));
+		draginfo.setTokenData(CardManager.getCardFront(vCard));
 		draginfo.setNumberData(1);
 	end
 	draginfo.setDescription(DB.getValue(vCard, "name", ""));
@@ -860,7 +860,7 @@ function onDropCard(draginfo, vDestination, sExtra)
 	-- Figure out if the card should be passed facedown
 	local bFacedown = draginfo.getNumberData() == 0;
 
-	sDestPath = vDestination.getNodeName();
+	sDestPath = vDestination.getNodeName(); -- DB CHANGE
 
 	if not Session.IsHost then
 		CardManager.sendCardDropMessage(sRecord, sDestPath, sExtra, bFacedown);
@@ -886,21 +886,21 @@ function handleAnyDrop(sSourceNode, sDestinationNode, sExtra, bFacedown)
 	-- Dropped on a charater sheet
 	if StringManager.startsWith(vDestination.getNodeName(), "charsheet") then
 		-- If vDestination isn't the hand path, then get the hand path
-		if vDestination.getName() ~= CardManager.PLAYER_HAND_PATH then
-			vDestination = CardManager.getHandNode(vDestination.getName());
+		if vDestination.getName() ~= CardManager.PLAYER_HAND_PATH then -- DB CHANGE
+			vDestination = CardManager.getHandNode(vDestination.getName()); -- DB CHANGE
 		end
 		
 		-- After the above, vDestination is the cards node for the character (charsheet.*.cards)
-		sReceivingIdentity = vDestination.getParent().getName();
+		sReceivingIdentity = DB.getParent(vDestination).getName(); -- DB CHANGE
 
-	elseif StringManager.startsWith(vDestination.getNodeName(), CardManager.GM_HAND_PATH) then
+	elseif StringManager.startsWith(vDestination.getNodeName(), CardManager.GM_HAND_PATH) then -- DB CHANGE
 		vDestination = CardManager.getHandNode("gm");
 		sReceivingIdentity = "gm"
 
-	elseif StringManager.startsWith(vDestination.getNodeName(), "combattracker") then
+	elseif StringManager.startsWith(vDestination.getNodeName(), "combattracker") then -- DB CHANGE
 		if ActorManager.isPC(vDestination) then
 			-- If dropping on PC, give card to that PC
-			sReceivingIdentity = ActorManager.getCreatureNode(vDestination).getName();
+			sReceivingIdentity = ActorManager.getCreatureNode(vDestination).getName(); -- DB CHANGE
 			vDestination = CardManager.getHandNode(sReceivingIdentity);
 		else
 			-- If dropping on NPC, give card to GM
@@ -908,7 +908,7 @@ function handleAnyDrop(sSourceNode, sDestinationNode, sExtra, bFacedown)
 			sReceivingIdentity = "gm"
 		end
 
-	elseif StringManager.startsWith(vDestination.getNodeName(), "deckbox") then
+	elseif StringManager.startsWith(vDestination.getNodeName(), "deckbox") then -- DB CHANGE
 		-- Check that the card being dropped belongs in this deck
 		if CardManager.getDeckIdFromCard(vCard) ~= DeckManager.getDeckId(vDestination) then
 			Debug.console("WARNING: CardManager.handleAnyDrop(): Tried to move a card to another deck.")
@@ -918,16 +918,16 @@ function handleAnyDrop(sSourceNode, sDestinationNode, sExtra, bFacedown)
 		-- Currently we only care about if sExtra for dropping on to the discard
 		-- which currently thing does.
 		if sExtra == DeckManager.DECK_DISCARD_PATH then
-			vDestination = vDestination.getChild(DeckManager.DECK_DISCARD_PATH);
+			vDestination = DB.getChild(vDestination, DeckManager.DECK_DISCARD_PATH);
 		else
-			vDestination = vDestination.getChild(DeckManager.DECK_CARDS_PATH);
+			vDestination = DB.getChild(vDestination, DeckManager.DECK_CARDS_PATH);
 		end
 	end
 
 	-- Check if a the source of the card is the same as the destination
 	-- and if it is, bail.
-	local sourceParentNode = vCard.getParent();
-	if sourceParentNode.getNodeName() == vDestination.getNodeName() then
+	local sourceParentNode = DB.getparent(vCard);
+	if sourceParentNode.getNodeName() == vDestination.getNodeName() then -- DB CHANGE
 		Debug.console("WARNING: CardManager.handleAnyDrop(): Tried to move a card to the same place it originated from.")
 		return true;
 	end

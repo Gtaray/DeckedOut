@@ -38,7 +38,6 @@ function onMenuSelection(selection)
 end
 
 function onDragStart(button, x, y, draginfo)
-	local node = window.getDatabaseNode();
 	if Session.IsHost then
 		CardManager.onDragFromDeck(window.getDatabaseNode(), draginfo);
 		return true;

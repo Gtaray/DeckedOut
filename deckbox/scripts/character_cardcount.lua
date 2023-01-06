@@ -11,7 +11,7 @@ function onClose()
 end
 
 function getHandPath()
-	return CardManager.getHandPath(window.getDatabaseNode().getName());
+	return CardManager.getHandPath(window.getDatabaseNode().getName()); -- DB CHANGE
 end
 
 function getDeckIdCardPath()
@@ -23,11 +23,11 @@ function getDeckNode()
 end
 
 function getDeckId()
-	return self.getDeckNode().getNodeName();
+	return self.getDeckNode().getNodeName(); -- DB CHANGE
 end
 
 function getIdentity()
-	return window.getDatabaseNode().getName();
+	return window.getDatabaseNode().getName(); -- DB CHANGE
 end
 
 function onHandUpdated()

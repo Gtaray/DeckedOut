@@ -7,7 +7,7 @@ function onInit()
 	if Session.IsHost then
 		local storage = DB.createNode(CARD_STORAGE_PATH);
 		DB.deleteChildren(storage);
-		storage.setPublic(true);
+		DB.setPublic(storage ,true);
 	end
 end
 
@@ -73,7 +73,7 @@ function doesCardComeFromStorage(vCard)
 	local vCard = DeckedOutUtilities.validateCard(vCard);
 	if not vCard then return end
 
-	local sNodeName = vCard.getNodeName();
+	local sNodeName = vCard.getNodeName(); -- DB CHANGE
 	return StringManager.startsWith(sNodeName, CardStorage.CARD_STORAGE_PATH);
 end
 

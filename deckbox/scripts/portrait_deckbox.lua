@@ -34,7 +34,7 @@ function getDeckNode()
 end
 
 function getIdentity()
-	return window.getDatabaseNode().getName();
+	return window.getDatabaseNode().getName(); -- DB CHANGE
 end
 
 function onCardAmountSelected(nAmount)
@@ -42,7 +42,7 @@ function onCardAmountSelected(nAmount)
 end
 
 function update()
-	local sCharNode = window.getDatabaseNode().getNodeName();
+	local sCharNode = window.getDatabaseNode().getNodeName(); -- DB CHANGE
 	local sCharNodeName = sCharNode:match("%.([%w-]+)$");
 	if sCharNodeName then
 		setIcon("portrait_" .. sCharNodeName .. "_charlist", true);
@@ -55,12 +55,12 @@ function onDragStart(button, x, y, draginfo)
 	local nodeChar = window.getDatabaseNode();
 	if DB.isOwner(nodeChar) then
 		draginfo.setType("shortcut");
-		draginfo.setIcon("portrait_" .. nodeChar.getName() .. "_charlist");
+		draginfo.setIcon("portrait_" .. nodeChar.getName() .. "_charlist"); -- DB CHANGE
 		local sToken = DB.getValue(nodeChar, "token", "");
 		if sToken ~= "" then
 			draginfo.setTokenData(sToken);
 		end
-		draginfo.setShortcutData("charsheet", nodeChar.getPath());
+		draginfo.setShortcutData("charsheet", nodeChar.getPath()); -- DB CHANGE
 		draginfo.setDescription(DB.getValue(nodeChar, "name", ""));
 		return true;
 	end

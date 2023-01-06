@@ -13,8 +13,8 @@ function onInit()
 
 			local settingsnode = DeckManager.getDeckSettingsNode(window.getDatabaseNode());
 
-			node = settingsnode.createChild(sKey, "string")
-			DB.addHandler(node.getPath(), "onUpdate", onNodeUpdate);
+			node = DB.createChild(settingsnode, sKey, "string");
+			DB.addHandler(DB.getPath(node), "onUpdate", onNodeUpdate);
 
 			for k,option in ipairs(settings.options) do
 				self.add(option.sValue, Interface.getString(option.sTextRes), false)
@@ -29,17 +29,17 @@ end
 
 function onClose()
 	if node then
-		DB.removeHandler(node.getPath(), "onUpdate", onNodeUpdate)
+		DB.removeHandler(DB.getPath(node), "onUpdate", onNodeUpdate)
 	end
 end
 
 function onNodeUpdate()
-	setComboValue(node.getValue());
+	setComboValue(DB.getValue(node));
 end
 
 function onValueSelected()
 	bUpdating = true;
-	DB.setValue(node.getPath(), "string", self.getSelectedValue());
+	DB.setValue(DB.getPath(node), "string", self.getSelectedValue()); -- DB CHANGE
 	bUpdating = false;
 end
 
@@ -50,7 +50,7 @@ function setComboValue(sValue)
 			sValue = self.getSelectedValue();
 			local node = getDatabaseNode();
 			if node then
-				DB.setValue(node.getPath(), "string", sValue);
+				DB.setValue(DB.getPath(node), "string", sValue); -- DB CHANGE
 			end
 		elseif hasValue(sValue) then
 			for nIndex,sKnownValue in ipairs(getValues()) do

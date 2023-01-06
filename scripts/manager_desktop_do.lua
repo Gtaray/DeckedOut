@@ -89,8 +89,8 @@ end
 -- OTHER WINDOW FUNCTIONS
 ------------------------------------------
 function openCardList(vSourceNode)
-	local sTitle = DB.getValue(vSourceNode.getParent(), "name", "");
-	if vSourceNode.getName() == DeckManager.DECK_DISCARD_PATH then
+	local sTitle = DB.getValue(DB.getParent(vSourceNode), "name", "");
+	if vSourceNode.getName() == DeckManager.DECK_DISCARD_PATH then -- DB CHANGE
 		sTitle = sTitle .. " (Discard)"
 	end
 
