@@ -22,7 +22,7 @@ end
 
 function onDesktopInit()
 	if Session.IsHost then 
-		DesktopManager.setHandVisibility(CardManager.getNumberOfCardsInHand("gm") > 0);
+		DesktopManager.setHandVisibility(CardsManager.getNumberOfCardsInHand("gm") > 0);
 	end
 end
 
@@ -78,7 +78,7 @@ function onShortcutDropOnPortrait(sIdentity, draginfo)
 	local nodeSource = draginfo.getDatabaseNode();
 
 	if sClass == "card" then
-		CardManager.onDropCard(draginfo, DB.getPath("charsheet", sIdentity));
+		CardsManager.onDropCard(draginfo, DB.getPath("charsheet", sIdentity));
 		return;
 	end
 
@@ -118,6 +118,6 @@ function peekCard(vCard)
 	local w = Interface.openWindow("card", vCard.getNodeName());
 	if w then
 		w.main.subwindow.peek();
-		DeckedOutEvents.raiseOnCardPeekEvent(vCard, CardManager.getCardSource(vCard), {});
+		DeckedOutEvents.raiseOnCardPeekEvent(vCard, CardsManager.getCardSource(vCard), {});
 	end
 end

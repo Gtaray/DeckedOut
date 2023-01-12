@@ -1,3 +1,3 @@
 function onDrop(x, y, draginfo)
-	return CardManager.onDropCard(draginfo, getDatabaseNode());
+	return CardsManager.onDropCard(draginfo, getDatabaseNode());
 end

@@ -6,6 +6,6 @@ function onDragStart(button, x, y, draginfo)
 		end
 	end
 
-	CardManager.onDragCard(window.getDatabaseNode(), draginfo);
+	CardsManager.onDragCard(window.getDatabaseNode(), draginfo);
 	return true;
 end

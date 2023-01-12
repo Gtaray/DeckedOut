@@ -16,10 +16,10 @@ function onDropCardOnDelete(vCard)
 	-- Either we're the host and the card is in the gm hand
 	-- Or we're a client and whose identity matches the card source
 	if Session.IsHost then
-		CardManager.discardCard(vCard, DeckedOutUtilities.getFacedownHotkey(), "gm", {});
+		CardsManager.discardCard(vCard, DeckedOutUtilities.getFacedownHotkey(), "gm", {});
 		return true;
-	elseif sIdentity == CardManager.getCardSource(vCard) then
-		CardManager.discardCard(vCard, DeckedOutUtilities.getFacedownHotkey(), sIdentity, {});
+	elseif sIdentity == CardsManager.getCardSource(vCard) then
+		CardsManager.discardCard(vCard, DeckedOutUtilities.getFacedownHotkey(), sIdentity, {});
 		return true;
 	end
 end

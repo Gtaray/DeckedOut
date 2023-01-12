@@ -99,7 +99,7 @@
 			<leftClickOpensCardList name="button_view_deck">
 				<script>
 					function onDrop(x, y, draginfo)
-						CardManager.onDropCard(draginfo, window.getDatabaseNode(), DeckManager.DECK_CARDS_PATH);
+						CardsManager.onDropCard(draginfo, window.getDatabaseNode(), DeckManager.DECK_CARDS_PATH);
 					end
 				</script>
 				<anchored to="back" height="36" width="36">
@@ -248,7 +248,7 @@
 					function onButtonPress()
 						local node = window.getDatabaseNode();
 						for sIdentity in pairs(DB.getChildren("charsheet")) do
-							CardManager.discardCardsInHandFromDeck(node, sIdentity, {});
+							CardsManager.discardCardsInHandFromDeck(node, sIdentity, {});
 						end
 					end
 				</script>
@@ -260,9 +260,9 @@
 					function onButtonPress()
 						local node = window.getDatabaseNode();
 						for sIdentity in pairs(DB.getChildren("charsheet")) do
-							CardManager.discardCardsInHandFromDeck(node, sIdentity, {});
+							CardsManager.discardCardsInHandFromDeck(node, sIdentity, {});
 						end
-						CardManager.discardCardsInHandFromDeck(node, "gm", {});
+						CardsManager.discardCardsInHandFromDeck(node, "gm", {});
 					end
 				</script>
 				<state textres="deckbox_button_discard_all_hands" />

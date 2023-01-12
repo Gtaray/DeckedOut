@@ -19,13 +19,13 @@ function onMenuSelection(selection)
 	elseif selection == 4 then
 		DesktopManager.promptCardAmount(onCardAmountSelected)
 	elseif selection == 7 then
-		CardManager.discardCardsInHandFromDeck(getDeckNode(), getIdentity(), {});
+		CardsManager.discardCardsInHandFromDeck(getDeckNode(), getIdentity(), {});
 	elseif selection == 8 then
-		CardManager.discardRandomCardFromDeck(getDeckNode(), getIdentity(), DeckedOutUtilities.getFacedownHotkey(), {})
+		CardsManager.discardRandomCardFromDeck(getDeckNode(), getIdentity(), DeckedOutUtilities.getFacedownHotkey(), {})
 	elseif selection == 6 then
-		CardManager.putCardsFromDeckInHandBackIntoDeck(getDeckNode(), getIdentity());
+		CardsManager.putCardsFromDeckInHandBackIntoDeck(getDeckNode(), getIdentity());
 	elseif selection == 2 then
-		DesktopManager.openCardList(CardManager.getHandNode(getIdentity()));
+		DesktopManager.openCardList(CardsManager.getHandNode(getIdentity()));
 	end
 end
 
@@ -67,5 +67,5 @@ function onDragStart(button, x, y, draginfo)
 end
 
 function onDrop(x, y, draginfo)
-	CardManager.onDropCard(draginfo, window.getDatabaseNode());
+	CardsManager.onDropCard(draginfo, window.getDatabaseNode());
 end

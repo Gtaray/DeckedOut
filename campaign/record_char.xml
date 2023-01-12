@@ -3,7 +3,7 @@
 	<windowclass name="charsheet" merge="join">
 		<script>
 			function onDrop(x, y, draginfo)
-				local bHandled = CardManager.onDropCard(draginfo, getDatabaseNode());
+				local bHandled = CardsManager.onDropCard(draginfo, getDatabaseNode());
 				
 				if not bHandled then
 					if super and super.onDrop then

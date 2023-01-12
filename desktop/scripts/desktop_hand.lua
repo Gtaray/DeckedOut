@@ -5,10 +5,10 @@ function onInit()
 	self.onSizeChanged = onSizeChanged;
 
 	if Session.IsHost then
-		DB.addHandler(CardManager.GM_HAND_PATH, "onChildAdded", onCardAdded);
-		DB.addHandler(CardManager.GM_HAND_PATH, "onChildDeleted", onCardDeleted);
+		DB.addHandler(CardsManager.GM_HAND_PATH, "onChildAdded", onCardAdded);
+		DB.addHandler(CardsManager.GM_HAND_PATH, "onChildDeleted", onCardDeleted);
 
-		updateHand(CardManager.getHandNode("gm"));
+		updateHand(CardsManager.getHandNode("gm"));
 	end
 
 	-- registerMenuItem(Interface.getString("hand_menu_play_random"), "customdice", 4);
@@ -20,8 +20,8 @@ end
 
 function onClose()
 	if Session.IsHost then
-		DB.removeHandler(CardManager.GM_HAND_PATH, "onChildAdded", onCardAdded);
-		DB.removeHandler(CardManager.GM_HAND_PATH, "onChildDeleted", onCardDeleted);
+		DB.removeHandler(CardsManager.GM_HAND_PATH, "onChildAdded", onCardAdded);
+		DB.removeHandler(CardsManager.GM_HAND_PATH, "onChildDeleted", onCardDeleted);
 	else
 		clearPlayerCardHandler(User.getCurrentIdentity());
 	end
@@ -31,13 +31,13 @@ function onMenuSelection(selection, subselection)
 	if selection == 8 and subselection == 7 then
 		local sIdentity = self.getIdentity()
 		if sIdentity then
-			CardManager.discardRandomCard(sIdentity, DeckedOutUtilities.getFacedownHotkey(), {})
+			CardsManager.discardRandomCard(sIdentity, DeckedOutUtilities.getFacedownHotkey(), {})
 		end
 	elseif selection == 8 and subselection == 8 then
 		local sIdentity = self.getIdentity()
 		if sIdentity then
 			-- Pass in empty list for tEventTrace since this is guaranteed to be the first place we have an event chain
-			CardManager.discardHand(sIdentity, {});
+			CardsManager.discardHand(sIdentity, {});
 		end
 	end
 end
@@ -53,7 +53,7 @@ function onIdentityStateChange(sIdentity, sUsername, sStateName, vState)
 	if sStateName == "current" then
 		if vState then
 			addPlayerCardHandler(sIdentity);
-			updateHand(CardManager.getHandNode(sIdentity))
+			updateHand(CardsManager.getHandNode(sIdentity))
 
 			-- If we just activated a character and that character
 			-- has cards in their hand, auto-open up the hand window
@@ -74,7 +74,7 @@ function onDrop(x, y, draginfo)
 
 	-- Maybe players should be able to do this? An option toggle the
 	if frame.isVisible() then
-		CardManager.onDropCard(draginfo, hand.getDatabaseNode());
+		CardsManager.onDropCard(draginfo, hand.getDatabaseNode());
 	end
 end
 
@@ -103,16 +103,16 @@ end
 
 function addPlayerCardHandler(sIdentity)
 	if not sCurrentIdentity then
-		DB.addHandler(CardManager.getHandPath(sIdentity), "onChildAdded", onCardAdded);
-		DB.addHandler(CardManager.getHandPath(sIdentity), "onChildDeleted", onCardDeleted);
+		DB.addHandler(CardsManager.getHandPath(sIdentity), "onChildAdded", onCardAdded);
+		DB.addHandler(CardsManager.getHandPath(sIdentity), "onChildDeleted", onCardDeleted);
 		sCurrentIdentity = sIdentity;
 	end
 end
 
 function clearPlayerCardHandler(sIdentity)
 	if sCurrentIdentity then
-		DB.removeHandler(CardManager.getHandPath(sIdentity), "onChildAdded", onCardAdded);
-		DB.removeHandler(CardManager.getHandPath(sIdentity), "onChildDeleted", onCardDeleted);
+		DB.removeHandler(CardsManager.getHandPath(sIdentity), "onChildAdded", onCardAdded);
+		DB.removeHandler(CardsManager.getHandPath(sIdentity), "onChildDeleted", onCardDeleted);
 		sCurrentIdentity = nil;
 	end
 end

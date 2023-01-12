@@ -4,18 +4,18 @@ function onInit()
 	-- highlight.setEnabled(false);
 
 	local node = getDatabaseNode();
-	DB.addHandler(DB.getPath(node, CardManager.CARD_FACING_PATH), "onUpdate", onFacingChanged)
+	DB.addHandler(DB.getPath(node, CardsManager.CARD_FACING_PATH), "onUpdate", onFacingChanged)
 
 	onFacingChanged();
 end
 
 function onClose()
 	local node = getDatabaseNode();
-	DB.removeHandler(DB.getPath(node, CardManager.CARD_FACING_PATH), "onUpdate", onFacingChanged)
+	DB.removeHandler(DB.getPath(node, CardsManager.CARD_FACING_PATH), "onUpdate", onFacingChanged)
 end
 
 function onFacingChanged(nodeUpdated)
-	local bFaceUp = CardManager.isCardFaceUp(getDatabaseNode());
+	local bFaceUp = CardsManager.isCardFaceUp(getDatabaseNode());
 	image.setVisible(bFaceUp);
 	image.setEnabled(bFaceUp);
 	cardback.setVisible(not bFaceUp);

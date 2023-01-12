@@ -34,10 +34,10 @@ function addCardToStorage(vCard, tEventTrace)
 	end
 
 	local newCard = DB.copyNode(vCard, DB.createChild(CardStorage.getCardStorageNode()));
-	local sToken = CardManager.getCardFront(vCard);
+	local sToken = CardsManager.getCardFront(vCard);
 
 	-- We don't want card facing to be stored
-	CardManager.deleteFacingNode(newCard);
+	CardsManager.deleteFacingNode(newCard);
 
 	-- Save the actual location of the card so that we can drag/drop from this entry
 	-- This is a crude way of getting cards back from the discard
@@ -61,7 +61,7 @@ function isCardInStorage(vCard)
 	local vCard = DeckedOutUtilities.validateCard(vCard);
 	if not vCard then return end
 
-	local sToken = CardManager.getCardFront(vCard);
+	local sToken = CardsManager.getCardFront(vCard);
 	return _storage[sToken] ~= nil;
 end
 
@@ -72,7 +72,7 @@ function getCardFromStorage(vCard)
 	local vCard = DeckedOutUtilities.validateCard(vCard);
 	if not vCard then return end
 
-	local sToken = CardManager.getCardFront(vCard);
+	local sToken = CardsManager.getCardFront(vCard);
 
 	return _storage[sToken];
 end

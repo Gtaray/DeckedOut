@@ -40,12 +40,12 @@ function shouldPlayAndDiscard(vCard, vDeck)
 
 	local vCard = DeckedOutUtilities.validateCard(vCard);
 	if not vCard then return false end;
-	local vDeck = CardManager.getDeckNodeFromCard(vCard);
+	local vDeck = CardsManager.getDeckNodeFromCard(vCard);
 	if not DeckedOutUtilities.validateDeck(vDeck) then return false end
 
-	if CardManager.isCardInHand(vCard) then
+	if CardsManager.isCardInHand(vCard) then
 		return DeckManager.getDeckSetting(vDeck, DeckManager.DECK_SETTING_AUTO_PLAY_FROM_HAND) == "yes";
-	elseif CardManager.isCardInDeck(vCard) then
+	elseif CardsManager.isCardInDeck(vCard) then
 		return DeckManager.getDeckSetting(vDeck, DeckManager.DECK_SETTING_AUTO_PLAY_FROM_DECK) == "yes";
 	end
 	
@@ -150,7 +150,7 @@ end
 ---@param sIdentity string Identity of the player or gm to validate
 ---@return databasenode
 function validateHandNode(sIdentity)
-	local handNode = CardManager.getHandNode(sIdentity);
+	local handNode = CardsManager.getHandNode(sIdentity);
 	if handNode == nil then
 		Debug.console("ERROR: Could not resolve hand node for user identity" .. sIdentity);
 		printstack();
@@ -175,12 +175,12 @@ end
 ---@param fCallback function
 function addOnCardFlippedHandler(vCard, fCallback)
 	if not validateCard(vCard) then return end;
-	DB.addHandler(DB.getPath(vCard, CardManager.CARD_FACING_PATH), "onUpdate", fCallback);
+	DB.addHandler(DB.getPath(vCard, CardsManager.CARD_FACING_PATH), "onUpdate", fCallback);
 end
 ---Removes an onUpdate handler for the given card.
 ---@param vCard databasenode
 ---@param fCallback function
 function removeOnCardFlippedHandler(vCard, fCallback)
 	if not vCard then return end;
-	DB.removeHandler(DB.getPath(vCard, CardManager.CARD_FACING_PATH), "onUpdate", fCallback);
+	DB.removeHandler(DB.getPath(vCard, CardsManager.CARD_FACING_PATH), "onUpdate", fCallback);
 end

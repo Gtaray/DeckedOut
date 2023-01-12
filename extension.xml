@@ -38,7 +38,7 @@
 		<script name="DeckedOutMessages" file="scripts/decked_out_messages.lua" />
 		<script name="DeckedOutUtilities" file="scripts/decked_out_utilities.lua" />
 		
-		<script name="CardManager" file="scripts/manager_card.lua" />
+		<script name="CardsManager" file="scripts/manager_cards.lua" />
 		<script name="DeckManager" file="scripts/manager_deck.lua" />
 		<script name="CardStorage" file="scripts/manager_storage.lua" />
 		<script name="DesktopManagerDO" file="scripts/manager_desktop_do.lua" />

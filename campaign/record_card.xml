@@ -46,18 +46,18 @@
 			local bPeek = false;
 			function onInit()
 				local node = getDatabaseNode();
-				DB.addHandler(DB.getPath(node, CardManager.CARD_FACING_PATH), "onUpdate", onFacingChanged)
+				DB.addHandler(DB.getPath(node, CardsManager.CARD_FACING_PATH), "onUpdate", onFacingChanged)
 
 				onFacingChanged();
 			end
 
 			function onClose()
 				local node = getDatabaseNode();
-				DB.removeHandler(DB.getPath(node, CardManager.CARD_FACING_PATH), "onUpdate", onFacingChanged)
+				DB.removeHandler(DB.getPath(node, CardsManager.CARD_FACING_PATH), "onUpdate", onFacingChanged)
 			end
 
 			function onFacingChanged()
-				local bFaceUp = CardManager.isCardFaceUp(getDatabaseNode()) or bPeek;
+				local bFaceUp = CardsManager.isCardFaceUp(getDatabaseNode()) or bPeek;
 				image.setVisible(bFaceUp);
 				image.setEnabled(bFaceUp);
 				back.setVisible(not bFaceUp);
