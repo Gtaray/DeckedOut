@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <root version="3.3" release="1.0">
-	<announcement text="Decked Out v1.1.1 by Saagael." icon="decked_out" font="emotefont" />
+	<announcement text="Decked Out v1.2.0 by Saagael." icon="decked_out" font="emotefont" />
 	<properties>
 		<name>Feature: Decked Out</name>
-		<version>1.1.1</version>
+		<version>1.2.0</version>
 		<author>Saagael</author>
 		<description>Adds decks of cards</description>
 		<loadorder>1000</loadorder>
@@ -12,6 +12,7 @@
 		<includefile source="campaign/record_char.xml" />
 		<includefile source="campaign/record_deck.xml" />
 		<includefile source="campaign/record_card.xml" />
+		<includefile source="common/card_tooltip.xml" />
 		<includefile source="common/deck_templates.xml" />
 
 		<includefile source="ct/ct_entries.xml" />
