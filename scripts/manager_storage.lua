@@ -39,6 +39,9 @@ function addCardToStorage(vCard, tEventTrace)
 	-- We don't want card facing to be stored
 	CardsManager.deleteFacingNode(newCard);
 
+	-- We don't want node order to be stored
+	CardsManager.deleteCardOrder(newCard);
+
 	-- Save the actual location of the card so that we can drag/drop from this entry
 	-- This is a crude way of getting cards back from the discard
 	CardStorage.setCardOrigin(newCard, vCard.getNodeName());

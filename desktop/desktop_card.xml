@@ -4,6 +4,7 @@
 		<margins control="0,0,0,0" />
 		<script file="desktop/scripts/desktop_card.lua" />
 		<sheetdata>
+			<hn name="order" />
 			<token_card name="image">
 				<script file="common/scripts/onCardDrag.lua" />
 				<script file="common/scripts/standardCardRadialOptions.lua" />

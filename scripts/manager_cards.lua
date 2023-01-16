@@ -1,6 +1,7 @@
 GM_HAND_PATH = "gmhand";
 PLAYER_HAND_PATH = "cards";
 CARD_FACING_PATH = "faceup";
+CARD_ORDER_PATH = "order";
 
 OOB_MSGTYPE_DROPCARD = "dropcard";
 OOB_MSGTYPE_DISCARD = "discard"
@@ -34,9 +35,10 @@ function moveCard(vCard, vDestination, tEventTrace)
 	DB.copyNode(vCard, newNode);
 	vCard.delete();
 
-	-- if the card was moved to anywhere other than a hand, delete the facing node
+	-- if the card was moved to anywhere other than a hand, delete the facing and order node
 	if not CardsManager.isCardInHand(newNode) then
 		CardsManager.deleteFacingNode(newNode);
+		CardsManager.deleteCardOrder(newNode);
 	end
 
 	tEventTrace = DeckedOutEvents.raiseOnCardMovedEvent(newNode, sOldCardNode, tEventTrace);
@@ -759,6 +761,38 @@ function deleteFacingNode(vCard)
 
 	DB.deleteChild(vCard, CardsManager.CARD_FACING_PATH);
 end
+
+---Gets the order value of a card in a hand
+---@param vCard databasenode|string
+---@return number
+function getCardOrder(vCard)
+	vCard = DeckedOutUtilities.validateCard(vCard);
+	if not vCard then return end
+
+	return DB.getValue(vCard, CardsManager.CARD_ORDER_PATH, 0);
+end
+
+---Sets the order value of a card in a hand
+---@param vCard databasenode|string
+---@param nOrder number
+function setCardOrder(vCard, nOrder)
+	vCard = DeckedOutUtilities.validateCard(vCard);
+	if not vCard then return end
+
+	if nOrder == nil then
+		nOrder = 0;
+	end
+	DB.setValue(vCard, CardsManager.CARD_ORDER_PATH, "number", nOrder);
+end
+
+---Deletes the order node from a card node
+---@param vCard databasenode|string
+function deleteCardOrder(vCard)
+	vCard = DeckedOutUtilities.validateCard(vCard);
+	if not vCard then return end
+
+	DB.deleteChild(vCard, CardsManager.CARD_ORDER_PATH);
+end
 ------------------------------------------
 -- DRAG DROP
 ------------------------------------------
@@ -908,6 +942,7 @@ end
 ---@param sDestinationNode string DB path id of the location the card is being dropped on
 ---@param sExtra string If this is equal to DeckManager.DECK_DISCARD_PATH, then the card is sent to the deck's discard pile
 ---@return boolean
+---@return databasenode card node in its new location
 function handleAnyDrop(sSourceNode, sDestinationNode, sExtra, bFacedown)
 	vCard = DeckedOutUtilities.validateNode(sSourceNode, "sSourceNode");
 	vDestination = DeckedOutUtilities.validateNode(sDestinationNode, "sDestinationNode");
@@ -961,8 +996,12 @@ function handleAnyDrop(sSourceNode, sDestinationNode, sExtra, bFacedown)
 	-- and if it is, bail.
 	local sourceParentNode = vCard.getParent();
 	if sourceParentNode.getNodeName() == vDestination.getNodeName() then
-		Debug.console("WARNING: CardsManager.handleAnyDrop(): Tried to move a card to the same place it originated from.")
-		return true;
+		-- Only print out this error if the card isn't in a hand
+		-- Because you can drag/drop to reorder the cards in your hand
+		if not CardsManager.isCardInHand(vCard) then
+			Debug.console("WARNING: CardsManager.handleAnyDrop(): Tried to move a card to the same place it originated from.")
+		end
+		return true, vCard;
 	end
 
 	if vDestination then
@@ -975,7 +1014,7 @@ function handleAnyDrop(sSourceNode, sDestinationNode, sExtra, bFacedown)
 				tEventTrace = DeckedOutEvents.addEventTrace(tEventTrace, DeckedOutEvents.DECKEDOUT_EVENT_CARD_GIVEN);
 				local card = CardsManager.addCardToHand(vCard, sReceivingIdentity, false, tEventTrace);
 				DeckedOutEvents.raiseOnGiveCardEvent(card, sGiverIdentity, sReceivingIdentity, bFacedown, tEventTrace)
-				return true;
+				return true, card;
 
 			-- If the card being dropped is currently in a deck or discard pile, we fire the deal event
 			elseif CardsManager.isCardInDeck(vCard) or CardsManager.isCardDiscarded(vCard) then
@@ -986,16 +1025,17 @@ function handleAnyDrop(sSourceNode, sDestinationNode, sExtra, bFacedown)
 				bFacedown = bFacedown or bDefaultFacing == "facedown";
 				
 				-- If we're fishing this card from the discard pile, then we want to raise a different event
+				local card = nil;
 				if CardsManager.isCardDiscarded(vCard) then
 					tEventTrace = DeckedOutEvents.addEventTrace(tEventTrace, DeckedOutEvents.DECKEDOUT_EVENT_DEALT_FROM_DISCARD);
-					local card = CardsManager.addCardToHand(vCard, sReceivingIdentity, bFacedown, tEventTrace);
+					card = CardsManager.addCardToHand(vCard, sReceivingIdentity, bFacedown, tEventTrace);
 					DeckedOutEvents.raiseOnCardDealtFromDiscardEvent(card, sReceivingIdentity, bFacedown, tEventTrace)
 				else	
 					tEventTrace = DeckedOutEvents.addEventTrace(tEventTrace, DeckedOutEvents.DECKEDOUT_EVENT_CARD_DEALT);
-					local card = CardsManager.addCardToHand(vCard, sReceivingIdentity, bFacedown, tEventTrace);
+					card = CardsManager.addCardToHand(vCard, sReceivingIdentity, bFacedown, tEventTrace);
 					DeckedOutEvents.raiseOnDealCardEvent(card, sReceivingIdentity, bFacedown, tEventTrace)
 				end
-				return true;
+				return true, card;
 			end
 		else
 			if StringManager.startsWith(vDestination.getNodeName(), "deckbox") then
@@ -1008,15 +1048,16 @@ function handleAnyDrop(sSourceNode, sDestinationNode, sExtra, bFacedown)
 						sGiverIdentity, 
 						bFacedown,
 						tEventTrace);
-					CardsManager.moveCard(vCard, vDestination, tEventTrace);
-					return true;
+					local card = CardsManager.moveCard(vCard, vDestination, tEventTrace);
+					return true, card;
 				elseif vDestination.getName() == DeckManager.DECK_DISCARD_PATH then
 					local sGiverIdentity = CardsManager.getCardSource(vCard);
 					local card = discardCard(vCard, bFacedown, sGiverIdentity, tEventTrace);
+					return true, card;
 				end
 			else
 				local card = CardsManager.moveCard(vCard, vDestination, tEventTrace);
-				return true;
+				return true, card;
 			end
 		end
 	end
@@ -1058,4 +1099,30 @@ function handleCardDrop(msgOOB)
 	end
 
 	CardsManager.handleAnyDrop(msgOOB.sSourceNode, msgOOB.sDestinationNode, msgOOB.sExtra, msgOOB.bFacedown == "true");
+end
+
+------------------------------------------
+-- CARD SORTING
+------------------------------------------
+---Sorts a list of card nodes alphabetically by deck name, then by card name
+---@param cardnodes array array of databasenodes
+function sortCardsByDeckAndName(cardnodes)	
+	table.sort(cardnodes, 
+		function (c1, c2) 
+			local d1 = CardsManager.getDeckNameFromCard(c1);
+			local d2 = CardsManager.getDeckNameFromCard(c2);
+
+			-- if the deck names aren't identical, then sort them alphabetically
+			if d1 ~= d2 then
+				return d1 < d2;
+			end
+
+			-- deck names are the same, so we sort them by name alphabetically
+			return CardsManager.getCardName(c1) < CardsManager.getCardName(c2);
+		end 
+	)
+
+	for index, card in ipairs(cardnodes) do
+		DB.setValue(card, "order", "number", index);
+	end
 end

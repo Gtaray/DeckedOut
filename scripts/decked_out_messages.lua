@@ -617,7 +617,6 @@ end
 function buildCardMessage(msgOOB, sRecipientIdentity)
 	local msg = {};
 
-	-- TODO: Add an extra icon here based on msg.action
 	msg.icon = {};
 	if msgOOB.sender == "gm" then
 		table.insert(msg.icon, "portrait_gm_token");

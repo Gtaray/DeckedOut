@@ -33,8 +33,34 @@
 			<link_record_header name="link" />
 			
 			<anchor_record_header_right name="rightanchor" />
-			<icon_record_locked />
-			<button_record_locked />
+			<icon_record_locked>
+				<script>
+					function onInit()
+						local node = window.getDatabaseNode();
+						local bIsInHand = CardsManager.isCardInHand(node);
+						setVisible(not Session.IsHost or bIsInHand);
+
+						-- AND is here so clients don't try to create nodes outside of
+						-- their own hand, which could happen if the GM shares a deck with players
+						if not Session.IsHost and bIsInHand then
+							DB.setValue(node, "locked", "number", 1);
+						end
+					end
+				</script>
+			</icon_record_locked>
+			<button_record_locked>
+				<script>
+					function onInit()
+						local node = window.getDatabaseNode();
+						local bIsInHand = CardsManager.isCardInHand(node);
+						setVisible(Session.IsHost and not bIsInHand);
+
+						if super and super.onInit then
+							super.onInit();
+						end
+					end
+				</script>
+			</button_record_locked>
 
 			<string_record_name name="name" />
 		</sheetdata>
@@ -67,6 +93,9 @@
 			function peek()
 				bPeek = true;
 				onFacingChanged()
+			end
+
+			function update()
 			end
 		</script>
 		<sheetdata>			

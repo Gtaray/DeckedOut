@@ -1,11 +1,17 @@
 function onDragStart(button, x, y, draginfo)
-	local gmDragOnly = window and window.gmdrag and window.gmdrag[1];
+	local gmDragOnly = gmdrag and gmdrag[1];
 	if Session.IsHost == false then
 		if gmDragOnly then
 			return true;
 		end
 	end
 
-	CardsManager.onDragCard(window.getDatabaseNode(), draginfo);
+	local cardnode = window.getDatabaseNode();
+	CardsManager.onDragCard(cardnode, draginfo);
+
+	if window.onDragStart then
+		window.onDragStart(cardnode);
+	end
+
 	return true;
 end

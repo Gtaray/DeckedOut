@@ -1,17 +1,18 @@
 local winTooltip = nil;
 			
 function onInit()
-	-- highlight.setEnabled(false);
-
 	local node = getDatabaseNode();
 	DB.addHandler(DB.getPath(node, CardsManager.CARD_FACING_PATH), "onUpdate", onFacingChanged)
+	DB.addHandler(DB.getPath(node, "name"), "onUpdate", onNameChanged)
 
 	onFacingChanged();
+	onNameChanged();
 end
 
 function onClose()
 	local node = getDatabaseNode();
 	DB.removeHandler(DB.getPath(node, CardsManager.CARD_FACING_PATH), "onUpdate", onFacingChanged)
+	DB.removeHandler(DB.getPath(node, "name"), "onUpdate", onNameChanged)
 end
 
 function onFacingChanged(nodeUpdated)
@@ -29,6 +30,30 @@ function setCardSize(nWidth, nHeight)
 	cardback.setAnchoredWidth(nWidth);
 	cardback.setAnchoredHeight(nHeight);
 end
+
+-------------------------------
+-- TOOLTIP
+-------------------------------
+
+function onNameChanged(nodeUpdated)
+	image.setTooltipText(CardsManager.getCardName(getDatabaseNode()));
+end
+
+-------------------------------
+-- CARD ORDERING
+-------------------------------
+
+function getOrder()
+	return CardsManager.getCardOrder(getDatabaseNode())
+end
+
+function setOrder(nOrder)
+	return CardsManager.setCardOrder(getDatabaseNode(), nOrder);
+end
+
+-------------------------------
+-- ZOOM IN TOOLTIPS
+-------------------------------
 
 function onHover(hover)
 	if hover and winTooltip == nil then
