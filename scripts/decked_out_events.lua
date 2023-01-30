@@ -637,7 +637,7 @@ function onCardDroppedOnImage(cImageControl, x, y, draginfo)
 		local token = cImageControl.addToken(sToken, x, y)
 		TokenManager.autoTokenScale(token);
 
-		CardsManager.playCard(sRecord, bFacedown, DeckedOutUtilities.shouldPlayAndDiscard(), {})
+		CardsManager.playCard(sRecord, bFacedown, DeckedOutUtilities.shouldPlayAndDiscard(sRecord), {})
 
 		return token ~= nil;
 	end
