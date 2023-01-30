@@ -27,7 +27,7 @@ function onInit()
 		});
 
 		-- Create the GM hand node if it doesn't exist
-		local node = DB.createNode(CardManager.GM_HAND_PATH);
+		local node = DB.createNode(CardsManager.GM_HAND_PATH);
 		node.setPublic(true);
 	end
 

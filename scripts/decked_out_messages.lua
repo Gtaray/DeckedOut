@@ -51,7 +51,7 @@ function printCardPlayedMessage(tEventArgs, tEventTrace)
 	end
 
 	local bFacedown = tEventArgs.bFacedown == "true";
-	local sCardSource = CardManager.getCardSource(vCard);
+	local sCardSource = CardsManager.getCardSource(vCard);
 	if sCardSource == "storage" then return end
 
 	-- In this case, everything is public so the two messages can be the same
@@ -90,7 +90,7 @@ function printRandomCardPlayedMessage(tEventArgs, tEventTrace)
 	if not vCard then return end
 
 	local bFacedown = tEventArgs.bFacedown == "true";
-	local sCardSource = CardManager.getCardSource(vCard);
+	local sCardSource = CardsManager.getCardSource(vCard);
 	if sCardSource == "storage" then return end
 
 	-- In this case, everything is public so the two messages can be the same
@@ -263,7 +263,7 @@ function printCardGivenMessage(tEventArgs, tEventTrace)
 	if not vCard then return end
 
 	local bFacedown = tEventArgs.bFacedown == "true";
-	local sCardSource = CardManager.getCardSource(vCard);
+	local sCardSource = CardsManager.getCardSource(vCard);
 	if (not sCardSource) or sCardSource == "storage" then
 		return;
 	end
@@ -297,7 +297,7 @@ function printCardDealtMessage(tEventArgs, tEventTrace)
 	local vCard = DeckedOutUtilities.validateCard(tEventArgs.sCardNode);
 	if not vCard then return end
 
-	local sCardSource = CardManager.getCardSource(vCard);
+	local sCardSource = CardsManager.getCardSource(vCard);
 	if (not sCardSource) or sCardSource == "storage" then
 		return;
 	end
@@ -329,7 +329,7 @@ function printCardDealtFromDiscardMessage(tEventArgs, tEventTrace)
 	local vCard = DeckedOutUtilities.validateCard(tEventArgs.sCardNode);
 	if not vCard then return end
 
-	local sCardSource = CardManager.getCardSource(vCard);
+	local sCardSource = CardsManager.getCardSource(vCard);
 	if (not sCardSource) or sCardSource == "storage" then
 		return;
 	end
@@ -471,7 +471,7 @@ function getUserDisplayNameForCard(vCard)
 	if Session.IsHost then
 		return "The GM";
 	else
-		return ActorManager.getDisplayName(CardManager.getActorHoldingCard(vCard));
+		return ActorManager.getDisplayName(CardsManager.getActorHoldingCard(vCard));
 	end
 end
 
@@ -518,7 +518,7 @@ end
 function resolveCardVisibility(msg, sSenderName, sReceiverName, sMessageId)
 	local sSetting = nil;
 
-	local vDeck = CardManager.getDeckNodeFromCard(msg.card_link);
+	local vDeck = CardsManager.getDeckNodeFromCard(msg.card_link);
 	if not vDeck then return true end -- Would be weird if this happened
 
 	-- We resolve facedown cards first because by default they're never visible
@@ -586,7 +586,7 @@ function formatChatMessage(msgOOB, sMessageId)
 
 	local sCardName = nil;
 	if msgOOB.card_link then
-		sCardName = CardManager.getCardName(msgOOB.card_link);
+		sCardName = CardsManager.getCardName(msgOOB.card_link);
 		bShowCard = resolveCardVisibility(msgOOB, sSenderName, sReceiverName, sMessageId)
 		
 		if not bShowCard then
@@ -617,7 +617,6 @@ end
 function buildCardMessage(msgOOB, sRecipientIdentity)
 	local msg = {};
 
-	-- TODO: Add an extra icon here based on msg.action
 	msg.icon = {};
 	if msgOOB.sender == "gm" then
 		table.insert(msg.icon, "portrait_gm_token");

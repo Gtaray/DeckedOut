@@ -77,7 +77,7 @@ DONE
 	* Disable drag/drop when the hand is hidden
 * When a character recieves a card, auto-open their hand
 * When the gm receives a card, auto-open their hand
-* Separate CardManager into card, deck, and cardstorage managers.
+* Separate CardsManager into card, deck, and cardstorage managers.
 * Add CardStorage, and intercept cards dropped in chat so that links are preserved even as cards move around
 * Drag and drop onto portraits
 * First pass at radial options

@@ -11,7 +11,7 @@ function onClose()
 end
 
 function getHandPath()
-	return CardManager.getHandPath(window.getDatabaseNode().getName());
+	return CardsManager.getHandPath(window.getDatabaseNode().getName());
 end
 
 function getDeckIdCardPath()
@@ -31,7 +31,7 @@ function getIdentity()
 end
 
 function onHandUpdated()
-	local nCur = CardManager.getNumberOfCardsFromDeckInHand(getDeckNode(), getIdentity())
+	local nCur = CardsManager.getNumberOfCardsFromDeckInHand(getDeckNode(), getIdentity())
 
 	if nCur == 1 then
 		setValue(Interface.getString("deckbox_format_character_cardcount_one"));

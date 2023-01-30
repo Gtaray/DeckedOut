@@ -7,10 +7,10 @@ function onInit()
 	
 	registerMenuItem(Interface.getString("card_menu_play_face_up"), "play_faceup", 1);
 	registerMenuItem(Interface.getString("card_menu_play_face_down"), "play_facedown", 5)
-	if not CardManager.isCardInDeck(card) then
+	if not CardsManager.isCardInDeck(card) then
 		registerMenuItem(Interface.getString("card_menu_reshuffle"), "reshuffle_card", 6)
 	end
-	if not CardManager.isCardDiscarded(card) then
+	if not CardsManager.isCardDiscarded(card) then
 		registerMenuItem(Interface.getString("card_menu_discard_card"), "discard_card", 7);
 	end
 
@@ -35,12 +35,12 @@ function onCardFlipped()
 	end
 
 	local vCard = window.getDatabaseNode();
-	if not CardManager.isCardInHand(vCard) then
+	if not CardsManager.isCardInHand(vCard) then
 		return;
 	end
 
 	local text;
-	if CardManager.isCardFaceUp(vCard) then	
+	if CardsManager.isCardFaceUp(vCard) then	
 		text = Interface.getString("card_menu_flip_facedown");
 	else
 		text = Interface.getString("card_menu_flip_faceup");
@@ -57,14 +57,14 @@ function onMenuSelection(selection)
 	elseif selection == 2 then
 		DesktopManager.peekCard(window.getDatabaseNode());
 	elseif selection == 3 then
-		CardManager.flipCardFacing(window.getDatabaseNode(), {})
+		CardsManager.flipCardFacing(window.getDatabaseNode(), {})
 	elseif selection == 5 then
 		playCard(true);
 	elseif selection == 6 then
-		CardManager.putCardBackInDeck(window.getDatabaseNode(), DeckedOutUtilities.getFacedownHotkey(), {});
+		CardsManager.putCardBackInDeck(window.getDatabaseNode(), DeckedOutUtilities.getFacedownHotkey(), {});
 	elseif selection == 7 then
 		-- We pass in nil for sIdentity because discardCard gets the user identity for us
-		CardManager.discardCard(window.getDatabaseNode(), DeckedOutUtilities.getFacedownHotkey(), nil, {});
+		CardsManager.discardCard(window.getDatabaseNode(), DeckedOutUtilities.getFacedownHotkey(), nil, {});
 	end
 end
 
@@ -74,8 +74,8 @@ end
 
 function playCard(bFacedown)
 	local vCard = window.getDatabaseNode();
-	local vDeck = CardManager.getDeckNodeFromCard(vCard);
+	local vDeck = CardsManager.getDeckNodeFromCard(vCard);
 
 	local bDiscard = DeckManager.getDeckSetting(vDeck, DeckManager.DECK_SETTING_AUTO_PLAY_FROM_HAND) == "yes"
-	CardManager.playCard(vCard, bFacedown, bDiscard or DeckedOutUtilities.getPlayAndDiscardHotkey(), {});
+	CardsManager.playCard(vCard, bFacedown, bDiscard or DeckedOutUtilities.getPlayAndDiscardHotkey(), {});
 end

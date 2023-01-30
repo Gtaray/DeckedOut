@@ -7,15 +7,15 @@ function onInit()
 end
 
 function onCharacterDeleted(node)
-	local handnode = node.getChild(CardManager.PLAYER_HAND_PATH);
+	local handnode = node.getChild(CardsManager.PLAYER_HAND_PATH);
 	if not handnode then
 		return
 	end
 
 	for k,card in pairs(handnode.getChildren()) do
-		local deck = CardManager.getDeckNodeFromCard(card);
+		local deck = CardsManager.getDeckNodeFromCard(card);
 		if deck then
-			CardManager.moveCard(card, DeckManager.getDiscardNode(deck), {});
+			CardsManager.moveCard(card, DeckManager.getDiscardNode(deck), {});
 		end
 	end
 end
@@ -46,7 +46,7 @@ function dealCard(vDeck, sIdentity, bFacedown, tEventTrace)
 		-- and sCardNode would be nil by the time a handler got to it otherwise (as it was moved from the deck)
 		-- This makes sure that the trace stack is preserved, while still having the event fire second
 		tEventTrace = DeckedOutEvents.addEventTrace(tEventTrace, DeckedOutEvents.DECKEDOUT_EVENT_CARD_DEALT);
-		local card = CardManager.addCardToHand(aCards[1], sIdentity, bFacedown, tEventTrace);
+		local card = CardsManager.addCardToHand(aCards[1], sIdentity, bFacedown, tEventTrace);
 		DeckedOutEvents.raiseOnDealCardEvent(card, sIdentity, bFacedown, tEventTrace);
 		return card;
 	end
@@ -152,10 +152,10 @@ function addCardToDeck(vCard)
 	vCard = DeckedOutUtilities.validateCard(vCard);
 	if not vDeck then return end
 
-	local vDeck = DeckedOutUtilities.validateDeck(CardManager.getDeckIdFromCard(vCard));
+	local vDeck = DeckedOutUtilities.validateDeck(CardsManager.getDeckIdFromCard(vCard));
 	if not vDeck then return end
 
-	return CardManager.moveCard(vCard, DeckManager.getCardsNode(vDeck));
+	return CardsManager.moveCard(vCard, DeckManager.getCardsNode(vDeck));
 end
 
 ------------------------------------------
@@ -170,7 +170,7 @@ function moveDiscardPileIntoDeck(vDeck)
 
 	local cardsNode = DeckManager.getCardsNode(vDeck);
 	for k,cardNode in pairs(DeckManager.getDiscardNode(vDeck).getChildren()) do
-		CardManager.moveCard(cardNode, cardsNode);
+		CardsManager.moveCard(cardNode, cardsNode);
 	end
 end
 

@@ -1,15 +1,16 @@
 GM_HAND_PATH = "gmhand";
 PLAYER_HAND_PATH = "cards";
 CARD_FACING_PATH = "faceup";
+CARD_ORDER_PATH = "order";
 
 OOB_MSGTYPE_DROPCARD = "dropcard";
 OOB_MSGTYPE_DISCARD = "discard"
 OOB_MSGTYPE_PUTCARDBACKINDECK = "putcardbackindeck";
 
 function onInit()
-	OOBManager.registerOOBMsgHandler(CardManager.OOB_MSGTYPE_DROPCARD, handleCardDrop);
-	OOBManager.registerOOBMsgHandler(CardManager.OOB_MSGTYPE_DISCARD, handleDiscard);
-	OOBManager.registerOOBMsgHandler(CardManager.OOB_MSGTYPE_PUTCARDBACKINDECK, handlePutCardBackInDeck);
+	OOBManager.registerOOBMsgHandler(CardsManager.OOB_MSGTYPE_DROPCARD, handleCardDrop);
+	OOBManager.registerOOBMsgHandler(CardsManager.OOB_MSGTYPE_DISCARD, handleDiscard);
+	OOBManager.registerOOBMsgHandler(CardsManager.OOB_MSGTYPE_PUTCARDBACKINDECK, handlePutCardBackInDeck);
 end
 
 ------------------------------------------
@@ -34,9 +35,10 @@ function moveCard(vCard, vDestination, tEventTrace)
 	DB.copyNode(vCard, newNode);
 	vCard.delete();
 
-	-- if the card was moved to anywhere other than a hand, delete the facing node
-	if not CardManager.isCardInHand(newNode) then
-		CardManager.deleteFacingNode(newNode);
+	-- if the card was moved to anywhere other than a hand, delete the facing and order node
+	if not CardsManager.isCardInHand(newNode) then
+		CardsManager.deleteFacingNode(newNode);
+		CardsManager.deleteCardOrder(newNode);
 	end
 
 	tEventTrace = DeckedOutEvents.raiseOnCardMovedEvent(newNode, sOldCardNode, tEventTrace);
@@ -58,13 +60,13 @@ function addCardToHand(vCard, sIdentity, bFacedown, tEventTrace)
 	if not handNode then return end
 
 	if bFacedown then
-		CardManager.setCardFaceDown(vCard)
+		CardsManager.setCardFaceDown(vCard)
 	else
-		CardManager.setCardFaceUp(vCard);
+		CardsManager.setCardFaceUp(vCard);
 	end
 
 	tEventTrace = DeckedOutEvents.addEventTrace(tEventTrace, DeckedOutEvents.DECKEDOUT_EVENT_CARD_ADDED_TO_HAND);
-	local card = CardManager.moveCard(vCard, handNode, tEventTrace);
+	local card = CardsManager.moveCard(vCard, handNode, tEventTrace);
 
 	DeckedOutEvents.raiseOnCardAddedToHandEvent(card, sIdentity, bFacedown, tEventTrace);
 	
@@ -89,11 +91,11 @@ function discardCard(vCard, bFacedown, sIdentity, tEventTrace)
 		return;
 	end
 
-	local vDeck = DeckedOutUtilities.validateDeck(CardManager.getDeckIdFromCard(vCard));
+	local vDeck = DeckedOutUtilities.validateDeck(CardsManager.getDeckIdFromCard(vCard));
 	if not vDeck then
 		-- If there's no vDeck present, then this could be a case of a dead card
 		-- Check to see if it's other data is empty, and if so, delete it.
-		if (CardManager.getCardFront(vCard) or "") == "" then
+		if (CardsManager.getCardFront(vCard) or "") == "" then
 			vCard.delete();
 			return;
 		end
@@ -110,7 +112,7 @@ function discardCard(vCard, bFacedown, sIdentity, tEventTrace)
 	end
 
 	tEventTrace = DeckedOutEvents.addEventTrace(tEventTrace, DeckedOutEvents.DECKEDOUT_EVENT_CARD_DISCARDED);
-	local card = CardManager.moveCard(vCard, discardNode, tEventTrace);
+	local card = CardsManager.moveCard(vCard, discardNode, tEventTrace);
 	DeckedOutEvents.raiseOnDiscardFromHandEvent(card, sIdentity, bFacedown, tEventTrace);
 end
 
@@ -122,8 +124,8 @@ function discardHand(sIdentity, tEventTrace)
 
 	tEventTrace = DeckedOutEvents.raiseOnHandDiscardedEvent(sIdentity, nil, tEventTrace);
 
-	for k,card in pairs(CardManager.getHandNode(sIdentity).getChildren()) do
-		CardManager.discardCard(card, true, sIdentity, tEventTrace);
+	for k,card in pairs(CardsManager.getHandNode(sIdentity).getChildren()) do
+		CardsManager.discardCard(card, true, sIdentity, tEventTrace);
 	end
 end
 
@@ -140,9 +142,9 @@ function discardCardsInHandFromDeck(vDeck, sIdentity, tEventTrace)
 	tEventTrace = DeckedOutEvents.raiseOnHandDiscardedEvent(sIdentity, vDeck, tEventTrace);
 
 	sDeckId = DeckManager.getDeckId(vDeck);
-	for k,card in pairs(CardManager.getHandNode(sIdentity).getChildren()) do
-		if CardManager.getDeckIdFromCard(card) == sDeckId then
-			CardManager.discardCard(card, false, sIdentity, tEventTrace);
+	for k,card in pairs(CardsManager.getHandNode(sIdentity).getChildren()) do
+		if CardsManager.getDeckIdFromCard(card) == sDeckId then
+			CardsManager.discardCard(card, false, sIdentity, tEventTrace);
 		end
 	end
 end
@@ -157,18 +159,18 @@ function putCardBackInDeck(vCard, bFacedown, tEventTrace)
 
 	-- If we're not the host, then we need to send an OOB
 	if not Session.IsHost then
-		CardManager.sendPutCardBackInDeckMsg(vCard, bFacedown, tEventTrace);
+		CardsManager.sendPutCardBackInDeckMsg(vCard, bFacedown, tEventTrace);
 		return;
 	end
 
-	local vDeck = CardManager.getDeckNodeFromCard(vCard);
+	local vDeck = CardsManager.getDeckNodeFromCard(vCard);
 	if not DeckedOutUtilities.validateDeck(vDeck) then return end
 
-	local sIdentity = CardManager.getCardSource(vCard);
+	local sIdentity = CardsManager.getCardSource(vCard);
 	if not DeckedOutUtilities.validateIdentity(sIdentity) then return end
 
 	tEventTrace = DeckedOutEvents.addEventTrace(tEventTrace, DeckedOutEvents.DECKEDOUT_EVENT_CARD_PUT_BACK_IN_DECK);
-	local card = CardManager.moveCard(vCard, DeckManager.getCardsNode(vDeck), tEventTrace)
+	local card = CardsManager.moveCard(vCard, DeckManager.getCardsNode(vDeck), tEventTrace)
 	if card then
 		tEventTrace = DeckedOutEvents.raiseOnCardReturnedToDeckEvent(card, vDeck, sIdentity, {});
 	end
@@ -184,10 +186,10 @@ function putHandBackIntoDeck(sIdentity, tEventTrace)
 
 	tEventTrace = DeckedOutEvents.raiseOnHandReturnedToDeckEvent(sIdentity, nil, tEventTrace)
 
-	for k,card in pairs(CardManager.getHandNode(sIdentity).getChildren()) do
-		local vDeck = DeckedOutUtilities.validateDeck(CardManager.getDeckIdFromCard(card));
+	for k,card in pairs(CardsManager.getHandNode(sIdentity).getChildren()) do
+		local vDeck = DeckedOutUtilities.validateDeck(CardsManager.getDeckIdFromCard(card));
 		if vDeck then
-			local cardAfterMoved = CardManager.moveCard(card, DeckManager.getCardsNode(vDeck), tEventTrace)
+			local cardAfterMoved = CardsManager.moveCard(card, DeckManager.getCardsNode(vDeck), tEventTrace)
 		end
 	end
 end
@@ -205,11 +207,11 @@ function putCardsFromDeckInHandBackIntoDeck(vDeck, sIdentity, tEventTrace)
 
 	tEventTrace = DeckedOutEvents.raiseOnHandReturnedToDeckEvent(sIdentity, vDeck, tEventTrace)
 
-	for k,card in pairs(CardManager.getHandNode(sIdentity).getChildren()) do
-		local deckid = CardManager.getDeckIdFromCard(card);
+	for k,card in pairs(CardsManager.getHandNode(sIdentity).getChildren()) do
+		local deckid = CardsManager.getDeckIdFromCard(card);
 		local deckNode = DB.findNode(deckid)
 		if deckNode and deckid == sDeckId then
-			CardManager.moveCard(card, DeckManager.getCardsNode(deckNode), tEventTrace)
+			CardsManager.moveCard(card, DeckManager.getCardsNode(deckNode), tEventTrace)
 		end
 	end
 end
@@ -223,18 +225,18 @@ function playCard(vCard, bFacedown, bDiscard, tEventTrace)
 	local vCard = DeckedOutUtilities.validateCard(vCard);
 	if not vCard then return end
 
-	local vDeck = DeckedOutUtilities.validateDeck(CardManager.getDeckNodeFromCard(vCard));
+	local vDeck = DeckedOutUtilities.validateDeck(CardsManager.getDeckNodeFromCard(vCard));
 	if not vDeck then return end
 
 	DeckedOutEvents.raiseOnCardPlayedEvent(vCard, bFacedown, bDiscard, tEventTrace)
 
 	if bDiscard then
-		local sIdentity = CardManager.getCardSource(vCard);
-		CardManager.discardCard(vCard, bFacedown, sIdentity, tEventTrace);
+		local sIdentity = CardsManager.getCardSource(vCard);
+		CardsManager.discardCard(vCard, bFacedown, sIdentity, tEventTrace);
 	else
 		-- The most minor of optimizations
 		-- Don't flip the card face up if it's getting discarded
-		CardManager.setCardFaceUp(vCard);
+		CardsManager.setCardFaceUp(vCard);
 	end
 end
 
@@ -246,12 +248,12 @@ end
 function playRandomCard(sIdentity, bFacedown, bDiscard, tEventTrace)
 	if not DeckedOutUtilities.validateIdentity(sIdentity) then return end
 
-	local aCards = CardManager.getRandomCardsInHand(sIdentity, 1);
+	local aCards = CardsManager.getRandomCardsInHand(sIdentity, 1);
 
 	if aCards and aCards[1] then
 		-- tEventTrace = DeckedOutEvents.addEventTrace(tEventTrace, DeckedOutEvents.DECKEDOUT_EVENT_HAND_PLAY_RANDOM);
 		DeckedOutEvents.raiseOnPlayRandomCardEvent(aCards[1], bFacedown, tEventTrace)
-		CardManager.playCard(aCards[1], bFacedown, bDiscard, tEventTrace);
+		CardsManager.playCard(aCards[1], bFacedown, bDiscard, tEventTrace);
 		
 	end
 end
@@ -264,11 +266,11 @@ end
 function discardRandomCard(sIdentity, bFacedown, tEventTrace)
 	if not DeckedOutUtilities.validateIdentity(sIdentity) then return end
 
-	local aCards = CardManager.getRandomCardsInHand(sIdentity, 1);
+	local aCards = CardsManager.getRandomCardsInHand(sIdentity, 1);
 	
 	if aCards and aCards[1] then
 		tEventTrace = DeckedOutEvents.raiseOnDiscardRandomCardEvent(aCards[1], sIdentity, bFacedown, nil, tEventTrace)
-		CardManager.discardCard(aCards[1], bFacedown, sIdentity, tEventTrace);
+		CardsManager.discardCard(aCards[1], bFacedown, sIdentity, tEventTrace);
 	end
 end
 
@@ -280,11 +282,11 @@ end
 function discardRandomCardFromDeck(vDeck, sIdentity, bFacedown, tEventTrace)
 	if not DeckedOutUtilities.validateIdentity(sIdentity) then return end
 
-	local aCards = CardManager.getRandomCardsInHand(sIdentity, 1, vDeck);
+	local aCards = CardsManager.getRandomCardsInHand(sIdentity, 1, vDeck);
 
 	if aCards and aCards[1] then
 		DeckedOutEvents.raiseOnDiscardRandomCardEvent(aCards[1], sIdentity, bFacedown, vDeck, tEventTrace)
-		CardManager.discardCard(aCards[1], bFacedown, sIdentity, tEventTrace);
+		CardsManager.discardCard(aCards[1], bFacedown, sIdentity, tEventTrace);
 	end
 end
 
@@ -294,12 +296,12 @@ function flipCardFacing(vCard, tEventTrace)
 	vCard = DeckedOutUtilities.validateCard(vCard);
 	if not vCard then return end
 
-	if CardManager.isCardFaceUp(vCard) then
-		DeckedOutEvents.raiseOnCardFlippedEvent(vCard, CardManager.getCardSource(vCard), 0, tEventTrace)
-		CardManager.setCardFaceDown(vCard);
+	if CardsManager.isCardFaceUp(vCard) then
+		DeckedOutEvents.raiseOnCardFlippedEvent(vCard, CardsManager.getCardSource(vCard), 0, tEventTrace)
+		CardsManager.setCardFaceDown(vCard);
 	else
-		DeckedOutEvents.raiseOnCardFlippedEvent(vCard, CardManager.getCardSource(vCard), 1, tEventTrace)
-		CardManager.setCardFaceUp(vCard);
+		DeckedOutEvents.raiseOnCardFlippedEvent(vCard, CardsManager.getCardSource(vCard), 1, tEventTrace)
+		CardsManager.setCardFaceUp(vCard);
 	end
 end
 
@@ -311,7 +313,7 @@ end
 ---@param sIdentity string Character identity (or 'gm')
 ---@return databasenode
 function getHandNode(sIdentity)
-	return DB.createNode(CardManager.getHandPath(sIdentity));
+	return DB.createNode(CardsManager.getHandPath(sIdentity));
 end
 
 ---Returns the full DB path for an identity's hand node
@@ -321,9 +323,9 @@ function getHandPath(sIdentity)
 	if not DeckedOutUtilities.validateIdentity(sIdentity) then return end
 
 	if sIdentity == "gm" then
-		return CardManager.GM_HAND_PATH;
+		return CardsManager.GM_HAND_PATH;
 	else
-		return DB.getPath("charsheet", sIdentity, CardManager.PLAYER_HAND_PATH);
+		return DB.getPath("charsheet", sIdentity, CardsManager.PLAYER_HAND_PATH);
 	end
 end
 
@@ -331,7 +333,7 @@ end
 ---@param sIdentity string Character identity (or 'gm')
 ---@return table cards A table of card database nodes, indexed by the node name
 function getCardsInHand(sIdentity)
-	local handNode = CardManager.getHandNode(sIdentity);
+	local handNode = CardsManager.getHandNode(sIdentity);
 	return DB.getChildren(handNode);
 end
 
@@ -340,7 +342,7 @@ end
 ---@return number
 function getNumberOfCardsInHand(sIdentity)
 	if not DeckedOutUtilities.validateIdentity(sIdentity) then return end
-	return CardManager.getHandNode(sIdentity).getChildCount();
+	return CardsManager.getHandNode(sIdentity).getChildCount();
 end
 
 ---Gets the number of cards in an identity's hand that originate from a specific deck
@@ -354,8 +356,8 @@ function getNumberOfCardsFromDeckInHand(vDeck, sIdentity)
 
 	local nCount = 0;
 	local sDeckId = DeckManager.getDeckId(vDeck);
-	for k,card in pairs(CardManager.getHandNode(sIdentity).getChildren()) do
-		local deckid = CardManager.getDeckIdFromCard(card);
+	for k,card in pairs(CardsManager.getHandNode(sIdentity).getChildren()) do
+		local deckid = CardsManager.getDeckIdFromCard(card);
 		local deckNode = DB.findNode(deckid)
 		if deckNode and deckid == sDeckId then
 			nCount = nCount + 1;
@@ -378,9 +380,9 @@ function getRandomCardsInHand(sIdentity, nNumberOfCards, vDeck)
 	end
 
 	local aCards = {};
-	for k,v in pairs(CardManager.getCardsInHand(sIdentity)) do
+	for k,v in pairs(CardsManager.getCardsInHand(sIdentity)) do
 		if sDeckId then
-			if CardManager.getDeckIdFromCard(v) == sDeckId then
+			if CardsManager.getDeckIdFromCard(v) == sDeckId then
 				table.insert(aCards, v);
 			end
 		else
@@ -410,7 +412,7 @@ end
 ---@param tEventTrace table
 function sendPutCardBackInDeckMsg(vCard, bFacedown, tEventTrace)
 	local msg = {};
-	msg.type = CardManager.OOB_MSGTYPE_PUTCARDBACKINDECK;
+	msg.type = CardsManager.OOB_MSGTYPE_PUTCARDBACKINDECK;
 	msg.sCardRecord = vCard.getNodeName();
 	if bFacedown then
 		msg.bFacedown = "true";
@@ -446,7 +448,7 @@ function handlePutCardBackInDeck(msgOOB)
 		value = msgOOB[key];
 	end
 
-	CardManager.putCardBackInDeck(msgOOB.sCardRecord, msgOOB.bFacedown == "true", tEventTrace);
+	CardsManager.putCardBackInDeck(msgOOB.sCardRecord, msgOOB.bFacedown == "true", tEventTrace);
 end
 
 ------------------------------------------
@@ -460,7 +462,7 @@ end
 ---@param tEventTrace Event trace table
 function sendDiscardMsg(vCard, bFacedown, sIdentity, tEventTrace)
 	local msg = {};
-	msg.type = CardManager.OOB_MSGTYPE_DISCARD;
+	msg.type = CardsManager.OOB_MSGTYPE_DISCARD;
 	msg.sCardRecord = vCard.getNodeName();
 	msg.sSender = sIdentity;
 
@@ -492,7 +494,7 @@ function handleDiscard(msgOOB)
 		value = msgOOB[key];
 	end
 
-	CardManager.discardCard(msgOOB.sCardRecord, msgOOB.bFacedown == "true", msgOOB.sSender, tEventTrace);
+	CardsManager.discardCard(msgOOB.sCardRecord, msgOOB.bFacedown == "true", msgOOB.sSender, tEventTrace);
 end
 
 ------------------------------------------
@@ -528,7 +530,7 @@ function isCardInHand(vCard)
 	vCard = DeckedOutUtilities.validateCard(vCard);
 	if not vCard then return end
 
-	return CardManager.isCardOwnedByCharacter(vCard) or CardManager.isCardOwnedByGm(vCard);
+	return CardsManager.isCardOwnedByCharacter(vCard) or CardsManager.isCardOwnedByGm(vCard);
 end
 
 ---Checks if a card is currently in a character's hand
@@ -546,7 +548,7 @@ end
 function isCardOwnedByGm(vCard)
 	vCard = DeckedOutUtilities.validateCard(vCard);
 	if not vCard then return end
-	return StringManager.startsWith(vCard.getNodeName(), CardManager.GM_HAND_PATH);
+	return StringManager.startsWith(vCard.getNodeName(), CardsManager.GM_HAND_PATH);
 end
 
 ---Gets the full database path of the deck from which a card originates
@@ -566,7 +568,7 @@ function getDeckNodeFromCard(vCard)
 	vCard = DeckedOutUtilities.validateCard(vCard);
 	if not vCard then return end
 
-	return DeckedOutUtilities.validateDeck(CardManager.getDeckIdFromCard(vCard));
+	return DeckedOutUtilities.validateDeck(CardsManager.getDeckIdFromCard(vCard));
 end
 
 ---Gets the name of the deck from which a card originates
@@ -589,8 +591,8 @@ function doesCardComeFromDeck(vDeck, vCard)
 	vDeck = DeckedOutUtilities.validateDeck(vDeck);
 	if not vDeck then return end
 
-	return CardManager.getDeckIdFromCard(vCard) == CardManager.getDeckId(vDeck) and
-		   CardManager.getDeckNameFromCard(vCard) == CardManager.getDeckName(vDeck);
+	return CardsManager.getDeckIdFromCard(vCard) == CardsManager.getDeckId(vDeck) and
+		   CardsManager.getDeckNameFromCard(vCard) == CardsManager.getDeckName(vDeck);
 end
 
 ---Gets the token prototype for the back of a card's deck
@@ -600,7 +602,7 @@ function getCardBack(vCard)
 	vCard = DeckedOutUtilities.validateCard(vCard);
 	if not vCard then return end
 
-	return DeckManager.getDecksCardBack(CardManager.getDeckIdFromCard(vCard));
+	return DeckManager.getDecksCardBack(CardsManager.getDeckIdFromCard(vCard));
 end
 
 ---Gets the token prototype for a card
@@ -636,7 +638,7 @@ function getCardSource(vCard)
 		return "storage";
 	end
 
-	if CardManager.isCardInHand(vCard) then
+	if CardsManager.isCardInHand(vCard) then
 		if StringManager.startsWith(vCard.getNodeName(), "charsheet") then
 			return vCard.getChild("...").getName();
 		end
@@ -652,7 +654,7 @@ function getActorHoldingCard(vCard)
 	vCard = DeckedOutUtilities.validateCard(vCard);
 	if not vCard then return end
 
-	if not CardManager.isCardOwnedByCharacter(vCard) then
+	if not CardsManager.isCardOwnedByCharacter(vCard) then
 		return;
 	end
 
@@ -669,7 +671,7 @@ function isActorHoldingCard(vCard, rActor)
 	if not DeckedOutUtilities.validateParameter(rActor, "rActor") then return false end
 
 	-- Check if the source is the GM or storage
-	local sSource = CardManager.getCardSource(vCard)
+	local sSource = CardsManager.getCardSource(vCard)
 	if sSource == "gm" or sSource == "storage" then
 		return false;
 	end
@@ -685,11 +687,11 @@ function isCardFaceUp(vCard)
 	if not vCard then return false end
 
 	-- cards can only be facedown in hand. If the card isn't in a hand, then it's always face up
-	if not CardManager.isCardInHand(vCard) then
+	if not CardsManager.isCardInHand(vCard) then
 		return true;
 	end
 
-	return CardManager.getCardFacing(vCard) == 1;
+	return CardsManager.getCardFacing(vCard) == 1;
 end
 
 ---Is Card Face up
@@ -700,11 +702,11 @@ function isCardFaceDown(vCard)
 	if not vCard then return false end
 
 	-- cards can only be facedown in hand. If the card isn't in a hand, then it's always face up
-	if not CardManager.isCardInHand(vCard) then
+	if not CardsManager.isCardInHand(vCard) then
 		return false;
 	end
 
-	return CardManager.getCardFacing(vCard) == 0;
+	return CardsManager.getCardFacing(vCard) == 0;
 end
 
 ---Gets the card facing number. 1 = face up, 0 = face down
@@ -715,11 +717,11 @@ function getCardFacing(vCard)
 	if not vCard then return 0 end
 
 	-- cards can only be facedown in hand. If the card isn't in a hand, then it's always face up
-	if not CardManager.isCardInHand(vCard) then
+	if not CardsManager.isCardInHand(vCard) then
 		return 1;
 	end
 
-	return DB.getValue(vCard, CardManager.CARD_FACING_PATH, 1);
+	return DB.getValue(vCard, CardsManager.CARD_FACING_PATH, 1);
 end
 
 ---Sets a card face up if it's in a hand
@@ -728,7 +730,7 @@ function setCardFaceUp(vCard)
 	vCard = DeckedOutUtilities.validateCard(vCard);
 	if not vCard then return end
 
-	CardManager.setCardFacing(vCard, 1);
+	CardsManager.setCardFacing(vCard, 1);
 end
 
 ---Sets a card face down if it's in a hand
@@ -737,7 +739,7 @@ function setCardFaceDown(vCard)
 	vCard = DeckedOutUtilities.validateCard(vCard);
 	if not vCard then return end
 
-	CardManager.setCardFacing(vCard, 0);
+	CardsManager.setCardFacing(vCard, 0);
 end
 
 ---Sets a card face up for face down
@@ -748,7 +750,7 @@ function setCardFacing(vCard, nFacing)
 	if not vCard then return end
 
 	-- if the card is in a hand, we can set the facing
-	DB.setValue(vCard, CardManager.CARD_FACING_PATH, "number", nFacing)
+	DB.setValue(vCard, CardsManager.CARD_FACING_PATH, "number", nFacing)
 end
 
 ---Deletes the facup node for a card
@@ -757,7 +759,39 @@ function deleteFacingNode(vCard)
 	vCard = DeckedOutUtilities.validateCard(vCard);
 	if not vCard then return end
 
-	DB.deleteChild(vCard, CardManager.CARD_FACING_PATH);
+	DB.deleteChild(vCard, CardsManager.CARD_FACING_PATH);
+end
+
+---Gets the order value of a card in a hand
+---@param vCard databasenode|string
+---@return number
+function getCardOrder(vCard)
+	vCard = DeckedOutUtilities.validateCard(vCard);
+	if not vCard then return end
+
+	return DB.getValue(vCard, CardsManager.CARD_ORDER_PATH, 0);
+end
+
+---Sets the order value of a card in a hand
+---@param vCard databasenode|string
+---@param nOrder number
+function setCardOrder(vCard, nOrder)
+	vCard = DeckedOutUtilities.validateCard(vCard);
+	if not vCard then return end
+
+	if nOrder == nil then
+		nOrder = 0;
+	end
+	DB.setValue(vCard, CardsManager.CARD_ORDER_PATH, "number", nOrder);
+end
+
+---Deletes the order node from a card node
+---@param vCard databasenode|string
+function deleteCardOrder(vCard)
+	vCard = DeckedOutUtilities.validateCard(vCard);
+	if not vCard then return end
+
+	DB.deleteChild(vCard, CardsManager.CARD_ORDER_PATH);
 end
 ------------------------------------------
 -- DRAG DROP
@@ -773,7 +807,7 @@ function onDragFromDeck(vDeck, draginfo)
 	local vCard = DeckedOutUtilities.validateCard(DeckManager.drawCard(vDeck));
 	if not vCard then return end
 
-	CardManager.onDragCard(vCard, draginfo);
+	CardsManager.onDragCard(vCard, draginfo);
 
 	local bFacedown = DeckManager.dealFacedownByDefault(vDeck) 
 					  or DeckedOutUtilities.getFacedownHotkey();
@@ -789,7 +823,7 @@ function onDragFromDeck(vDeck, draginfo)
 
 	-- Check if the GM should see the card being dealt (which is separate from the card being dealt face down)
 	if sDealVisSetting == "actor" or sDealVisSetting == "none" or (bFacedown and not bGmSeesFacedown) then
-		draginfo.setTokenData(CardManager.getCardBack(vCard));
+		draginfo.setTokenData(CardsManager.getCardBack(vCard));
 	else
 		draginfo.setTokenData(DB.getValue(vCard, "image", ""));
 	end
@@ -804,14 +838,14 @@ function onDragCard(vCard, draginfo)
 	vCard = DeckedOutUtilities.validateCard(vCard);
 	if not vCard then return end
 
-	if (CardManager.getCardFront(vCard) or "") == "" then
+	if (CardsManager.getCardFront(vCard) or "") == "" then
 		return true;
 	end
 
 	local bFacedown = DeckedOutUtilities.getFacedownHotkey();
 
 	-- This determines whether the GM should see the card being dragged
-	local bShowCardBack = bFacedown or CardManager.isCardFaceDown(vCard);
+	local bShowCardBack = bFacedown or CardsManager.isCardFaceDown(vCard);
 
 	draginfo.setType("shortcut");
 	draginfo.setShortcutData("card", vCard.getPath());
@@ -819,7 +853,7 @@ function onDragCard(vCard, draginfo)
 	-- The number data is used to determine whether cards should be dealt facedown
 	-- which can be independent of the token that's displayed
 	if bShowCardBack then
-		draginfo.setTokenData(CardManager.getCardBack(vCard));
+		draginfo.setTokenData(CardsManager.getCardBack(vCard));
 		draginfo.setNumberData(0);
 	else
 		draginfo.setTokenData(DB.getValue(vCard, "image", ""));
@@ -838,7 +872,7 @@ end
 ---@return boolean
 function onDropCard(draginfo, vDestination, sExtra)
 	if not draginfo then
-		Debug.console("ERROR: CardManager.onDropCard(): draginfo was nil or not found.");
+		Debug.console("ERROR: CardsManager.onDropCard(): draginfo was nil or not found.");
 		return false;
 	end
 	local vDestination = DeckedOutUtilities.validateNode(vDestination, "vDestination");
@@ -868,7 +902,7 @@ function onDropCard(draginfo, vDestination, sExtra)
 		-- to grab cards from chat. GMs can always do this, and they're allowed
 		-- to grab from anywhere, not just discards
 		local bAllowPlayerGrab = DeckManager.getDeckSetting(
-			CardManager.getDeckNodeFromCard(sRecord), 
+			CardsManager.getDeckNodeFromCard(sRecord), 
 			DeckManager.DECK_SETTING_PLAYERS_CAN_GRAB_DISCARDS) == "yes";
 
 		-- Do all the negative checks first for ease of readability.
@@ -896,11 +930,11 @@ function onDropCard(draginfo, vDestination, sExtra)
 	sDestPath = vDestination.getNodeName();
 
 	if not Session.IsHost then
-		CardManager.sendCardDropMessage(sRecord, sDestPath, sExtra, bFacedown);
+		CardsManager.sendCardDropMessage(sRecord, sDestPath, sExtra, bFacedown);
 		return true;
 	end
 
-	return CardManager.handleAnyDrop(sRecord, sDestPath, sExtra, bFacedown);
+	return CardsManager.handleAnyDrop(sRecord, sDestPath, sExtra, bFacedown);
 end
 
 ---Handles dropping a card on any target
@@ -908,6 +942,7 @@ end
 ---@param sDestinationNode string DB path id of the location the card is being dropped on
 ---@param sExtra string If this is equal to DeckManager.DECK_DISCARD_PATH, then the card is sent to the deck's discard pile
 ---@return boolean
+---@return databasenode card node in its new location
 function handleAnyDrop(sSourceNode, sDestinationNode, sExtra, bFacedown)
 	vCard = DeckedOutUtilities.validateNode(sSourceNode, "sSourceNode");
 	vDestination = DeckedOutUtilities.validateNode(sDestinationNode, "sDestinationNode");
@@ -919,32 +954,32 @@ function handleAnyDrop(sSourceNode, sDestinationNode, sExtra, bFacedown)
 	-- Dropped on a charater sheet
 	if StringManager.startsWith(vDestination.getNodeName(), "charsheet") then
 		-- If vDestination isn't the hand path, then get the hand path
-		if vDestination.getName() ~= CardManager.PLAYER_HAND_PATH then
-			vDestination = CardManager.getHandNode(vDestination.getName());
+		if vDestination.getName() ~= CardsManager.PLAYER_HAND_PATH then
+			vDestination = CardsManager.getHandNode(vDestination.getName());
 		end
 		
 		-- After the above, vDestination is the cards node for the character (charsheet.*.cards)
 		sReceivingIdentity = vDestination.getParent().getName();
 
-	elseif StringManager.startsWith(vDestination.getNodeName(), CardManager.GM_HAND_PATH) then
-		vDestination = CardManager.getHandNode("gm");
+	elseif StringManager.startsWith(vDestination.getNodeName(), CardsManager.GM_HAND_PATH) then
+		vDestination = CardsManager.getHandNode("gm");
 		sReceivingIdentity = "gm"
 
 	elseif StringManager.startsWith(vDestination.getNodeName(), "combattracker") then
 		if ActorManager.isPC(vDestination) then
 			-- If dropping on PC, give card to that PC
 			sReceivingIdentity = ActorManager.getCreatureNode(vDestination).getName();
-			vDestination = CardManager.getHandNode(sReceivingIdentity);
+			vDestination = CardsManager.getHandNode(sReceivingIdentity);
 		else
 			-- If dropping on NPC, give card to GM
-			vDestination = CardManager.getHandNode("gm");
+			vDestination = CardsManager.getHandNode("gm");
 			sReceivingIdentity = "gm"
 		end
 
 	elseif StringManager.startsWith(vDestination.getNodeName(), "deckbox") then
 		-- Check that the card being dropped belongs in this deck
-		if CardManager.getDeckIdFromCard(vCard) ~= DeckManager.getDeckId(vDestination) then
-			Debug.console("WARNING: CardManager.handleAnyDrop(): Tried to move a card to another deck.")
+		if CardsManager.getDeckIdFromCard(vCard) ~= DeckManager.getDeckId(vDestination) then
+			Debug.console("WARNING: CardsManager.handleAnyDrop(): Tried to move a card to another deck.")
 			return false;
 		end
 
@@ -961,8 +996,12 @@ function handleAnyDrop(sSourceNode, sDestinationNode, sExtra, bFacedown)
 	-- and if it is, bail.
 	local sourceParentNode = vCard.getParent();
 	if sourceParentNode.getNodeName() == vDestination.getNodeName() then
-		Debug.console("WARNING: CardManager.handleAnyDrop(): Tried to move a card to the same place it originated from.")
-		return true;
+		-- Only print out this error if the card isn't in a hand
+		-- Because you can drag/drop to reorder the cards in your hand
+		if not CardsManager.isCardInHand(vCard) then
+			Debug.console("WARNING: CardsManager.handleAnyDrop(): Tried to move a card to the same place it originated from.")
+		end
+		return true, vCard;
 	end
 
 	if vDestination then
@@ -970,53 +1009,55 @@ function handleAnyDrop(sSourceNode, sDestinationNode, sExtra, bFacedown)
 
 		if (sReceivingIdentity or "") ~= "" then
 			-- If the card being dropped is currently in a hand, then we fire the give event
-			if CardManager.isCardInHand(vCard) then
-				local sGiverIdentity = CardManager.getCardSource(vCard);
+			if CardsManager.isCardInHand(vCard) then
+				local sGiverIdentity = CardsManager.getCardSource(vCard);
 				tEventTrace = DeckedOutEvents.addEventTrace(tEventTrace, DeckedOutEvents.DECKEDOUT_EVENT_CARD_GIVEN);
-				local card = CardManager.addCardToHand(vCard, sReceivingIdentity, false, tEventTrace);
+				local card = CardsManager.addCardToHand(vCard, sReceivingIdentity, false, tEventTrace);
 				DeckedOutEvents.raiseOnGiveCardEvent(card, sGiverIdentity, sReceivingIdentity, bFacedown, tEventTrace)
-				return true;
+				return true, card;
 
 			-- If the card being dropped is currently in a deck or discard pile, we fire the deal event
-			elseif CardManager.isCardInDeck(vCard) or CardManager.isCardDiscarded(vCard) then
+			elseif CardsManager.isCardInDeck(vCard) or CardsManager.isCardDiscarded(vCard) then
 				-- Since we're dealing the card from a deck, we need to get the deck's default deal facing
 				local bDefaultFacing = DeckManager.getDeckSetting(
-					CardManager.getDeckNodeFromCard(vCard), 
+					CardsManager.getDeckNodeFromCard(vCard), 
 					DeckManager.DECK_SETTING_DEFAULT_DEAL_FACING)
 				bFacedown = bFacedown or bDefaultFacing == "facedown";
 				
 				-- If we're fishing this card from the discard pile, then we want to raise a different event
-				if CardManager.isCardDiscarded(vCard) then
+				local card = nil;
+				if CardsManager.isCardDiscarded(vCard) then
 					tEventTrace = DeckedOutEvents.addEventTrace(tEventTrace, DeckedOutEvents.DECKEDOUT_EVENT_DEALT_FROM_DISCARD);
-					local card = CardManager.addCardToHand(vCard, sReceivingIdentity, bFacedown, tEventTrace);
+					card = CardsManager.addCardToHand(vCard, sReceivingIdentity, bFacedown, tEventTrace);
 					DeckedOutEvents.raiseOnCardDealtFromDiscardEvent(card, sReceivingIdentity, bFacedown, tEventTrace)
 				else	
 					tEventTrace = DeckedOutEvents.addEventTrace(tEventTrace, DeckedOutEvents.DECKEDOUT_EVENT_CARD_DEALT);
-					local card = CardManager.addCardToHand(vCard, sReceivingIdentity, bFacedown, tEventTrace);
+					card = CardsManager.addCardToHand(vCard, sReceivingIdentity, bFacedown, tEventTrace);
 					DeckedOutEvents.raiseOnDealCardEvent(card, sReceivingIdentity, bFacedown, tEventTrace)
 				end
-				return true;
+				return true, card;
 			end
 		else
 			if StringManager.startsWith(vDestination.getNodeName(), "deckbox") then
 				-- We dropped onto the deck, so we fire the return to deck event
 				if vDestination.getName() == DeckManager.DECK_CARDS_PATH then
-					local sGiverIdentity = CardManager.getCardSource(vCard);
+					local sGiverIdentity = CardsManager.getCardSource(vCard);
 					DeckedOutEvents.raiseOnCardReturnedToDeckEvent(
 						vCard, 
-						CardManager.getDeckNodeFromCard(vCard), 
+						CardsManager.getDeckNodeFromCard(vCard), 
 						sGiverIdentity, 
 						bFacedown,
 						tEventTrace);
-					CardManager.moveCard(vCard, vDestination, tEventTrace);
-					return true;
+					local card = CardsManager.moveCard(vCard, vDestination, tEventTrace);
+					return true, card;
 				elseif vDestination.getName() == DeckManager.DECK_DISCARD_PATH then
-					local sGiverIdentity = CardManager.getCardSource(vCard);
+					local sGiverIdentity = CardsManager.getCardSource(vCard);
 					local card = discardCard(vCard, bFacedown, sGiverIdentity, tEventTrace);
+					return true, card;
 				end
 			else
-				local card = CardManager.moveCard(vCard, vDestination, tEventTrace);
-				return true;
+				local card = CardsManager.moveCard(vCard, vDestination, tEventTrace);
+				return true, card;
 			end
 		end
 	end
@@ -1035,7 +1076,7 @@ function sendCardDropMessage(sSourceNode, sDestinationNode, sExtra, bFacedown)
 	end
 
 	local msgOOB = {};
-	msgOOB.type = CardManager.OOB_MSGTYPE_DROPCARD;
+	msgOOB.type = CardsManager.OOB_MSGTYPE_DROPCARD;
 	msgOOB.sSourceNode = sSourceNode;
 	msgOOB.sDestinationNode = sDestinationNode;
 	msgOOB.sExtra = sExtra;
@@ -1057,5 +1098,31 @@ function handleCardDrop(msgOOB)
 		return;
 	end
 
-	CardManager.handleAnyDrop(msgOOB.sSourceNode, msgOOB.sDestinationNode, msgOOB.sExtra, msgOOB.bFacedown == "true");
+	CardsManager.handleAnyDrop(msgOOB.sSourceNode, msgOOB.sDestinationNode, msgOOB.sExtra, msgOOB.bFacedown == "true");
+end
+
+------------------------------------------
+-- CARD SORTING
+------------------------------------------
+---Sorts a list of card nodes alphabetically by deck name, then by card name
+---@param cardnodes array array of databasenodes
+function sortCardsByDeckAndName(cardnodes)	
+	table.sort(cardnodes, 
+		function (c1, c2) 
+			local d1 = CardsManager.getDeckNameFromCard(c1);
+			local d2 = CardsManager.getDeckNameFromCard(c2);
+
+			-- if the deck names aren't identical, then sort them alphabetically
+			if d1 ~= d2 then
+				return d1 < d2;
+			end
+
+			-- deck names are the same, so we sort them by name alphabetically
+			return CardsManager.getCardName(c1) < CardsManager.getCardName(c2);
+		end 
+	)
+
+	for index, card in ipairs(cardnodes) do
+		DB.setValue(card, "order", "number", index);
+	end
 end

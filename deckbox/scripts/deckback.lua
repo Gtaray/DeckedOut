@@ -40,13 +40,13 @@ end
 function onDragStart(button, x, y, draginfo)
 	local node = window.getDatabaseNode();
 	if Session.IsHost then
-		CardManager.onDragFromDeck(window.getDatabaseNode(), draginfo);
+		CardsManager.onDragFromDeck(window.getDatabaseNode(), draginfo);
 		return true;
 	end
 end
 
 function onDrop(x, y, draginfo)
-	CardManager.onDropCard(draginfo, window.getDatabaseNode(), DeckManager.DECK_CARDS_PATH);
+	CardsManager.onDropCard(draginfo, window.getDatabaseNode(), DeckManager.DECK_CARDS_PATH);
 end
 
 function onDoubleClick(x, y)
@@ -58,7 +58,7 @@ function playCard(bFacedown)
 	local bDiscard = DeckManager.getDeckSetting(vDeck, DeckManager.DECK_SETTING_AUTO_PLAY_FROM_DECK) == "yes"
 	local aCards = DeckManager.getRandomCardsInDeck(vDeck, 1);
 	if aCards and aCards[1] then
-		CardManager.playCard(aCards[1], bFacedown, bDiscard or DeckedOutUtilities.getPlayAndDiscardHotkey(), {});
+		CardsManager.playCard(aCards[1], bFacedown, bDiscard or DeckedOutUtilities.getPlayAndDiscardHotkey(), {});
 	end
 end
 

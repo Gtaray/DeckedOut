@@ -29,6 +29,9 @@
 					<top />
 					<bottom />
 				</anchored>
+				<sortby>
+					<field>order</field>
+				</sortby>
 			</windowlist>
 			<leftClickOpensRadial name="discard">
 				<script file="common/scripts/discardOnCardDrop.lua" />

@@ -550,16 +550,16 @@ function deleteCardsFromDecksThatAreDeleted(tEventArgs, tEventTrace)
 	-- the deck is gone. So we use tEventArgs.sDeckNode
 	-- Go through all characters
 	for k,v in pairs(DB.getChildren("charsheet")) do
-		for _, card in pairs(DB.getChildren(v, CardManager.PLAYER_HAND_PATH)) do
-			if CardManager.getDeckIdFromCard(card) == tEventArgs.sDeckNode then
+		for _, card in pairs(DB.getChildren(v, CardsManager.PLAYER_HAND_PATH)) do
+			if CardsManager.getDeckIdFromCard(card) == tEventArgs.sDeckNode then
 				card.delete();
 			end
 		end
 	end
 
 	-- Go through the GM hand
-	for _, card in pairs(DB.getChildren(CardManager.GM_HAND_PATH)) do
-		if CardManager.getDeckIdFromCard(card) == tEventArgs.sDeckNode then
+	for _, card in pairs(DB.getChildren(CardsManager.GM_HAND_PATH)) do
+		if CardsManager.getDeckIdFromCard(card) == tEventArgs.sDeckNode then
 			card.delete();
 		end
 	end
@@ -587,7 +587,7 @@ function onCardDroppedInChat(draginfo)
 
 	-- We specifically don't want to copy cards to storage here, since the message
 	-- handler will will copy it to chat. We only want to raise the event
-	CardManager.playCard(sRecord, DeckedOutUtilities.getFacedownHotkey(), DeckedOutUtilities.shouldPlayAndDiscard(sRecord), tEventTrace)
+	CardsManager.playCard(sRecord, DeckedOutUtilities.getFacedownHotkey(), DeckedOutUtilities.shouldPlayAndDiscard(sRecord), tEventTrace)
 	return true;
 end
 
@@ -601,7 +601,7 @@ function onCardDroppedOnToken(tokenCT, draginfo)
 		return false;
 	end
 
-	return CardManager.onDropCard(draginfo, nodeCT);
+	return CardsManager.onDropCard(draginfo, nodeCT);
 end
 
 ---Event for when a card token is dropped on an image
@@ -618,7 +618,7 @@ function onCardDroppedOnImage(cImageControl, x, y, draginfo)
 	end
 
 	local vCard = DeckedOutUtilities.validateCard(sRecord);
-	local sCardBack = CardManager.getCardBack(vCard);
+	local sCardBack = CardsManager.getCardBack(vCard);
 	
 	-- whether we place a card face down or face up is a bit tricky
 	-- If the card was dragged from its source with the hotkey pressed and is thus face down
@@ -637,7 +637,7 @@ function onCardDroppedOnImage(cImageControl, x, y, draginfo)
 		local token = cImageControl.addToken(sToken, x, y)
 		TokenManager.autoTokenScale(token);
 
-		CardManager.playCard(sRecord, bFacedown, DeckedOutUtilities.shouldPlayAndDiscard(), {})
+		CardsManager.playCard(sRecord, bFacedown, DeckedOutUtilities.shouldPlayAndDiscard(sRecord), {})
 
 		return token ~= nil;
 	end

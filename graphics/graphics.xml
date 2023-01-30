@@ -26,6 +26,7 @@
 	<icon name="multideal_multiperson" file="graphics/radial/multideal_multiperson.png" />
 	<icon name="peek" file="graphics/radial/peekcard.png" />
 	<icon name="flip" file="graphics/radial/flipcard.png" />
+	<icon name="sort_asc" file="graphics/radial/sort_ascending.png" />
 
 	<!-- Misc -->
 	<icon name="missing_token" file="graphics/icons/missing_token.png" />
