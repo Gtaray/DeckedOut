@@ -38,7 +38,8 @@
 					function onInit()
 						local node = window.getDatabaseNode();
 						local bIsInHand = CardsManager.isCardInHand(node);
-						setVisible(not Session.IsHost or bIsInHand);
+						local bIsInStorage = CardStorage.isCardInStorage(node);
+						setVisible(not Session.IsHost or bIsInHand or bIsInStorage);
 
 						-- AND is here so clients don't try to create nodes outside of
 						-- their own hand, which could happen if the GM shares a deck with players
@@ -53,7 +54,8 @@
 					function onInit()
 						local node = window.getDatabaseNode();
 						local bIsInHand = CardsManager.isCardInHand(node);
-						setVisible(Session.IsHost and not bIsInHand);
+						local bIsInStorage = CardStorage.isCardInStorage(node);
+						setVisible(Session.IsHost and not (bIsInHand or bIsInStorage));
 
 						if super and super.onInit then
 							super.onInit();
