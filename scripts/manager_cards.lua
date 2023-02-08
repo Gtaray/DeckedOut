@@ -35,9 +35,12 @@ function moveCard(vCard, vDestination, tEventTrace)
 	DB.copyNode(vCard, newNode);
 	vCard.delete();
 
-	-- if the card was moved to anywhere other than a hand, delete the facing and order node
+	-- Unless the card is in the hand, delete it's order value
+	-- Also, if it's not on the table, delete it's facing value
 	if not CardsManager.isCardInHand(newNode) then
-		CardsManager.deleteFacingNode(newNode);
+		if not CardTable.isCardOnTable(newNode) then
+			CardsManager.deleteFacingNode(newNode);
+		end
 		CardsManager.deleteCardOrder(newNode);
 	end
 
@@ -895,8 +898,9 @@ function onDropCard(draginfo, vDestination, sExtra)
 	-- (since it doesn't preserve in storage)
 	local bFacedown = draginfo.getNumberData() == 0;
 
-	-- If this item was dragged from card storage (i.e. the chat) then do nothing
-	-- Items in chat should never be moved or handled by anything, they're read only
+	-- If this item was dragged from card storage (i.e. the chat), 
+	-- then we check if the player (or gm) is allowed to drag from its current location
+	-- Essentially we look back at the place it's currently at and grab it from there
 	if CardStorage.doesCardComeFromStorage(sRecord) then
 		-- Check the deck setting for the card to see if players are allowed
 		-- to grab cards from chat. GMs can always do this, and they're allowed
@@ -917,7 +921,7 @@ function onDropCard(draginfo, vDestination, sExtra)
 			end
 		end
 
-		local cardnode = DB.findNode(CardStorage.getCardOrigin(sRecord));
+		local cardnode = CardStorage.getCardOriginNode(sRecord);
 		if cardnode then
 			sRecord = cardnode.getNodeName();
 			bFacedown = DeckedOutUtilities.getFacedownHotkey();

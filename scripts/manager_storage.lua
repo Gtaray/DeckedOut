@@ -114,6 +114,16 @@ function getCardOrigin(vCard)
 	return DB.getValue(vCard, CardStorage.CARD_ORIGIN_PATH, "");
 end
 
+---Gets the origin node for a card that's in card storage
+---@param vCard databasenode|string
+---@returns databasenode cardnode
+function getCardOriginNode(vCard)
+	local vCard = DeckedOutUtilities.validateCard(vCard);
+	if not vCard then return end
+
+	return DB.findNode(CardStorage.getCardOrigin(vCard));
+end
+
 ---Checks if the origin for a card in storage is a discard pile
 ---@param vCard databasenode|string
 ---@return boolean

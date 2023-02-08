@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <root version="3.3" release="1.0">
-	<announcement text="Decked Out v2.1.1 by Saagael." icon="decked_out" font="emotefont" />
+	<announcement text="Decked Out v2.2.0 by Saagael." icon="decked_out" font="emotefont" />
 	<properties>
 		<name>Feature: Decked Out</name>
-		<version>2.1.1</version>
+		<version>2.2.0</version>
 		<author>Saagael</author>
 		<description>Adds decks of cards</description>
 		<loadorder>1000</loadorder>
@@ -30,7 +30,6 @@
 		<includefile source="deckbox/deckbox_templates.xml" />
 		<includefile source="deckbox/dialog_dealcards.xml" />
 
-
 		<includefile source="strings/cards_strings.xml" />
 
 		<script name="DeckedOut" file="scripts/decked_out.lua" />
@@ -41,6 +40,7 @@
 		<script name="CardsManager" file="scripts/manager_cards.lua" />
 		<script name="DeckManager" file="scripts/manager_deck.lua" />
 		<script name="CardStorage" file="scripts/manager_storage.lua" />
+		<script name="CardTable" file="scripts/manager_card_table.lua" />
 		<script name="DesktopManagerDO" file="scripts/manager_desktop_do.lua" />
 	</base>
 </root>
