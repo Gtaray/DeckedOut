@@ -521,20 +521,22 @@ function raiseOnDeckSettingChangedEvent(vDeck, sSettingKey, sPreviousValue, sCur
 end
 
 -- Not used currently. Will be used if we add full cards on images support
-function raiseOnCardAddedToImageEvent(tEventTrace)
+function raiseOnCardAddedToImageEvent(vCard, nodeImage, nTokenId, tEventTrace)
 	return DeckedOutEvents.raiseEvent(
 		DeckedOutEvents.DECKEDOUT_EVENT_IMAGE_CARD_ADDED, 
-		{  },
-		tEventTrace
+		{ sCardNode = DB.getPath(vCard), sImageNode = DB.getPath(nodeImage), nTokenId = nTokenId  },
+		tEventTrace,
+		true -- True because this event is always raised after moving the card
 	);
 end
 
 -- Not used currently. Will be used if we add full cards on images support
-function raiseOnCardDeletedFromImageEvent(tEventTrace)
+function raiseOnCardDeletedFromImageEvent(vCard, tEventTrace)
 	return DeckedOutEvents.raiseEvent(
-		DeckedOutEvents.DECKEDOUT_EVENT_IMAGE_CARD_ADDED, 
-		{  },
-		tEventTrace
+		DeckedOutEvents.DECKEDOUT_EVENT_IMAGE_CARD_DELETED, 
+		{ sCardNode = DB.getPath(vCard) },
+		tEventTrace,
+		true
 	);
 end
 

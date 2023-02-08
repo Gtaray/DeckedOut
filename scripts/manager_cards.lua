@@ -44,6 +44,11 @@ function moveCard(vCard, vDestination, tEventTrace)
 		CardsManager.deleteCardOrder(newNode);
 	end
 
+	-- If the card isn't on the Table, then delete card table data
+	if not CardTable.isCardOnTable(newNode) then
+		CardTable.deleteCardTableNodesFromCard(vCard);
+	end
+
 	tEventTrace = DeckedOutEvents.raiseOnCardMovedEvent(newNode, sOldCardNode, tEventTrace);
 	return newNode;
 end
@@ -689,11 +694,6 @@ function isCardFaceUp(vCard)
 	vCard = DeckedOutUtilities.validateCard(vCard);
 	if not vCard then return false end
 
-	-- cards can only be facedown in hand. If the card isn't in a hand, then it's always face up
-	if not CardsManager.isCardInHand(vCard) then
-		return true;
-	end
-
 	return CardsManager.getCardFacing(vCard) == 1;
 end
 
@@ -703,11 +703,6 @@ end
 function isCardFaceDown(vCard)
 	vCard = DeckedOutUtilities.validateCard(vCard);
 	if not vCard then return false end
-
-	-- cards can only be facedown in hand. If the card isn't in a hand, then it's always face up
-	if not CardsManager.isCardInHand(vCard) then
-		return false;
-	end
 
 	return CardsManager.getCardFacing(vCard) == 0;
 end
@@ -719,8 +714,9 @@ function getCardFacing(vCard)
 	vCard = DeckedOutUtilities.validateCard(vCard);
 	if not vCard then return 0 end
 
-	-- cards can only be facedown in hand. If the card isn't in a hand, then it's always face up
-	if not CardsManager.isCardInHand(vCard) then
+	-- cards can only be facedown in hand or on the card table.
+	-- If the card isn't in a hand, then it's always face up
+	if not (CardsManager.isCardInHand(vCard) or CardTable.isCardOnTable(vCard)) then
 		return 1;
 	end
 

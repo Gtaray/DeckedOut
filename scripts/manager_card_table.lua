@@ -14,10 +14,26 @@ CARD_TABLE_PATH = "deckbox.table";
 CARD_TABLE_IMAGE_PATH = "image";
 CARD_TABLE_ID_PATH = "tokenid";
 
-local _cardTable = {};
+local _tCardTable = {};
 
 function onInit()
+	Token.onDelete = CardTable.onTokenDeletedFromImage;
 	ImageManager.registerDropCallback("shortcut", DeckedOutEvents.onCardDroppedOnImage);
+end
+
+function initializeCardTable()
+	_tCardTable = {};
+	for _, node in pairs(DB.getChildren(CARD_TABLE_PATH)) do
+		local sImage = CardTable.getCardImage(node);
+		local nId = CardTable.getCardTokenId(node);
+
+		-- Only add if both were found.
+		-- Though if these AREN'T found then there's some kind of error and
+		-- we should probably handle that
+		if sImage ~= "" and nId >= 0 then
+			_tCardTable[sImage][nId] = node;
+		end
+	end
 end
 
 -----------------------------------------------------
@@ -71,8 +87,21 @@ function onCardDroppedOnImage(cImageControl, x, y, draginfo)
 	end
 end
 
+function onTokenDeletedFromImage(token)
+
+	local nodeImage = token.getContainerNode();
+	local sImage = DB.getPath(nodeImage);
+	local nId = token.getId();
+
+	-- Only process further if the token that was deleted maps to something
+	-- that's in the card table
+	if _tCardTable[sImage][nId] then
+		CardTable.removeCardFromTable(sImage, nId, {})
+	end
+end
+
 -----------------------------------------------------
--- HELPERS
+-- EVENT RAISERS
 -----------------------------------------------------
 
 ---Adds a card to the card table and track's it for as long as it's on an image
@@ -87,6 +116,8 @@ function addCardToTable(vCard, bFacedown, token, tEventTrace)
 
 	local nId = token.getId();
 	local imagenode = token.getContainerNode();
+	local sImagePath = DB.getPath(imagenode);
+	local tablecard = vCard;
 
 	-- If the card isn't on the table, then we go through the process of adding it
 	-- if it IS on the table, we don't do any moving, we just update the origin values afterwards
@@ -94,23 +125,37 @@ function addCardToTable(vCard, bFacedown, token, tEventTrace)
 		local tablenode = CardTable.getCardTableNode();
 
 		tEventTrace = DeckedOutEvents.addEventTrace(tEventTrace, DeckedoutEvents.DECKEDOUT_EVENT_PUT_ON_TABLE);
-		local cardOnTable = CardsManager.moveCard(vCard, tablenode, tEventTrace)
-		
-		
-		local sToken = CardsManager.getCardFront(vCard);
-
-		-- We don't care about card order when it's on the table
-		CardsManager.deleteCardOrder(newCard);
+		tablecard = CardsManager.moveCard(vCard, tablenode, tEventTrace)
+	else
+		-- If we're already on the table then we need to remove current data in the card table
+		_tCardTable[sImagePath][nId] = nil;
 	end
 
 	-- Save the location of the card (imagenode path and token id)
 	-- so that we can get it back later
 	CardTable.udpateCardOnTable(tablecard, imagenode, nId);
-
-	-- TODO: Add this back in
-	--tEventTrace = DeckedOutEvents.raiseOnCardPlayedOnTableEvent(tablecard, imagenode, nId, tEventTrace);
+	
+	tEventTrace = DeckedOutEvents.raiseOnCardAddedToImageEvent(tablecard, imagenode, nId, tEventTrace);
 
 	return newCard;
+end
+
+---Remvoes a card from the card table and discards it
+---@param sImage string image node path of the image that the card was deleted from
+---@param nId number token id of the card token that was deleted
+---@param tEventTrace table event trace table
+---@return databasenode cardInDiscard card node in the discard pile. Note if a client calls this function it will return nil
+function removeCardFromTable(sImage, nId, tEventTrace)
+	local cardNode = _tCardTable[sImage][nId];
+	_tCardTable[sImage][nId] = nil;
+
+	local bFacedown = CardsManager.isCardFaceDown(cardNode);
+
+	tEventTrace = DeckedOutEvents.addEventTrace(tEventTrace, DeckedOutEvents.DECKEDOUT_EVENT_IMAGE_CARD_DELETED);
+	local cardInDiscard = CardsManager.discardCard(cardNode, bFacedown, nil, tEventTrace);
+	DeckedOutEvents.raiseOnCardDeletedFromImageEvent(cardInDiscard, tEventTrace);
+
+	return cardInDiscard;
 end
 
 ------------------------------------------
@@ -153,8 +198,60 @@ function updateCardOnTable(vCard, imagenode, nTokenId)
 		return false;
 	end
 
-	DB.setValue(vCard, CARD_TABLE_IMAGE_PATH, "string", DB.getPath(imagenode));
+	local sImagePath = DB.getPath(imagenode);
+
+	if not _tCardTable[sImagePath] then
+		_tCardTable[sImagePath] = {};
+	end
+	_tCardTable[sImagePath][nTokenId] = vCard;
+
+	DB.setValue(vCard, CARD_TABLE_IMAGE_PATH, "string", sImagePath);
 	DB.setValue(vCard, CARD_TABLE_ID_PATH, "number", nTokenId);
 
 	return true;
+end
+
+---Deletes the image node path and token id nodes from a card
+---@param vCard databasenode|string
+---@return boolean deleted
+function deleteCardTableNodesFromCard(vCard)
+	vCard = DeckedOutUtilities.validateCard(vCard);
+	if not vCard then return false; end
+
+	if not CardTable.isCardOnTable(vCard) then
+		return false;
+	end
+
+	DB.deleteChild(vCard, CardTable.CARD_TABLE_IMAGE_PATH);
+	DB.deleteChild(vCard, CardTable.CARD_TABLE_ID_PATH);
+
+	return true;
+end
+
+---Gets the image node path of a card that's on the card table
+---@param vCard databasenode|string
+---@return string sImagePath or an empty string if no value is found
+function getCardImage(vCard)
+	vCard = DeckedOutUtilities.validateCard(vCard);
+	if not vCard then return end
+
+	if not CardTable.isCardOnTable(vCard) then
+		return;
+	end
+
+	return DB.getValue(vCard, CardTable.CARD_TABLE_IMAGE_PATH, "");
+end
+
+---Gets the token id of a card that's on the card table
+---@param vCard databasenode|string
+---@return number tokenId or -1 if no value is found
+function getCardTokenId(vCard)
+	vCard = DeckedOutUtilities.validateCard(vCard);
+	if not vCard then return end
+
+	if not CardTable.isCardOnTable(vCard) then
+		return;
+	end
+
+	return DB.getValue(vCard, CardTable.CARD_TABLE_ID_PATH, -1);
 end
