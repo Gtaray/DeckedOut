@@ -18,7 +18,7 @@ local _tCardTable = {};
 
 function onInit()
 	Token.onDelete = CardTable.onTokenDeletedFromImage;
-	ImageManager.registerDropCallback("shortcut", DeckedOutEvents.onCardDroppedOnImage);
+	ImageManager.registerDropCallback("shortcut", CardTable.onCardDroppedOnImage);
 end
 
 function initializeCardTable()
@@ -48,18 +48,19 @@ end
 ---@return boolean bEndEvent If the return is true, the event is handled.
 function onCardDroppedOnImage(cImageControl, x, y, draginfo)
 	local sClass,sRecord = draginfo.getShortcutData();
+	Debug.chat('onCardDroppedOnImage()', sClass, sRecord);
 	-- Only handle card drops
 	if sClass ~= "card" then
 		return false;
 	end
 
-	-- if the card comes from storage, we need to get it from its origin
-	if CardStorage.doesCardComeFromStorage(vCard) then
-		vCard = CardStorage.getCardOriginNode(vCard);
-	end
-
-	local vCard = DeckedOutUtilities.validateCard(sRecord);
+	vCard = DeckedOutUtilities.validateCard(sRecord);
 	if not vCard then return false; end;
+
+	-- if the card comes from storage, we need to get it from its origin
+	if CardStorage.doesCardComeFromStorage(sRecord) then
+		vCard = CardStorage.getCardOriginNode(sRecord);
+	end
 
 	local sCardBack = CardsManager.getCardBack(vCard);
 	
@@ -95,7 +96,7 @@ function onTokenDeletedFromImage(token)
 
 	-- Only process further if the token that was deleted maps to something
 	-- that's in the card table
-	if _tCardTable[sImage][nId] then
+	if _tCardTable[sImage] and _tCardTable[sImage][nId] then
 		CardTable.removeCardFromTable(sImage, nId, {})
 	end
 end
@@ -121,10 +122,10 @@ function addCardToTable(vCard, bFacedown, token, tEventTrace)
 
 	-- If the card isn't on the table, then we go through the process of adding it
 	-- if it IS on the table, we don't do any moving, we just update the origin values afterwards
-	if not CardStorage.isCardOnTable(vCard) then		
+	if not CardTable.isCardOnTable(vCard) then		
 		local tablenode = CardTable.getCardTableNode();
 
-		tEventTrace = DeckedOutEvents.addEventTrace(tEventTrace, DeckedoutEvents.DECKEDOUT_EVENT_PUT_ON_TABLE);
+		tEventTrace = DeckedOutEvents.addEventTrace(tEventTrace, DeckedOutEvents.DECKEDOUT_EVENT_PUT_ON_TABLE);
 		tablecard = CardsManager.moveCard(vCard, tablenode, tEventTrace)
 	else
 		-- If we're already on the table then we need to remove current data in the card table
