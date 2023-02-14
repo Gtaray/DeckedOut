@@ -124,7 +124,9 @@ function discardHand(sIdentity, tEventTrace)
 
 	tEventTrace = DeckedOutEvents.raiseOnHandDiscardedEvent(sIdentity, nil, tEventTrace);
 
-	for k,card in pairs(CardsManager.getHandNode(sIdentity).getChildren()) do
+
+	local handnode = CardsManager.getHandNode(sIdentity);
+	for k,card in pairs(DB.getChildren(handnode) or {}) do
 		CardsManager.discardCard(card, true, sIdentity, tEventTrace);
 	end
 end
