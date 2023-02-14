@@ -34,7 +34,6 @@ function onInit()
 	OOBManager.registerOOBMsgHandler(OOB_MSGTYPE_DECKEDOUTEVENT, DeckedOutEvents.raiseEventHandler);
 	ChatManager.registerDropCallback("shortcut", DeckedOutEvents.onCardDroppedInChat);
 
-	Token.onDrop = DeckedOutEvents.onCardDroppedOnToken;
 	Interface.onHotkeyDrop = DeckedOutEvents.onCardDroppedOnHotkey;
 
 	DB.addHandler("deckbox.decks.*", "onDelete", onDeckDeleted);
@@ -521,10 +520,18 @@ function raiseOnDeckSettingChangedEvent(vDeck, sSettingKey, sPreviousValue, sCur
 end
 
 -- Not used currently. Will be used if we add full cards on images support
-function raiseOnCardAddedToImageEvent(vCard, nodeImage, nTokenId, tEventTrace)
+function raiseOnCardAddedToImageEvent(vCard, tEventTrace)
+	local tArgs = { sCardNode = DB.getPath(vCard) };
+	tArgs.sImageNode = CardTable.getCardImage(vCard);
+	tArgs.nTokenId = CardTable.getCardTokenId(vCard);
+	tArgs.bFacedown = "false";
+	if CardsManager.isCardFaceDown(vCard) then
+		tArgs.bFacedown = "true";
+	end
+
 	return DeckedOutEvents.raiseEvent(
 		DeckedOutEvents.DECKEDOUT_EVENT_IMAGE_CARD_ADDED, 
-		{ sCardNode = DB.getPath(vCard), sImageNode = DB.getPath(nodeImage), nTokenId = nTokenId  },
+		tArgs,
 		tEventTrace,
 		true -- True because this event is always raised after moving the card
 	);
@@ -563,6 +570,11 @@ function deleteCardsFromDecksThatAreDeleted(tEventArgs, tEventTrace)
 		if CardsManager.getDeckIdFromCard(card) == tEventArgs.sDeckNode then
 			card.delete();
 		end
+	end
+
+	-- Go through the card table
+	for _, card in pairs(DB.getChildren(CardTable.CARD_TABLE_PATH)) do
+		CardTable.deleteCardFromCardTable(card);
 	end
 end
 

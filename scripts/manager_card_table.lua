@@ -10,30 +10,32 @@
 	-- New chat message about "X picked up Y"
 -- Update the moveCard function so that it keeps card facing when moved to a card table
 
+-- Okay, so trying to keep the DB list in synch with a table that maps imagenode and token id 
+-- to card DB node is really messy and kind of overcomplicating things
+-- The only place that gives any performance is when doing lookups when a person double clicks a token,
+-- or deletes a token (and possibly when they claim a card to put in their hand)
+-- All of those are user actions, so it's unlikely the performance hit will be noticable
+-- unless there are hundreds or thousands of card tokens on a map. And even then, there are bigger problems
+-- So I think I'm going to remove _tCardTable from here and rely solely on the DB
+
 CARD_TABLE_PATH = "deckbox.table";
-CARD_TABLE_IMAGE_PATH = "image";
+CARD_TABLE_IMAGE_PATH = "isonimage";
 CARD_TABLE_ID_PATH = "tokenid";
 
-local _tCardTable = {};
+-- Used to flag when a card is being flipped
+-- because if a card is being flipped, we don't 
+-- want to discard when it's deleted
+local _bFlipping = false;
+local _fAutoTokenScale;
 
 function onInit()
-	Token.onDelete = CardTable.onTokenDeletedFromImage;
+	Token.onDrop = DeckedOutEvents.onCardDroppedOnToken;
+	Token.onDelete = CardTable.onCardDeletedFromImage;
+	Token.onDoubleClick = CardTable.onCardDoubleClicked;
 	ImageManager.registerDropCallback("shortcut", CardTable.onCardDroppedOnImage);
-end
 
-function initializeCardTable()
-	_tCardTable = {};
-	for _, node in pairs(DB.getChildren(CARD_TABLE_PATH)) do
-		local sImage = CardTable.getCardImage(node);
-		local nId = CardTable.getCardTokenId(node);
-
-		-- Only add if both were found.
-		-- Though if these AREN'T found then there's some kind of error and
-		-- we should probably handle that
-		if sImage ~= "" and nId >= 0 then
-			_tCardTable[sImage][nId] = node;
-		end
-	end
+	_fAutoTokenScale = TokenManager.autoTokenScale;
+	TokenManager.autoTokenScale = CardTable.autoTokenScale;
 end
 
 -----------------------------------------------------
@@ -48,7 +50,6 @@ end
 ---@return boolean bEndEvent If the return is true, the event is handled.
 function onCardDroppedOnImage(cImageControl, x, y, draginfo)
 	local sClass,sRecord = draginfo.getShortcutData();
-	Debug.chat('onCardDroppedOnImage()', sClass, sRecord);
 	-- Only handle card drops
 	if sClass ~= "card" then
 		return false;
@@ -56,6 +57,12 @@ function onCardDroppedOnImage(cImageControl, x, y, draginfo)
 
 	vCard = DeckedOutUtilities.validateCard(sRecord);
 	if not vCard then return false; end;
+
+	Debug.chat('onCardDroppedOnImage()');
+
+	if not Session.IsHost then
+		-- Send an OOB so that host can do the actual card drop
+	end
 
 	-- if the card comes from storage, we need to get it from its origin
 	if CardStorage.doesCardComeFromStorage(sRecord) then
@@ -81,37 +88,72 @@ function onCardDroppedOnImage(cImageControl, x, y, draginfo)
 		local token = cImageControl.addToken(sToken, x, y)
 		TokenManager.autoTokenScale(token);
 
-		CardTable.addCardToTable(vCard, bFacedown, token);
-		CardsManager.playCard(sRecord, bFacedown, DeckedOutUtilities.shouldPlayAndDiscard(sRecord), {})
+		local newCard = CardTable.playCardOnTable(vCard, bFacedown, token, {});
+		CardTable.updateTokenName(newCard, token);
 
 		return token ~= nil;
 	end
 end
 
-function onTokenDeletedFromImage(token)
-
-	local nodeImage = token.getContainerNode();
-	local sImage = DB.getPath(nodeImage);
-	local nId = token.getId();
+---Event for when a card token is deleted from an image. Discards the card
+---@param token tokeninstance token being deleted
+function onCardDeletedFromImage(token)
+	if _bFlipping then
+		return false;
+	end
 
 	-- Only process further if the token that was deleted maps to something
 	-- that's in the card table
-	if _tCardTable[sImage] and _tCardTable[sImage][nId] then
-		CardTable.removeCardFromTable(sImage, nId, {})
+	local cardnode = CardTable.getCardFromToken(token);
+	if cardnode then
+		CardTable.discardCardFromTable(cardnode, {})
+		return true;
 	end
+end
+
+---Event for when a card is double-clicked on an image. Flips the card
+---@param token tokeninstance
+---@param image imagecontrol
+function onCardDoubleClicked(token, image)
+	Debug.chat('onCardDoubleClicked()');
+	if not Session.IsHost then
+		-- Send an OOB so that host can do the actual flipping
+		-- local sIdentity = User.getCurrentIdentity();
+	end
+
+	local cardnode = CardTable.getCardFromToken(token)
+	if not cardnode then
+		return;
+	end
+
+
+	CardTable.flipCardOnTable(token, image, cardnode, "gm");
+
+	return true;
+end
+
+function autoTokenScale(tokenMap)
+	Debug.chat('auto token scale', _bFlipping);
+	-- If we're flipping a card we absolutely do not want the token auto scaled
+	if _bFlipping then
+		return;
+	end
+
+	_fAutoTokenScale(tokenMap);
 end
 
 -----------------------------------------------------
 -- EVENT RAISERS
 -----------------------------------------------------
 
----Adds a card to the card table and track's it for as long as it's on an image
+---Plays a card on to an image track's it for as long as it's there
 ---@param vCard databasenode|string
 ---@param bFacedown boolean Is the card face up or face down
 ---@param token tokeninstance tokeninstance of the card after adding it to the image
 ---@param tEventTrace table Event trace table
 ---@return databasenode newCard The card's location after moving
-function addCardToTable(vCard, bFacedown, token, tEventTrace)
+function playCardOnTable(vCard, bFacedown, token, tEventTrace)
+	Debug.chat('playCardOnTable()');
 	local vCard = DeckedOutUtilities.validateCard(vCard);
 	if not vCard then return end
 
@@ -127,36 +169,68 @@ function addCardToTable(vCard, bFacedown, token, tEventTrace)
 
 		tEventTrace = DeckedOutEvents.addEventTrace(tEventTrace, DeckedOutEvents.DECKEDOUT_EVENT_PUT_ON_TABLE);
 		tablecard = CardsManager.moveCard(vCard, tablenode, tEventTrace)
-	else
-		-- If we're already on the table then we need to remove current data in the card table
-		_tCardTable[sImagePath][nId] = nil;
 	end
 
 	-- Save the location of the card (imagenode path and token id)
 	-- so that we can get it back later
-	CardTable.udpateCardOnTable(tablecard, imagenode, nId);
+	CardTable.updateCardOnTable(tablecard, imagenode, nId, bFacedown);
 	
-	tEventTrace = DeckedOutEvents.raiseOnCardAddedToImageEvent(tablecard, imagenode, nId, tEventTrace);
+	tEventTrace = DeckedOutEvents.raiseOnCardAddedToImageEvent(tablecard, tEventTrace);
 
-	return newCard;
+	return tablecard;
 end
 
 ---Remvoes a card from the card table and discards it
----@param sImage string image node path of the image that the card was deleted from
----@param nId number token id of the card token that was deleted
+---@param vCard databasenode|string
 ---@param tEventTrace table event trace table
 ---@return databasenode cardInDiscard card node in the discard pile. Note if a client calls this function it will return nil
-function removeCardFromTable(sImage, nId, tEventTrace)
-	local cardNode = _tCardTable[sImage][nId];
-	_tCardTable[sImage][nId] = nil;
+function discardCardFromTable(vCard, tEventTrace)
+	local vCard = DeckedOutUtilities.validateCard(vCard);
+	if not vCard then return end
 
-	local bFacedown = CardsManager.isCardFaceDown(cardNode);
+	local bFacedown = CardsManager.isCardFaceDown(vCard);
 
 	tEventTrace = DeckedOutEvents.addEventTrace(tEventTrace, DeckedOutEvents.DECKEDOUT_EVENT_IMAGE_CARD_DELETED);
-	local cardInDiscard = CardsManager.discardCard(cardNode, bFacedown, nil, tEventTrace);
+	local cardInDiscard = CardsManager.discardCard(vCard, bFacedown, nil, tEventTrace);
 	DeckedOutEvents.raiseOnCardDeletedFromImageEvent(cardInDiscard, tEventTrace);
 
 	return cardInDiscard;
+end
+
+---Flips a card face up or face down
+---@param token tokeninstance
+---@param image imagecontrol
+---@param cardnode databasenode
+---@param sIdentity string identity (or 'gm') of the person doing the flipping
+function flipCardOnTable(token, image, cardnode, sIdentity)
+	Debug.chat('flipCardOnTable()');
+	_bFlipping = true;
+
+	-- First update the node backing the token
+	CardsManager.flipCardFacing(cardnode, sIdentity, {})
+
+	local sNewToken = CardsManager.getCardFacingImage(cardnode);
+
+	-- Have to be careful here, because deleting a tokeninstance will trigger the discard
+	-- and there's no other way to change the token's prototype after it's on an image
+	local x, y = token.getPosition();
+	-- local newToken = image.addToken(sNewToken, x, y);
+	local newToken = Token.addToken(DB.getPath(token.getContainerNode()), sNewToken, x, y);
+	local nScale = token.getContainerScale();
+	Debug.chat('containerscale', nScale);
+
+	newToken.setScale(nScale * 1.4142) -- Stupid hack because tokens automatically get scaled down by sqrt(2) for some reason
+	Debug.chat('old scale: ' .. nScale)
+	Debug.chat('new scale: ' .. newToken.getScale())
+	newToken.setOrientation(token.getOrientation());
+	CardTable.updateTokenName(cardnode, newToken);
+	token.delete();
+
+	-- This is crucial, because the new token has a new id, and we need to update
+	-- the DB with the new token id.
+	CardTable.setCardTokenId(cardnode, newToken.getId());
+	
+	_bFlipping = false;
 end
 
 ------------------------------------------
@@ -169,20 +243,45 @@ function getCardTableNode()
 	return DB.createNode(CARD_TABLE_PATH);
 end
 
+---Gets an iterator for easy use in for loops
+---@return fun(table: table<<string>, <databasenode>>, index?: <K>):<K>, <V>
+function getCardTableIterator()
+	return pairs(DB.getChildren(DB.getPath(CardTable.CARD_TABLE_PATH)))
+end
+
 ---Checks of a card is already in storage
 ---@param vCard databasenode|string
 ---@return boolean
 function isCardOnTable(vCard)
 	local vCard = DeckedOutUtilities.validateCard(vCard);
-	if not vCard then return end
+	if not vCard then return false; end
 
-	return StringManager.startsWith(DB.getPath(vCard), CARD_TABLE_PATH);
+	return StringManager.startsWith(DB.getPath(vCard), CardTable.CARD_TABLE_PATH);
 end
 
----Gets a card's node from the card table DB list
----@param vCard databasenode|string
----@return databasenode cardnode Node of the card on a table
-function getCardOnTable(vCard)
+---Gets a card based on a tokeninstance
+---@param token tokeninstance
+---@return databasenode cardnode or nil if token is not a card node
+function getCardFromToken(token)
+	local nTokenId = token.getId();
+	local sImageNode = DB.getPath(token.getContainerNode());
+
+	for _, cardnode in CardTable.getCardTableIterator() do
+		local image = CardTable.getCardImage(cardnode);
+		local id = CardTable.getCardTokenId(cardnode);
+
+		if image == sImageNode and id == nTokenId then
+			return cardnode;	
+		end
+	end
+
+end
+
+---Checks if a token is a card token
+---@param token tokeninstance
+---@return boolean
+function isTokenCard(token)
+	return getCardFromToken(token) ~= nil;
 end
 
 ---Updates a card's values in the card table to track it's current location
@@ -190,7 +289,7 @@ end
 ---@param imagenode databasenode the node of the image that the card is on
 ---@param nTokenId number the id of the tokeninstance that represents the card on its image
 ---@return boolean success true if operation succeeded, false if not
-function updateCardOnTable(vCard, imagenode, nTokenId)
+function updateCardOnTable(vCard, imagenode, nTokenId, bFacedown)
 	vCard = DeckedOutUtilities.validateCard(vCard);
 	if not vCard then return false; end
 
@@ -200,16 +299,28 @@ function updateCardOnTable(vCard, imagenode, nTokenId)
 	end
 
 	local sImagePath = DB.getPath(imagenode);
-
-	if not _tCardTable[sImagePath] then
-		_tCardTable[sImagePath] = {};
+	local nFacing = 1; -- default to face up
+	if bFacedown then
+		nFacing = 0;
 	end
-	_tCardTable[sImagePath][nTokenId] = vCard;
 
-	DB.setValue(vCard, CARD_TABLE_IMAGE_PATH, "string", sImagePath);
-	DB.setValue(vCard, CARD_TABLE_ID_PATH, "number", nTokenId);
+	CardTable.setCardImage(vCard, sImagePath);
+	CardTable.setCardTokenId(vCard, nTokenId);
+	CardsManager.setCardFacing(vCard, nFacing);
 
 	return true;
+end
+
+function deleteCardFromCardTable(vCard)
+	vCard = DeckedOutUtilities.validateCard(vCard);
+	if not vCard then return false; end
+
+	if not CardTable.isCardOnTable(vCard) then
+		return false;
+	end
+
+	local sImage = CardTable.getCardImage(card);
+	local nId = CardTable.getCardTokenId(card);
 end
 
 ---Deletes the image node path and token id nodes from a card
@@ -219,7 +330,9 @@ function deleteCardTableNodesFromCard(vCard)
 	vCard = DeckedOutUtilities.validateCard(vCard);
 	if not vCard then return false; end
 
-	if not CardTable.isCardOnTable(vCard) then
+	-- Make sure that we're not deleting card table nodes for a card that's 
+	-- currently on the card table
+	if CardTable.isCardOnTable(vCard) then
 		return false;
 	end
 
@@ -234,13 +347,26 @@ end
 ---@return string sImagePath or an empty string if no value is found
 function getCardImage(vCard)
 	vCard = DeckedOutUtilities.validateCard(vCard);
-	if not vCard then return end
+	if not vCard then return ""; end
 
 	if not CardTable.isCardOnTable(vCard) then
-		return;
+		return "";
 	end
 
 	return DB.getValue(vCard, CardTable.CARD_TABLE_IMAGE_PATH, "");
+end
+
+---Sets the image path for cards that are on the card table
+---@param vCard databasenode|string
+---@param sImagePath string DB node path to the image the card is one
+---@return boolean success true if successful, false if not.
+function setCardImage(vCard, sImagePath)
+	vCard = DeckedOutUtilities.validateCard(vCard);
+	if not vCard then return false; end
+
+	DB.setValue(vCard, CardTable.CARD_TABLE_IMAGE_PATH, "string", sImagePath);
+
+	return true;
 end
 
 ---Gets the token id of a card that's on the card table
@@ -255,4 +381,30 @@ function getCardTokenId(vCard)
 	end
 
 	return DB.getValue(vCard, CardTable.CARD_TABLE_ID_PATH, -1);
+end
+
+---Sets the token id for cards that are on the card table
+---@param vCard databasenode|string
+---@param nTokenId number token id of the card on the table
+---@return boolean success true if successful, false if not.
+function setCardTokenId(vCard, nTokenId)
+	vCard = DeckedOutUtilities.validateCard(vCard);
+	if not vCard then return false; end
+
+	DB.setValue(vCard, CardTable.CARD_TABLE_ID_PATH, "number", nTokenId);
+
+	return true;
+end
+
+---Updates a card token's name based on whetehr the card is face up for face down
+---@param vCard databasenode|string
+---@param token tokeninstance
+function updateTokenName(vCard, token)
+	vCard = DeckedOutUtilities.validateCard(vCard);
+	if not vCard then return end
+	if CardsManager.isCardFaceDown(vCard) then
+		token.setName(CardsManager.getDeckNameFromCard(vCard));
+	else
+		token.setName(CardsManager.getCardName(vCard));
+	end
 end

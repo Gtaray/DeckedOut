@@ -46,7 +46,7 @@ function moveCard(vCard, vDestination, tEventTrace)
 
 	-- If the card isn't on the Table, then delete card table data
 	if not CardTable.isCardOnTable(newNode) then
-		CardTable.deleteCardTableNodesFromCard(vCard);
+		CardTable.deleteCardTableNodesFromCard(newNode);
 	end
 
 	tEventTrace = DeckedOutEvents.raiseOnCardMovedEvent(newNode, sOldCardNode, tEventTrace);
@@ -299,16 +299,22 @@ function discardRandomCardFromDeck(vDeck, sIdentity, bFacedown, tEventTrace)
 end
 
 ---Flips a card from face up to face down or visa versa
----@param vCard databasenode
-function flipCardFacing(vCard, tEventTrace)
+---@param vCard databasenode|string
+---@param sIdentity string identity (or "gm") of the person doing this flipping
+---@param tEventTrace table
+function flipCardFacing(vCard, sIdentity, tEventTrace)
 	vCard = DeckedOutUtilities.validateCard(vCard);
 	if not vCard then return end
 
+	if sIdentity == nil then
+		sIdentity = CardsManager.getCardSource(vCard);
+	end
+
 	if CardsManager.isCardFaceUp(vCard) then
-		DeckedOutEvents.raiseOnCardFlippedEvent(vCard, CardsManager.getCardSource(vCard), 0, tEventTrace)
+		DeckedOutEvents.raiseOnCardFlippedEvent(vCard, sIdentity, 0, tEventTrace)
 		CardsManager.setCardFaceDown(vCard);
 	else
-		DeckedOutEvents.raiseOnCardFlippedEvent(vCard, CardsManager.getCardSource(vCard), 1, tEventTrace)
+		DeckedOutEvents.raiseOnCardFlippedEvent(vCard, sIdentity, 1, tEventTrace)
 		CardsManager.setCardFaceUp(vCard);
 	end
 end
@@ -721,6 +727,20 @@ function getCardFacing(vCard)
 	end
 
 	return DB.getValue(vCard, CardsManager.CARD_FACING_PATH, 1);
+end
+
+---Gets a card's image based on whether it's face up or face down
+---@param vCard databasenode|string
+---@return string cardImage or the deck's back depending on if the card is face up for face down
+function getCardFacingImage(vCard)
+	vCard = DeckedOutUtilities.validateCard(vCard);
+	if not vCard then return end
+
+	if CardsManager.isCardFaceUp(vCard) then
+		return CardsManager.getCardFront(vCard);
+	else
+		return CardsManager.getCardBack(vCard);
+	end
 end
 
 ---Sets a card face up if it's in a hand

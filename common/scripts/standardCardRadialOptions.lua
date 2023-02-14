@@ -57,7 +57,7 @@ function onMenuSelection(selection)
 	elseif selection == 2 then
 		DesktopManager.peekCard(window.getDatabaseNode());
 	elseif selection == 3 then
-		CardsManager.flipCardFacing(window.getDatabaseNode(), {})
+		CardsManager.flipCardFacing(window.getDatabaseNode(), nil, {}) -- Nil here lets the flip function grab the current identity
 	elseif selection == 5 then
 		playCard(true);
 	elseif selection == 6 then

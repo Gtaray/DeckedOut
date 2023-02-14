@@ -17,6 +17,7 @@ function onInit()
 	DeckedOutEvents.registerEvent(DeckedOutEvents.DECKEDOUT_EVENT_HAND_PUT_BACK_IN_DECK, { fCallback = printHandPutBack, sTarget = "host" });
 	DeckedOutEvents.registerEvent(DeckedOutEvents.DECKEDOUT_EVENT_CARD_FLIPPED, { fCallback = printCardFlippedMessage, sTarget = "host" });
 	DeckedOutEvents.registerEvent(DeckedOutEvents.DECKEDOUT_EVENT_CARD_PEEK, { fCallback = printPeekCardMessage, sTarget = "host" });
+	DeckedOutEvents.registerEvent(DeckedOutEvents.DECKEDOUT_EVENT_IMAGE_CARD_ADDED, { fCallback = printCardPlayedMessage, sTarget = "host" });
 
 	-- These oob messages are needed because cards are printed to chat. the GM must copy referenced cards to card storage
 	-- Before sending the message to chat. Clients can't copy to storage.
