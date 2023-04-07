@@ -6,4 +6,8 @@
 	<windowclass name="client_ct_entry" merge="join">
 		<script file="ct/scripts/ct_onCardDrop.lua" />
 	</windowclass>
+
+	<windowclass name="combatant" merge="join" ruleset="SWADE">
+		<script file="ct/scripts/ct_onCardDrop.lua" />
+	</windowclass>
 </root>
