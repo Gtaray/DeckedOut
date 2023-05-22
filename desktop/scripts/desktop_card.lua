@@ -3,6 +3,7 @@ local winTooltip = nil;
 function onInit()
 	local node = getDatabaseNode();
 	DB.addHandler(DB.getPath(node, CardsManager.CARD_FACING_PATH), "onUpdate", onFacingChanged)
+	DB.addHandler(DB.getPath(node, CardsManager.CARD_ORIENTATION_PATH), "onUpdate", onOrientationChanged)
 	DB.addHandler(DB.getPath(node, "name"), "onUpdate", onNameChanged)
 
 	onFacingChanged();
@@ -12,6 +13,7 @@ end
 function onClose()
 	local node = getDatabaseNode();
 	DB.removeHandler(DB.getPath(node, CardsManager.CARD_FACING_PATH), "onUpdate", onFacingChanged)
+	DB.removeHandler(DB.getPath(node, CardsManager.CARD_ORIENTATION_PATH), "onUpdate", onOrientationChanged)
 	DB.removeHandler(DB.getPath(node, "name"), "onUpdate", onNameChanged)
 end
 
@@ -29,6 +31,16 @@ function setCardSize(nWidth, nHeight)
 	image.setAnchoredHeight(nHeight);
 	cardback.setAnchoredWidth(nWidth);
 	cardback.setAnchoredHeight(nHeight);
+end
+
+function onOrientationChanged()
+	Debug.chat(image.getOrientation());
+	local nOrientation = CardsManager.getCardOrientation(getDatabaseNode());
+	if nOrientation == 1 then
+		image.setOrientation(0);
+	elseif nOrientation == 3 then
+		image.setOrientation(180);
+	end
 end
 
 -------------------------------

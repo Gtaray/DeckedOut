@@ -123,6 +123,8 @@
 	<string name="card_menu_flip_faceup">Flip card face up</string>
 	<string name="card_menu_flip_facedown">Flip card face down</string>
 	<string name="card_menu_peek">Peek at this this card without flipping it</string>
+	<string name="card_menu_turn_upside_down">Turn this card upside down</string>
+	<string name="card_menu_turn_rightside_up">Turn this card right-side up</string>
 
 	<string name="deck_label_cardback">Card Back</string>
 	<string name="deck_label_cards">Cards</string>
@@ -176,6 +178,7 @@
 
 	<string name="option_label_permission_flip">Are players allowed to flip cards</string>
 	<string name="option_label_permission_peek">Are players allowed to peek at facedown cards</string>
+	<string name="option_label_permission_turn">Are players allowed to turn cards upside down or rightside up</string>
 	<string name="option_val_yes">Yes</string>
 	<string name="option_val_no">No</string>
 

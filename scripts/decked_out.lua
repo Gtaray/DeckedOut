@@ -44,6 +44,8 @@ function onInit()
 			{ labels = "option_val_yes", values = "yes", baselabel = "option_val_no", baseval = "no", default = "no" });
 	OptionsManager.registerOption2("PEEK_PERMISSION", false, "option_header_deckedout", "option_label_permission_peek", "option_entry_cycler", 
 			{ labels = "option_val_yes", values = "yes", baselabel = "option_val_no", baseval = "no", default = "no" });
+	OptionsManager.registerOption2("TURN_PERMISSION", false, "option_header_deckedout", "option_label_permission_turn", "option_entry_cycler", 
+			{ labels = "option_val_yes", values = "yes", baselabel = "option_val_no", baseval = "no", default = "no" });
 	OptionsManager.registerOption2("SHOW_GM_PEEK_MSG", false, "option_header_deckedout", "option_label_show_gm_peek", "option_entry_cycler", 
 			{ labels = "option_val_yes", values = "yes", baselabel = "option_val_no", baseval = "no", default = "no" });
 	OptionsManager.registerOption2("CARD_TOOLTIP_SIZE", true, "option_header_deckedout", "option_label_card_tooltip_size", "option_entry_cycler", 

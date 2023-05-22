@@ -22,6 +22,12 @@ function canPeekAtCards()
 	return OptionsManager.getOption("PEEK_PERMISSION") == "yes" or Session.IsHost;
 end
 
+---Returns true if current user is allowed to peek at cards
+--@return boolean
+function canTurnCards()
+	return OptionsManager.getOption("TURN_PERMISSOIN") == "yes" or Session.IsHost;
+end
+
 ---Returns true if a message should be put in chat when a GM peeks at a card
 ---@return boolean
 function showGmPeekMessage()
@@ -170,17 +176,32 @@ function validateHost()
 	return true;
 end
 
----Adds an onUpdate handler for the given card.
+---Adds an onUpdate handler for the given card that fires when the card facing changes.
 ---@param vCard databasenode
 ---@param fCallback function
 function addOnCardFlippedHandler(vCard, fCallback)
 	if not validateCard(vCard) then return end;
 	DB.addHandler(DB.getPath(vCard, CardsManager.CARD_FACING_PATH), "onUpdate", fCallback);
 end
----Removes an onUpdate handler for the given card.
+---Removes an onUpdate handler for the given card that fires when the card facing changes.
 ---@param vCard databasenode
 ---@param fCallback function
 function removeOnCardFlippedHandler(vCard, fCallback)
 	if not vCard then return end;
 	DB.removeHandler(DB.getPath(vCard, CardsManager.CARD_FACING_PATH), "onUpdate", fCallback);
+end
+
+---Adds an onUpdate handler for the given card when the card's orientation chagnes.
+---@param vCard databasenode
+---@param fCallback function
+function addOnCardTurnedHandler(vCard, fCallback)
+	if not validateCard(vCard) then return end;
+	DB.addHandler(DB.getPath(vCard, CardsManager.CARD_ORIENTATION_PATH), "onUpdate", fCallback);
+end
+---Removes an onUpdate handler for the given card when the card's orientation chagnes.
+---@param vCard databasenode
+---@param fCallback function
+function removeOnCardTurnedHandler(vCard, fCallback)
+	if not vCard then return end;
+	DB.removeHandler(DB.getPath(vCard, CardsManager.CARD_ORIENTATION_PATH), "onUpdate", fCallback);
 end

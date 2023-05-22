@@ -20,6 +20,9 @@ function onInit()
 
 	DeckedOutUtilities.addOnCardFlippedHandler(card, onCardFlipped);
 	onCardFlipped();
+
+	DeckedOutUtilities.addOnCardTurnedHandler(card, onCardTurned);
+	onCardTurned();
 end
 
 function onClose()
@@ -27,6 +30,7 @@ function onClose()
 		super.onClose();
 	end
 	DeckedOutUtilities.removeOnCardFlippedHandler(card, onCardFlipped);
+	DeckedOutUtilities.removeOnCardTurnedHandler(card, onCardTurned);
 end
 
 function onCardFlipped()
@@ -51,13 +55,40 @@ function onCardFlipped()
 	end
 end
 
+function onCardTurned()
+	if not DeckedOutUtilities.canTurnCards() then
+		return;
+	end
+
+	local vCard = window.getDatabaseNode();
+	if not CardsManager.isCardInHand(vCard) then
+		return;
+	end
+
+	local nOrientation = CardsManager.getCardOrientation(vCard);
+	local text, icon;
+	if nOrientation == 1 then
+		text = Interface.getString("card_menu_turn_upside_down");
+		icon = "rotatecw"
+	elseif nOrientation == 3 then
+		text = Interface.getString("card_menu_turn_rightside_up");
+		icon = "rotateccw"
+	end
+
+	if text and icon then
+		registerMenuItem(text, icon, 4);
+	end
+end
+
 function onMenuSelection(selection)
 	if selection == 1 then
-		playCard(DeckedOutUtilities.getFacedownHotkey())
+		playCard(DeckedOutUtilities.getFacedownHotkey());
 	elseif selection == 2 then
 		DesktopManager.peekCard(window.getDatabaseNode());
 	elseif selection == 3 then
-		CardsManager.flipCardFacing(window.getDatabaseNode(), {})
+		CardsManager.flipCardFacing(window.getDatabaseNode(), {});
+	elseif selection == 4 then
+		CardsManager.flipCardOrientation(window.getDatabaseNode(), {});
 	elseif selection == 5 then
 		playCard(true);
 	elseif selection == 6 then

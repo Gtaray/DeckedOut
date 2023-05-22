@@ -2,6 +2,7 @@ GM_HAND_PATH = "gmhand";
 PLAYER_HAND_PATH = "cards";
 CARD_FACING_PATH = "faceup";
 CARD_ORDER_PATH = "order";
+CARD_ORIENTATION_PATH = "orientation";
 
 OOB_MSGTYPE_DROPCARD = "dropcard";
 OOB_MSGTYPE_DISCARD = "discard"
@@ -35,10 +36,11 @@ function moveCard(vCard, vDestination, tEventTrace)
 	DB.copyNode(vCard, newNode);
 	vCard.delete();
 
-	-- if the card was moved to anywhere other than a hand, delete the facing and order node
+	-- if the card was moved to anywhere other than a hand, delete the facing, order, and orientation node
 	if not CardsManager.isCardInHand(newNode) then
 		CardsManager.deleteFacingNode(newNode);
 		CardsManager.deleteCardOrder(newNode);
+		CardsManager.deleteCardOrientation(newNode);
 	end
 
 	tEventTrace = DeckedOutEvents.raiseOnCardMovedEvent(newNode, sOldCardNode, tEventTrace);
@@ -304,6 +306,21 @@ function flipCardFacing(vCard, tEventTrace)
 	else
 		DeckedOutEvents.raiseOnCardFlippedEvent(vCard, CardsManager.getCardSource(vCard), 1, tEventTrace)
 		CardsManager.setCardFaceUp(vCard);
+	end
+end
+
+---Turns a card upside-down or rightside-up
+---@param vCard databasenode
+function flipCardOrientation(vCard, tEventTrace)
+	vCard = DeckedOutUtilities.validateCard(vCard);
+	if not vCard then return end
+
+	if CardsManager.getCardOrientation(vCard) == 1 then
+		DeckedOutEvents.raiseOnCardChangedOrientationEvent(vCard, CardsManager.getCardSource(vCard), 3, tEventTrace)
+		CardsManager.turnCardUpsideDown(vCard);
+	else
+		DeckedOutEvents.raiseOnCardChangedOrientationEvent(vCard, CardsManager.getCardSource(vCard), 1, tEventTrace)
+		CardsManager.turnCardRightsideUp(vCard);
 	end
 end
 
@@ -795,6 +812,53 @@ function deleteCardOrder(vCard)
 
 	DB.deleteChild(vCard, CardsManager.CARD_ORDER_PATH);
 end
+
+---Gets a card's orientation
+---@param vCard databasenode|string
+---@return number nOrientation 1 = rightside up, 3 = upside down
+function getCardOrientation(vCard)
+	vCard = DeckedOutUtilities.validateCard(vCard);
+	if not vCard then return 0 end
+
+	return DB.getValue(vCard, CardsManager.CARD_ORIENTATION_PATH, 1);
+end
+
+---Turns a card's orientation such that it is rightside up
+---@param vCard databasenode|string
+function turnCardRightsideUp(vCard)
+	vCard = DeckedOutUtilities.validateCard(vCard);
+	if not vCard then return end
+
+	CardsManager.setCardOrientation(vCard, 1);
+end
+
+---Turns a card's orientation such that it is upside down
+---@param vCard databasenode|string
+function turnCardUpsideDown(vCard)
+	vCard = DeckedOutUtilities.validateCard(vCard);
+	if not vCard then return end
+
+	CardsManager.setCardOrientation(vCard, 3);
+end
+
+---Changes a card's orientation
+---@param vCard databasenode|string
+---@param nOrientation number 1 = rightside up, 3 = upside down (2 and 4 reserved for sidways if needed)
+function setCardOrientation(vCard, nOrientation)
+	vCard = DeckedOutUtilities.validateCard(vCard);
+	if not vCard then return end
+
+	DB.setValue(vCard, CardsManager.CARD_ORIENTATION_PATH, "number", nOrientation);
+end
+
+---Deletes the orientation node from a card node
+---@param vCard databasenode|string
+function deleteCardOrientation(vCard)
+	vCard = DeckedOutUtilities.validateCard(vCard);
+	if not vCard then return end
+
+	DB.deleteChild(vCard, CardsManager.CARD_ORIENTATION_PATH);
+end
 ------------------------------------------
 -- DRAG DROP
 ------------------------------------------
@@ -929,7 +993,7 @@ function onDropCard(draginfo, vDestination, sExtra)
 		end
 	end
 
-	sDestPath = vDestination.getNodeName();
+	local sDestPath = vDestination.getNodeName();
 
 	if not Session.IsHost then
 		CardsManager.sendCardDropMessage(sRecord, sDestPath, sExtra, bFacedown);
