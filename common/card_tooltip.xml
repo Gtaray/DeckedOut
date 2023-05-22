@@ -4,15 +4,16 @@
 		<sizelimits>
 			<dynamic />
 		</sizelimits>
+		<script file="common/scripts/card_tooltip.lua" />
 		<sheetdata>
-			<tokenfield name="image">
+			<tokencontrol name="image">
 				<anchored>
 					<top />
 					<left />
 					<right />
 					<bottom />
 				</anchored>
-			</tokenfield>
+			</tokencontrol>
 		</sheetdata>
 	</windowclass>
 </root>
