@@ -28,6 +28,9 @@
 	<icon name="flip" file="graphics/radial/flipcard.png" />
 	<icon name="sort_asc" file="graphics/radial/sort_ascending.png" />
 
+	<!-- Tabs -->
+	<icon name="tab_cardtable" file="graphics/tabs/tab_cardtable.png" />
+
 	<!-- Misc -->
 	<icon name="missing_token" file="graphics/icons/missing_token.png" />
 	<icon name="icon_discard_pile" file="graphics/icons/discard_pile.png" />

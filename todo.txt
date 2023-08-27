@@ -1,15 +1,24 @@
 TODO LIST: 
+* Add a "Card Table" tab to the party sheet.
+	* This tab lets a user select from a dropdown one of the decks that's open in the deckbox.
+	* The tab shows a vertical list of all characters that have cards from that deck, and then shows horizontally all of the cards they have in their hands
+		* This list can contain all charsheets, but filtered to only show chars that have cards from the selected deck
+		* The list of cards can contain every card but be filtered to only show cards from the currently selected deck
+	* Deck option to specify whether the cards in players' hands should be visible or hidden.
+		* If cards should be hidden, then all images are the card back
+		* If cards shoudl be visible, thena ll images are the card front
+	* Zoom-in tooltip thing works on this list. Clicking a card does nothing
+	* Potentially allow players to move cards in their hand to another players' hand. or the GM to move any cards to any hand
+	* Because of the way that card nodes are stored, the only way this will work is if it updates any time a card is added or removed from a character's hand
+		* The Host builds and updates the table any time any character's hand changes.
+		* This list is completely separate from hands, and the nodes contained therein are self-contained. 
+		* Iteration 1 of this the hands should be readonly
 
 STRETCH GOALS
-* Hand actions - Moved to Stretch goal, because of some weirdness around message timing. Could get pulled in if requested though. Current workaround is to use dice
-	* [ ] Play at random
-	* [ ] Give to other person at random
 * Figure out how to handle card tokens being on the map and ALSO in a person's hand
 	* Potential solution: Add a new location similar to storage where tokens get moved to if they're on an image. The data is in the deckbox, but the tokens are on a map.
 	* Cards should also be able to be face down on the map, with a radial menu to flip face up
 * Trigger me Timbers support
-* Tooltips when hovering over cards in hand
-	* Even more stretch, make the tooltip only appear when the size of the tokenfield is really small
 * Option toggle for automatically showing/hiding hand when switching characters? So rare this probably doesn't matter
 * Add pre-check functions to all events, and get rid of immediate event type
 

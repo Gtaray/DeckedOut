@@ -8,7 +8,7 @@ function onInit()
 	if Session.IsHost then
 		local storage = DB.createNode(CARD_STORAGE_PATH);
 		DB.deleteChildren(storage);
-		storage.setPublic(true);
+		DB.setPublic(storage, true);
 	end
 end
 
@@ -19,7 +19,7 @@ end
 ---Adds a card to card storage. Raises the onAddedToStorage event
 ---@param vCard databasenode|string
 ---@param tEventTrace table Event trace table
----@return databasenode card The node that was added to card storage
+---@return databasenode|nil card The node that was added to card storage
 function addCardToStorage(vCard, tEventTrace)
 	local vCard = DeckedOutUtilities.validateCard(vCard);
 	if not vCard then return end
@@ -59,7 +59,7 @@ end
 
 ---Checks of a card is already in storage
 ---@param vCard databasenode|string
----@return boolean
+---@return boolean|nil
 function isCardInStorage(vCard)
 	local vCard = DeckedOutUtilities.validateCard(vCard);
 	if not vCard then return end
@@ -70,7 +70,7 @@ end
 
 ---Gets a card from storage. Returns nil if card is not in storage
 ---@param vCard databasenode|string
----@return string tokenPrototype
+---@return string|nil tokenPrototype
 function getCardFromStorage(vCard)
 	local vCard = DeckedOutUtilities.validateCard(vCard);
 	if not vCard then return end
@@ -82,7 +82,7 @@ end
 
 ---Checks if a card node comes from the card storage node
 ---@param vCard databasenode|string
----@return boolean
+---@return boolean|nil
 function doesCardComeFromStorage(vCard)
 	local vCard = DeckedOutUtilities.validateCard(vCard);
 	if not vCard then return end
@@ -106,7 +106,7 @@ end
 
 ---Gets the origin value for a card that's in storage
 ---@param vCard databasenode|string
----@return string
+---@return string|nil
 function getCardOrigin(vCard)
 	local vCard = DeckedOutUtilities.validateCard(vCard);
 	if not vCard then return end
@@ -116,7 +116,7 @@ end
 
 ---Checks if the origin for a card in storage is a discard pile
 ---@param vCard databasenode|string
----@return boolean
+---@return boolean|nil
 function isCardOriginADiscardPile(vCard)
 	local vCard = DeckedOutUtilities.validateCard(vCard);
 	if not vCard then return end

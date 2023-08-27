@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<!-- 
+  Please see the license.html file included with this distribution for 
+  attribution and copyright information.
+-->
+
+<root>
+	<windowclass name="partysheet_host" merge="join">
+		<sheetdata>
+			<sub_ps name="cardtable">
+				<class>ps_cardtable</class>
+			</sub_ps>
+			<tabs_partysheet name="tabs">
+				<script>
+					function onInit()
+						super.onInit();
+						super.addTab("cardtable", "tab_cardtable", false);
+					end
+				</script>
+			</tabs_partysheet>
+		</sheetdata>
+	</windowclass>
+	
+	<windowclass name="partysheet_client" merge="join">
+		<sheetdata>
+			<tabs_partysheet name="tabs">
+				<script>
+					function onInit()
+						super.onInit();
+						super.addTab("cardtable", "tab_cardtable", false);
+					end
+				</script>
+			</tabs_partysheet>
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="ps_cardtable">
+		<sheetdata>
+			<windowlist name="characters">
+				
+			</windowlist>
+		</sheetdata>
+	</windowclass>
+</root>

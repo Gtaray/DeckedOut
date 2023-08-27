@@ -17,6 +17,8 @@
 
 		<includefile source="ct/ct_entries.xml" />
 
+		<includefile source="ps/ps.xml" />
+
 		<includefile source="graphics/graphics.xml" />
 
 		<includefile source="desktop/desktop_panels.xml" />
@@ -41,6 +43,7 @@
 		<script name="CardsManager" file="scripts/manager_cards.lua" />
 		<script name="DeckManager" file="scripts/manager_deck.lua" />
 		<script name="CardStorage" file="scripts/manager_storage.lua" />
+		<script name="CardTable" file="scripts/manager_cardtable.lua" />
 		<script name="DesktopManagerDO" file="scripts/manager_desktop_do.lua" />
 	</base>
 </root>
