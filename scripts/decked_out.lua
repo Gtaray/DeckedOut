@@ -10,6 +10,7 @@ aRecords = {
 		bExport = true,
 		bID = false,
 		aDataMap = { "deck", "reference.decks" },
+		sRecordDisplayClass = "deckedout_deck",
 		sIcon = "sidebar_icon_recordtype_deck"
 	}
 }

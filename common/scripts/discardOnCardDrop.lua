@@ -2,7 +2,7 @@ function onDrop(x, y, dragdata)
 	if dragdata.isType("shortcut") then
 		local sClass, sRecord = dragdata.getShortcutData();
 
-		if sClass == "card" then
+		if sClass == "deckedout_card" then
 			self.onDropCardOnDelete(sRecord);
 			return true;
 		end

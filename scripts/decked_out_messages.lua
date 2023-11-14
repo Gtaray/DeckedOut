@@ -636,7 +636,7 @@ function buildCardMessage(msgOOB, sRecipientIdentity)
 	local sText, bShowCard = formatChatMessage(msgOOB, sRecipientIdentity);
 	if bShowCard and msgOOB.card_link then
 		msg.shortcuts = {}
-		table.insert(msg.shortcuts, { description = sText, class = "card", recordname = msgOOB.card_link });
+		table.insert(msg.shortcuts, { description = sText, class = "deckedout_card", recordname = msgOOB.card_link });
 	end
 
 	msg.text = sText;

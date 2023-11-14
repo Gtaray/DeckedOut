@@ -2,7 +2,7 @@ function onDeckDrop(dragdata)
 	if dragdata.isType("shortcut") then
 		local sClass, sRecord = dragdata.getShortcutData();
 
-		if sClass == "deck" then
+		if sClass == "deckedout_deck" then
 			loadDeck(sRecord);
 			return true;
 		end

@@ -77,7 +77,7 @@ function onShortcutDropOnPortrait(sIdentity, draginfo)
 	local sClass, sRecord = draginfo.getShortcutData();
 	local nodeSource = draginfo.getDatabaseNode();
 
-	if sClass == "card" then
+	if sClass == "deckedout_card" then
 		CardsManager.onDropCard(draginfo, DB.getPath("charsheet", sIdentity));
 		return;
 	end
@@ -115,7 +115,7 @@ function peekCard(vCard)
 	vCard = DeckedOutUtilities.validateCard(vCard);
 	if not vCard then return end
 
-	local w = Interface.openWindow("card", vCard.getNodeName());
+	local w = Interface.openWindow("deckedout_card", vCard.getNodeName());
 	if w then
 		w.main.subwindow.peek();
 		DeckedOutEvents.raiseOnCardPeekEvent(vCard, CardsManager.getCardSource(vCard), {});

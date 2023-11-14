@@ -574,7 +574,7 @@ end
 function onCardDroppedInChat(draginfo)
 	local sClass,sRecord = draginfo.getShortcutData();
 	-- Only handle card drops
-	if sClass ~= "card" then
+	if sClass ~= "deckedout_card" then
 		return;
 	end
 
@@ -613,7 +613,7 @@ end
 function onCardDroppedOnImage(cImageControl, x, y, draginfo)
 	local sClass,sRecord = draginfo.getShortcutData();
 	-- Only handle card drops
-	if sClass ~= "card" then
+	if sClass ~= "deckedout_card" then
 		return false;
 	end
 
@@ -649,7 +649,7 @@ end
 function onCardDroppedOnHotkey(dragdata)
 	local sClass,sRecord = dragdata.getShortcutData();
 	-- Only handle card drops
-	if sClass ~= "card" then
+	if sClass ~= "deckedout_card" then
 		return false;
 	end
 	local vCard = CardStorage.addCardToStorage(sRecord);
