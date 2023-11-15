@@ -136,6 +136,14 @@
 	<string name="dealcards_dialog_label_amount"># of Cards</string>
 	<string name="dealcards_dialog_button_accept">Deal</string>
 
+	<!-- CARD WINDOWCLASS -->
+	<string name="card_label_record">Record Link</string>
+	<string name="card_label_front">Card Face</string>
+	<string name="card_label_back">Card Back</string>
+	<string name="card_label_empty_link">Drop a record link on this card</string>
+	
+	<string name="card_menu_clear">Clear</string>
+
 	<!-- CHAT MESSAGES -->
 	<string name="chat_msg_card_played_faceup">%s played %s</string>
 	<string name="chat_msg_card_played_facedown">%s played %s facedown</string>

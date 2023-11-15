@@ -795,6 +795,28 @@ function deleteCardOrder(vCard)
 
 	DB.deleteChild(vCard, CardsManager.CARD_ORDER_PATH);
 end
+
+function getCardRecordLink(vCard)
+	vCard = DeckedOutUtilities.validateCard(vCard);
+	if not vCard then return end
+
+	return DB.getValue(vCard, "recordlink");
+end
+
+function getCardRecordLinkNode(vCard)
+	vCard = DeckedOutUtilities.validateCard(vCard);
+	if not vCard then return end
+
+	local _, sRecord = DB.getValue(vCard, "recordlink");
+	return DB.findNode(sRecord)
+end
+
+function setCardRecordLink(vCard, sClass, sRecord)
+	vCard = DeckedOutUtilities.validateCard(vCard);
+	if not vCard then return end
+
+	DB.setValue(vCard, "recordlink", "windowreference", sClass, sRecord)
+end
 ------------------------------------------
 -- DRAG DROP
 ------------------------------------------
