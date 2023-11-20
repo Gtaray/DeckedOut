@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <root>
-	<windowclass name="card">
+	<windowclass name="deckedout_card">
 		<frame>recordsheet</frame>
 		<placement>
 			<size width="320" height="457" />
@@ -11,13 +11,13 @@
 		<script file="common/scripts/record_window.lua" />
 		<sheetdata>
 			<sub_record_header name="header">
-				<class>card_header</class>
+				<class>deckedout_card_header</class>
 			</sub_record_header>
 
 			<frame_record_content name="contentframe" />
 
 			<subwindow_record name="main">
-				<class>card_main</class>
+				<class>deckedout_card_main</class>
 				<activate />
 				<fastinit />
 			</subwindow_record>
@@ -26,7 +26,7 @@
 		</sheetdata>
 	</windowclass>
 
-	<windowclass name="card_header">
+	<windowclass name="deckedout_card_header">
 		<margins control="0,0,0,7" />
 		<script file="common/scripts/record_header.lua" />
 		<sheetdata>
@@ -68,7 +68,7 @@
 		</sheetdata>
 	</windowclass>
 
-	<windowclass name="card_main">
+	<windowclass name="deckedout_card_main">
 		<margins control="0,0,0,2" />
 		<script>
 			local bPeek = false;

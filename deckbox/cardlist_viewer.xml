@@ -10,26 +10,7 @@
 			<minimum width="300" height="400" />
 			<dynamic />
 		</sizelimits>
-		<script>
-			function onInit()
-				cards.setDatabaseNode(getDatabaseNode());
-			end
-			function setTitle(sTitle)
-				if (sTitle or "") == "" then
-					return;
-				end
-				title.setValue(string.format(Interface.getString("cardlist_title_formatted"), sTitle));
-			end
-			function setSource(sNodeName)
-				local sourcenode = getDatabaseNode().getChild(sNodeName);
-				if not sourcenode then
-					Debug.console("ERROR: cardlist_viewer.setSource(): " .. sNodeName .. " was not found.");
-					return
-				end
-
-				cards.setDatabaseNode(sourcenode);
-			end
-		</script>
+		<script file="deckbox/scripts/cardlist_viewer.lua" />
 		<sheetdata>
 			<windowtitlebar name="title">
 				<resource>cardlist_title</resource>
@@ -39,12 +20,38 @@
 				<anchored>
 					<top offset="60" />
 					<left offset="40" />
-					<bottom offset="-40"/>
+					<bottom offset="-70"/>
 					<right offset="-40"/>
 				</anchored>
 				<class>cardlist_viewer_item</class>
 				<columns width="105" fillwidth="true" />
+				<script>
+					function onFilter(item)
+						local sFilter = window.filter_name.getValue();
+
+						if sFilter == "" then
+							return true;
+						end
+
+						local sName = CardsManager.getCardName(item.getDatabaseNode());
+						return sName:upper():find(sFilter:upper(), 1, true);
+					end
+				</script>
 			</windowlist>
+
+			<filter name="filter_name">
+				<anchored height="20">
+					<bottom anchor="bottom" offset="-40" />
+					<right anchor="right" offset="-60" />
+					<left anchor="left" offset="60" />
+				</anchored>
+				<script>
+					function onValueChanged()
+						super.onValueChanged();
+						window.cards.applyFilter();
+					end
+				</script>
+			</filter>
 
 			<resize_partysheet />
 			<close_partysheet />

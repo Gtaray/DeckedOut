@@ -132,7 +132,9 @@ function discardHand(sIdentity, tEventTrace)
 
 	tEventTrace = DeckedOutEvents.raiseOnHandDiscardedEvent(sIdentity, nil, tEventTrace);
 
-	for k,card in pairs(CardsManager.getHandNode(sIdentity).getChildren()) do
+
+	local handnode = CardsManager.getHandNode(sIdentity);
+	for k,card in pairs(DB.getChildren(handnode) or {}) do
 		CardsManager.discardCard(card, true, sIdentity, tEventTrace);
 	end
 end
@@ -867,7 +869,7 @@ function onDragCard(vCard, draginfo)
 	local bShowCardBack = bFacedown or CardsManager.isCardFaceDown(vCard);
 
 	draginfo.setType("shortcut");
-	draginfo.setShortcutData("card", vCard.getPath());
+	draginfo.setShortcutData("deckedout_card", vCard.getPath());
 
 	-- The number data is used to determine whether cards should be dealt facedown
 	-- which can be independent of the token that's displayed
@@ -904,7 +906,7 @@ function onDropCard(draginfo, vDestination, sExtra)
 
 	local sClass,sRecord = draginfo.getShortcutData();
 	-- Only handle card drops
-	if sClass ~= "card" then
+	if sClass ~= "deckedout_card" then
 		return false;
 	end
 

@@ -486,6 +486,8 @@ function resolveIdentityName(sIdentity, sMessageIdentity)
 	if sIdentity == "gm" then
 		return "the GM";
 	else
+		-- return User.getIdentityLabel(sIdentity); // This doesn't work unless someone is connected to and controlling the pc otherwise it seems to return nil
+		-- I'm not sure how this works though, since individual players can't access other charsheet nodes, so the display name shouldn't work there either.
 		return ActorManager.getDisplayName(
 			ActorManager.resolveActor(
 				DB.findNode(
@@ -502,7 +504,7 @@ function resolvePronouns(sSender, sReceiver, sMessageId, sDefault)
 			return "their";
 		end
 	else
-		-- If there is a receiver, then we use 'yourself, 'themselves', and 'name
+		-- If there is a receiver, then we use 'yourself, 'themselves', and 'name'
 		if sSender == sReceiver and sSender == sMessageId then
 			return "yourself";
 		end
@@ -635,7 +637,7 @@ function buildCardMessage(msgOOB, sRecipientIdentity)
 	local sText, bShowCard = formatChatMessage(msgOOB, sRecipientIdentity);
 	if bShowCard and msgOOB.card_link then
 		msg.shortcuts = {}
-		table.insert(msg.shortcuts, { description = sText, class = "card", recordname = msgOOB.card_link });
+		table.insert(msg.shortcuts, { description = sText, class = "deckedout_card", recordname = msgOOB.card_link });
 	end
 
 	msg.text = sText;

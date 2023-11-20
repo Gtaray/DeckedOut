@@ -33,7 +33,9 @@ function onInit()
 
 	OOBManager.registerOOBMsgHandler(OOB_MSGTYPE_DECKEDOUTEVENT, DeckedOutEvents.raiseEventHandler);
 	ChatManager.registerDropCallback("shortcut", DeckedOutEvents.onCardDroppedInChat);
+	ImageManager.registerDropCallback("shortcut", DeckedOutEvents.onCardDroppedOnImage);
 
+	Token.onDrop = DeckedOutEvents.onCardDroppedOnToken;
 	Interface.onHotkeyDrop = DeckedOutEvents.onCardDroppedOnHotkey;
 
 	DB.addHandler("deckbox.decks.*", "onDelete", onDeckDeleted);
@@ -587,7 +589,7 @@ end
 function onCardDroppedInChat(draginfo)
 	local sClass,sRecord = draginfo.getShortcutData();
 	-- Only handle card drops
-	if sClass ~= "card" then
+	if sClass ~= "deckedout_card" then
 		return;
 	end
 
@@ -617,13 +619,52 @@ function onCardDroppedOnToken(tokenCT, draginfo)
 	return CardsManager.onDropCard(draginfo, nodeCT);
 end
 
+---Event for when a card token is dropped on an image
+---@param cImageControl imagecontrol Image control the token is dropped on
+---@param x number x coordinate of the drop location
+---@param y number y coordinate of the drop location
+---@param draginfo dragdata Dragdata information
+---@return boolean bEndEvent If the return is true, the event is handled.
+function onCardDroppedOnImage(cImageControl, x, y, draginfo)
+	local sClass,sRecord = draginfo.getShortcutData();
+	-- Only handle card drops
+	if sClass ~= "deckedout_card" then
+		return false;
+	end
+
+	local vCard = DeckedOutUtilities.validateCard(sRecord);
+	local sCardBack = CardsManager.getCardBack(vCard);
+	
+	-- whether we place a card face down or face up is a bit tricky
+	-- If the card was dragged from its source with the hotkey pressed and is thus face down
+	-- then we always want to place face down
+	-- If the card was dragged from its source face up, then we want to place the card
+	-- respecting whether the facedown hotkey is currently pressed upon  dropping
+	local sToken = draginfo.getTokenData();
+	local bFacedown = sToken == sCardBack;
+
+	if DeckedOutUtilities.getFacedownHotkey() then
+		sToken = sCardBack;
+		bFacedown = true;
+	end
+
+	if sToken then
+		local token = cImageControl.addToken(sToken, x, y)
+		TokenManager.autoTokenScale(token);
+
+		CardsManager.playCard(sRecord, bFacedown, DeckedOutUtilities.shouldPlayAndDiscard(sRecord), {})
+
+		return token ~= nil;
+	end
+end
+
 ---Event for when a card is dropped onto the hotkeybar
 ---@param dragdata dragdata Dragdata info
 ---@return boolean bEndEvent If the return is true, the event is handled.
 function onCardDroppedOnHotkey(dragdata)
 	local sClass,sRecord = dragdata.getShortcutData();
 	-- Only handle card drops
-	if sClass ~= "card" then
+	if sClass ~= "deckedout_card" then
 		return false;
 	end
 	local vCard = CardStorage.addCardToStorage(sRecord);

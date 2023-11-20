@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <root>
-	<windowclass name="deck">
+	<windowclass name="deckedout_deck">
 		<frame>recordsheet</frame>
 		<placement>
 			<size width="320" height="480" />
@@ -15,13 +15,13 @@
 		<script file="common/scripts/record_window.lua" />
 		<sheetdata>
 			<sub_record_header name="header">
-				<class>deck_header</class>
+				<class>deckedout_deck_header</class>
 			</sub_record_header>
 
 			<frame_record_content name="contentframe" />
 
 			<subwindow_record name="main">
-				<class>deck_main</class>
+				<class>deckedout_deck_main</class>
 				<activate />
 			</subwindow_record>
 
@@ -30,7 +30,7 @@
 		</sheetdata>
 	</windowclass>
 
-	<windowclass name="deck_header">
+	<windowclass name="deckedout_deck_header">
 		<margins control="0,0,0,7" />
 		<script file="common/scripts/record_header.lua" />
 		<sheetdata>
@@ -44,7 +44,7 @@
 		</sheetdata>
 	</windowclass>
 
-	<windowclass name="deck_main">
+	<windowclass name="deckedout_deck_main">
 		<script>
 			function onInit()
 				update();
@@ -104,7 +104,7 @@
 					<right offset="-13" />
 				</anchored>
 				<columns width="105" fillwidth="true" />
-				<class>card_item</class>
+				<class>deckedout_card_item</class>
 				<datasource>.cards</datasource>
 				<empty textres="deck_emptycards" font="list-empty" />
 			</windowlist>
@@ -115,7 +115,7 @@
 		</sheetdata>
 	</windowclass>
 
-	<windowclass name="card_item">
+	<windowclass name="deckedout_card_item">
 		<margins control="0,0,0,5" />
 		<sheetdata>
 			<hs name="name" />

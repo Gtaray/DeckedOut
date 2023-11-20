@@ -44,7 +44,7 @@
 					return getValue() ~= "";
 				end
 				function onClickRelease(button, x, y)
-					Interface.openWindow("card", window.getDatabaseNode().getNodeName());
+					Interface.openWindow("deckedout_card", window.getDatabaseNode().getNodeName());
 				end
 			</script>
 			<anchored>
