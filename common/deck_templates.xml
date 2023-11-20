@@ -60,18 +60,22 @@
 				function onInit()
 					local node = window.getDatabaseNode();
 					DB.addHandler(DB.getPath(node, "deckid"), "onUpdate", update);
+					DB.addHandler(DB.getPath(node, "back"), "onUpdate", update);
 					update();
 				end
 				function onClose()
 					local node = window.getDatabaseNode();
 					DB.removeHandler(DB.getPath(node, "deckid"), "onUpdate", update);
+					DB.removeHandler(DB.getPath(node, "back"), "onUpdate", update);
 				end
 				function update()
 					local vCard = window.getDatabaseNode();
-					if DB.getValue(vCard, "deckid", "") == "" then
+
+					local sBackImage = CardsManager.getCardBack(vCard)
+					if sBackImage == nil then
 						return;
 					end
-					setPrototype(CardsManager.getCardBack(vCard));
+					setPrototype(sBackImage);
 				end
 			</script>
 			<anchored>

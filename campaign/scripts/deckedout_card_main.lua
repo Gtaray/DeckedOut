@@ -3,7 +3,6 @@ function onInit()
 	local node = getDatabaseNode();
 	DB.addHandler(DB.getPath(node, CardsManager.CARD_FACING_PATH), "onUpdate", onFacingChanged)
 
-	onFacingChanged();
 	update();
 end
 
@@ -13,7 +12,8 @@ function onClose()
 end
 
 function onDrop(x, y, draginfo)
-	local bReadOnly = WindowManager.getReadOnlyState(getDatabaseNode());
+	local node = getDatabaseNode();
+	local bReadOnly = WindowManager.getReadOnlyState(node);
 	if not Session.IsHost or bReadOnly then
 		return
 	end
@@ -21,16 +21,22 @@ function onDrop(x, y, draginfo)
 	if draginfo.isType("shortcut") then
 		local sClass, sRecord = draginfo.getShortcutData();
 		CardsManager.setCardRecordLink(getDatabaseNode(), sClass, sRecord);
-		return true
+	else
+		local sToken = draginfo.getTokenData()
+		if sToken then
+			CardsManager.setCardBack(node, sToken)
+		end
 	end
+
+	update()
 end
 
 function onFacingChanged()
-	local bFaceUp = CardsManager.isCardFaceUp(getDatabaseNode()) or bPeek;
-	image.setVisible(bFaceUp);
-	image.setEnabled(bFaceUp);
-	back.setVisible(not bFaceUp);
-	back.setEnabled(not bFaceUp);
+	local bFaceUp CardsManager.isCardFaceUp(node)
+	if bPeek == true and not bFaceUp then
+		bPeek = false
+	end
+	update()
 end
 
 function peek()
@@ -42,14 +48,26 @@ function update()
 	local node = getDatabaseNode();
 	local bReadOnly = WindowManager.getReadOnlyState(node);
 	local linknode = CardsManager.getCardRecordLinkNode(node);
+	local bCardInHand = CardsManager.isCardInHand(node);
+	local bCardInStorage = CardStorage.isCardInStorage(node);
+	local bHasUniqueBackImage = DB.getValue(node, "back", "") ~= "";
+	local bFaceUp = CardsManager.isCardFaceUp(node) or bPeek;
 
-	local bLabelVisible = not bReadOnly or linknode ~= nil
+	local bLinkVisible = not bReadOnly or linknode ~= nil
+	local bFrontVisible = bFaceUp or not (bCardInHand or bCardInStorage)
+	local bBackVisible = not bFaceUp or (not (bCardInHand or bCardInStorage) and bHasUniqueBackImage)
 
-	Debug.chat('label vis:', bLabelVisible);
-
-	header_record.setVisible(bLabelVisible)
-	recordlink_label.setVisible(bLabelVisible)
+	header_record.setVisible(bLinkVisible)
+	recordlink_label.setVisible(bLinkVisible)
 
 	-- Show the front image header only if the other sections are visible
-	header_front.setVisible(bLabelVisible)
+	header_front.setVisible(bLinkVisible or (bFaceUp and bBackVisible))
+	image.setVisible(bFrontVisible);
+	image.setEnabled(bFrontVisible);
+
+	-- Only show the back header if the the back + some other section is visible
+	header_back.setVisible(bBackVisible and (bLinkVisible or bFrontVisible))
+	back.setVisible(bBackVisible);
+	back.setEnabled(bBackVisible);
+
 end

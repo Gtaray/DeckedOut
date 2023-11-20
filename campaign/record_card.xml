@@ -147,16 +147,21 @@
 				<gmdrag />
 			</token_column>
 
-			<!-- <header_column name="header_back">
+			<header_column name="header_back">
 				<static textres="card_label_back" />
 				<center />
-			</header_column> -->
+			</header_column>
 			<token_card_back name="back">
 				<nodrag />
 				<anchored height="350" width="250">
 					<top parent="columnanchor" anchor="bottom" relation="relative" offset="7" />
 					<left />
 				</anchored>
+				<script>
+					function onValueChanged()
+						window.update()
+					end
+				</script>
 			</token_card_back>
 		</sheetdata>
 	</windowclass>
