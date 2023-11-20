@@ -611,14 +611,36 @@ function doesCardComeFromDeck(vDeck, vCard)
 		   CardsManager.getDeckNameFromCard(vCard) == CardsManager.getDeckName(vDeck);
 end
 
----Gets the token prototype for the back of a card's deck
+---Gets the token prototype for the back of a card. If no back is specified, it will get the deck's back image
 ---@param vCard databasenode|string
 ---@return string sTokenPrototype
 function getCardBack(vCard)
 	vCard = DeckedOutUtilities.validateCard(vCard);
 	if not vCard then return end
 
-	return DeckManager.getDecksCardBack(CardsManager.getDeckIdFromCard(vCard));
+	-- Check for custom card back
+	-- If there isn't one, then we get the deck's card back.
+	local sBackImage = DB.getValue(vCard, "back", "")
+	if sBackImage ~= "" then
+		return sBackImage
+	end
+
+	local sDeckId = CardsManager.getDeckIdFromCard(vCard)
+	if sDeckId == "" then
+		return nil
+	end
+
+	return DeckManager.getDecksCardBack(sDeckId);
+end
+
+---Sets the token prototype for the card
+---@param vCard databasenode|string
+---@param sToken string
+function setCardBack(vCard, sToken)
+	vCard = DeckedOutUtilities.validateCard(vCard);
+	if not vCard then return end
+
+	DB.setValue(vCard, "back", "token", sToken)
 end
 
 ---Gets the token prototype for a card
@@ -813,6 +835,41 @@ function deleteCardOrder(vCard)
 	if not vCard then return end
 
 	DB.deleteChild(vCard, CardsManager.CARD_ORDER_PATH);
+end
+
+---Gets a card's record link as a string
+---@param vCard databasenode|string
+---@return string
+function getCardRecordLink(vCard)
+	vCard = DeckedOutUtilities.validateCard(vCard);
+	if not vCard then return end
+
+	return DB.getValue(vCard, "recordlink");
+end
+
+---Gets a card's record link node
+---@param vCard databasenode|string
+---@return databasenode
+function getCardRecordLinkNode(vCard)
+	vCard = DeckedOutUtilities.validateCard(vCard);
+	if not vCard then return end
+
+	local _, sRecord = DB.getValue(vCard, "recordlink");
+	if sRecord then
+		return DB.findNode(sRecord)
+	end
+	return nil;
+end
+
+---Sets the card's record link
+---@param vCard databasenode|string
+---@param sClass string
+---@param sRecord string
+function setCardRecordLink(vCard, sClass, sRecord)
+	vCard = DeckedOutUtilities.validateCard(vCard);
+	if not vCard then return end
+
+	DB.setValue(vCard, "recordlink", "windowreference", sClass, sRecord)
 end
 ------------------------------------------
 -- DRAG DROP

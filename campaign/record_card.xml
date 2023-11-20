@@ -3,8 +3,12 @@
 	<windowclass name="deckedout_card">
 		<frame>recordsheet</frame>
 		<placement>
-			<size width="320" height="457" />
+			<size width="320" height="462" />
 		</placement>
+		<sizelimits>
+			<minimum width="320" height="462" />
+			<dynamic />
+		</sizelimits>
 		<minimize>minimized_item</minimize>
 		<sharable />
 		<tooltip field="name" />
@@ -39,11 +43,9 @@
 						local node = window.getDatabaseNode();
 						local bIsInHand = CardsManager.isCardInHand(node);
 						local bIsInStorage = CardStorage.isCardInStorage(node);
-						setVisible(not Session.IsHost or bIsInHand or bIsInStorage);
+						setVisible(bIsInHand or bIsInStorage);
 
-						-- AND is here so clients don't try to create nodes outside of
-						-- their own hand, which could happen if the GM shares a deck with players
-						if not Session.IsHost and bIsInHand then
+						if bIsInHand then
 							DB.setValue(node, "locked", "number", 1);
 						end
 					end
@@ -55,7 +57,7 @@
 						local node = window.getDatabaseNode();
 						local bIsInHand = CardsManager.isCardInHand(node);
 						local bIsInStorage = CardStorage.isCardInStorage(node);
-						setVisible(Session.IsHost and not (bIsInHand or bIsInStorage));
+						setVisible(not (bIsInHand or bIsInStorage));
 
 						if super and super.onInit then
 							super.onInit();
@@ -70,50 +72,96 @@
 
 	<windowclass name="deckedout_card_main">
 		<margins control="0,0,0,2" />
-		<script>
-			local bPeek = false;
-			function onInit()
-				local node = getDatabaseNode();
-				DB.addHandler(DB.getPath(node, CardsManager.CARD_FACING_PATH), "onUpdate", onFacingChanged)
-
-				onFacingChanged();
-			end
-
-			function onClose()
-				local node = getDatabaseNode();
-				DB.removeHandler(DB.getPath(node, CardsManager.CARD_FACING_PATH), "onUpdate", onFacingChanged)
-			end
-
-			function onFacingChanged()
-				local bFaceUp = CardsManager.isCardFaceUp(getDatabaseNode()) or bPeek;
-				image.setVisible(bFaceUp);
-				image.setEnabled(bFaceUp);
-				back.setVisible(not bFaceUp);
-				back.setEnabled(not bFaceUp);
-			end
-
-			function peek()
-				bPeek = true;
-				onFacingChanged()
-			end
-
-			function update()
-			end
-		</script>
+		<script file="campaign/scripts/deckedout_card_main.lua"/>
 		<sheetdata>			
 			<anchor_column name="columnanchor" />
+			<header_column name="header_record">
+				<static textres="card_label_record" />
+				<center />
+			</header_column>
+			<linkfield_statich name="recordlink">
+				<script>
+					function onInit()
+						local node = window.getDatabaseNode();
+						local bIsInHand = CardsManager.isCardInHand(node);
+						local bIsInStorage = CardStorage.isCardInStorage(node);
+
+						if Session.IsHost and not (bIsInHand or bIsInStorage) then
+							registerMenuItem(Interface.getString("card_menu_clear"), "delete", 5)
+						end
+
+						super.onInit()
+						self.onValueChanged()
+					end
+					function onMenuSelection(selection)
+						local bReadOnly = WindowManager.getReadOnlyState(window.getDatabaseNode());
+						if bReadOnly then
+							return
+						end
+
+						if selection == 5 then
+							setValue("", "")
+							window.update()
+						end
+					end
+					function onValueChanged()
+						if super and super.onValueChanged then
+							super.onValueChanged()
+						end
+
+						window.recordlink_label.update()
+					end
+				</script>
+				<anchored width="20" height="20">
+					<right />
+					<top parent="columnanchor" anchor="bottom" relation="current" offset="7" />
+				</anchored>
+				<closetoggle />
+			</linkfield_statich>
+			<label_column name="recordlink_label">
+				<anchored>
+					<top parent="columnanchor" anchor="bottom" relation="relative" offset="7" />
+					<right parent="" anchor="right" offset="-22" />
+				</anchored>
+				<empty textres="card_label_empty_link" />
+				<script>
+					function update()
+						local recordnode = CardsManager.getCardRecordLinkNode(window.getDatabaseNode())
+						if not recordnode then
+							setValue()
+						else
+							setValue(DB.getValue(recordnode, "name", ""))
+						end
+					end
+				</script>
+			</label_column>
+
+			<header_column name="header_front">
+				<static textres="card_label_front" />
+				<center />
+			</header_column>
 			<token_column name="image">
 				<nodrag />
 				<script file="common/scripts/onCardDrag.lua" />
 				<anchored width="250" height="350" />
 				<gmdrag />
 			</token_column>
+
+			<header_column name="header_back">
+				<static textres="card_label_back" />
+				<center />
+			</header_column>
 			<token_card_back name="back">
 				<nodrag />
 				<anchored height="350" width="250">
 					<top parent="columnanchor" anchor="bottom" relation="relative" offset="7" />
 					<left />
 				</anchored>
+				<script>
+					function onValueChanged()
+						window.update()
+					end
+				</script>
 			</token_card_back>
 		</sheetdata>
 	</windowclass>
