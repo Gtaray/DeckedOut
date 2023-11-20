@@ -51,14 +51,12 @@ end
 function onCardDroppedOnImage(cImageControl, x, y, draginfo)
 	local sClass,sRecord = draginfo.getShortcutData();
 	-- Only handle card drops
-	if sClass ~= "card" then
+	if sClass ~= "deckedout_card" then
 		return false;
 	end
 
 	vCard = DeckedOutUtilities.validateCard(sRecord);
 	if not vCard then return false; end;
-
-	Debug.chat('onCardDroppedOnImage()');
 
 	if not Session.IsHost then
 		-- Send an OOB so that host can do the actual card drop
@@ -115,7 +113,6 @@ end
 ---@param token tokeninstance
 ---@param image imagecontrol
 function onCardDoubleClicked(token, image)
-	Debug.chat('onCardDoubleClicked()');
 	if not Session.IsHost then
 		-- Send an OOB so that host can do the actual flipping
 		-- local sIdentity = User.getCurrentIdentity();
@@ -133,7 +130,6 @@ function onCardDoubleClicked(token, image)
 end
 
 function autoTokenScale(tokenMap)
-	Debug.chat('auto token scale', _bFlipping);
 	-- If we're flipping a card we absolutely do not want the token auto scaled
 	if _bFlipping then
 		return;
@@ -153,7 +149,6 @@ end
 ---@param tEventTrace table Event trace table
 ---@return databasenode newCard The card's location after moving
 function playCardOnTable(vCard, bFacedown, token, tEventTrace)
-	Debug.chat('playCardOnTable()');
 	local vCard = DeckedOutUtilities.validateCard(vCard);
 	if not vCard then return end
 
@@ -203,8 +198,9 @@ end
 ---@param cardnode databasenode
 ---@param sIdentity string identity (or 'gm') of the person doing the flipping
 function flipCardOnTable(token, image, cardnode, sIdentity)
-	Debug.chat('flipCardOnTable()');
 	_bFlipping = true;
+
+	local nScale = token.getScale()
 
 	-- First update the node backing the token
 	CardsManager.flipCardFacing(cardnode, sIdentity, {})
@@ -216,12 +212,7 @@ function flipCardOnTable(token, image, cardnode, sIdentity)
 	local x, y = token.getPosition();
 	-- local newToken = image.addToken(sNewToken, x, y);
 	local newToken = Token.addToken(DB.getPath(token.getContainerNode()), sNewToken, x, y);
-	local nScale = token.getContainerScale();
-	Debug.chat('containerscale', nScale);
-
-	newToken.setScale(nScale * 1.4142) -- Stupid hack because tokens automatically get scaled down by sqrt(2) for some reason
-	Debug.chat('old scale: ' .. nScale)
-	Debug.chat('new scale: ' .. newToken.getScale())
+	newToken.setScale(nScale)
 	newToken.setOrientation(token.getOrientation());
 	CardTable.updateTokenName(cardnode, newToken);
 	token.delete();
