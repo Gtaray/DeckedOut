@@ -147,7 +147,7 @@
 			<buttoncontrol name="settings">
 				<script>
 					function onInit()
-						setColor(DesktopManager.getSidebarDockIconColor());
+						setColor(ColorManager.getSidebarRecordIconColor());
 					end
 					function onButtonPress()
 						Interface.openWindow("deckbox_settings", window.getDatabaseNode())

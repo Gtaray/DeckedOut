@@ -38,7 +38,7 @@ function configureSidebarTheming()
 	end
 
 	wShortcuts.button_hand.setAnchoredHeight(nDockIconWidth);
-	wShortcuts.button_hand_icon.setColor(DesktopManager.getSidebarDockIconColor());
+	wShortcuts.button_hand_icon.setColor(ColorManager.getSidebarRecordIconColor());
 end
 
 -- Kind of janky, but this lets us ensure that the state of the button matches
