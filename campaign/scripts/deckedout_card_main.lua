@@ -32,7 +32,8 @@ function onDrop(x, y, draginfo)
 end
 
 function onFacingChanged()
-	local bFaceUp CardsManager.isCardFaceUp(node)
+	-- If the facing is changed while peeking, we disable peeking
+	local bFaceUp = CardsManager.isCardFaceUp(node)
 	if bPeek == true and not bFaceUp then
 		bPeek = false
 	end
@@ -41,7 +42,7 @@ end
 
 function peek()
 	bPeek = true;
-	onFacingChanged()
+	update()
 end
 
 function update()

@@ -67,6 +67,7 @@ function addCardToHand(vCard, sIdentity, bFacedown, tEventTrace)
 	local handNode = DeckedOutUtilities.validateHandNode(sIdentity);
 	if not handNode then return end
 
+	Debug.chat('addCardToHand()', vCard, bFacedown)
 	if bFacedown then
 		CardsManager.setCardFaceDown(vCard)
 	else
@@ -977,26 +978,37 @@ function onDropCard(draginfo, vDestination, sExtra)
 	-- then we check if the player (or gm) is allowed to drag from its current location
 	-- Essentially we look back at the place it's currently at and grab it from there
 	if CardStorage.doesCardComeFromStorage(sRecord) then
-		-- Check the deck setting for the card to see if players are allowed
-		-- to grab cards from chat. GMs can always do this, and they're allowed
-		-- to grab from anywhere, not just discards
-		local bAllowPlayerGrab = DeckManager.getDeckSetting(
-			CardsManager.getDeckNodeFromCard(sRecord), 
-			DeckManager.DECK_SETTING_PLAYERS_CAN_GRAB_DISCARDS) == "yes";
-
 		-- Do all the negative checks first for ease of readability.
 		if not Session.IsHost then
-			if not bAllowPlayerGrab then
-				Comm.addChatMessage( { font = "systemfont", text = "You are not allowed to grab cards from chat."});
-				return false;
-			end
-			if not CardStorage.isCardOriginADiscardPile(sRecord) then
-				Comm.addChatMessage( { font = "systemfont", text = "The card you are trying to drag from chat is not currently discarded."});
+			-- Check the deck setting for the card to see if players are allowed
+			-- to grab cards from chat. GMs can always do this, and they're allowed
+			-- to grab from anywhere
+			if CardStorage.isCardOriginACardTable(sRecord) then
+				local bAllowPlayerGrab = DeckManager.getDeckSetting(
+					CardsManager.getDeckNodeFromCard(sRecord), 
+					DeckManager.DECK_SETTING_PLAYERS_CAN_GRAB_FROM_TABLE) == "yes";
+
+				if not bAllowPlayerGrab then
+					Comm.addChatMessage( { font = "systemfont", text = "You are not allowed to grab cards that are on the table."});
+					return false;
+				end
+			elseif CardStorage.isCardOriginADiscardPile(card) then
+				local bAllowPlayerGrab = DeckManager.getDeckSetting(
+					CardsManager.getDeckNodeFromCard(sRecord), 
+					DeckManager.DECK_SETTING_PLAYERS_CAN_GRAB_DISCARDS) == "yes";
+
+				if not bAllowPlayerGrab then
+					Comm.addChatMessage( { font = "systemfont", text = "You are not allowed to grab cards from discard piles."});
+					return false;
+				end
+			else
+				Comm.addChatMessage( { font = "systemfont", text = "The card you are trying to drag from chat is not currently in a location that you can grab from."});
 				return false;
 			end
 		end
 
 		local cardnode = CardStorage.getCardOriginNode(sRecord);
+		Debug.chat('origin node', cardnode)
 		if cardnode then
 			sRecord = cardnode.getNodeName();
 			bFacedown = DeckedOutUtilities.getFacedownHotkey();
@@ -1029,6 +1041,8 @@ function handleAnyDrop(sSourceNode, sDestinationNode, sExtra, bFacedown)
 	
 	local sDestination = "";
 	local sReceivingIdentity = "";
+
+	Debug.chat('handleAnyDrop()', vCard)
 
 	-- Dropped on a charater sheet
 	if StringManager.startsWith(vDestination.getNodeName(), "charsheet") then
@@ -1115,6 +1129,9 @@ function handleAnyDrop(sSourceNode, sDestinationNode, sExtra, bFacedown)
 					DeckedOutEvents.raiseOnDealCardEvent(card, sReceivingIdentity, bFacedown, tEventTrace)
 				end
 				return true, card;
+			elseif CardTable.isCardOnTable(vCard) then
+				Debug.chat('card picked up from table')
+				CardTable.grabCardFromTable(vCard, sReceivingIdentity, tEventTrace);
 			end
 		else
 			if StringManager.startsWith(vDestination.getNodeName(), "deckbox") then

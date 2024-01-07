@@ -3,7 +3,7 @@
 	<windowclass name="deckbox_settings">
 		<frame>recordsheet</frame>
 		<placement>
-			<size width="700" height="500" />
+			<size width="700" height="540" />
 		</placement>
 		<script file="deckbox/scripts/deckbox_settings.lua" />
 		<sheetdata>
@@ -131,6 +131,13 @@
 			</setting_label>
 			<combobox_setting name="players_can_grab_discards" source="settings.playerscangrabdiscards">
 				<parameter>DECK_SETTING_PLAYERS_CAN_GRAB_DISCARDS</parameter>
+			</combobox_setting>
+
+			<setting_label name="players_can_grab_from_table_label">
+				<static textres="deckbox_setting_label_allow_picking_from_table" />
+			</setting_label>
+			<combobox_setting name="players_can_grab_from_table" source="settings.playerscangrabfromtable">
+				<parameter>DECK_SETTING_PLAYERS_CAN_GRAB_FROM_TABLE</parameter>
 			</combobox_setting>
 		</sheetdata>
 	</windowclass>

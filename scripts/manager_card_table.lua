@@ -26,12 +26,17 @@ CARD_TABLE_ID_PATH = "tokenid";
 -- because if a card is being flipped, we don't 
 -- want to discard when it's deleted
 local _bFlipping = false;
+
+-- Used to flag when a card is being added to a hand
+-- So we can delete the token without raising the delete event
+local _bGrabbing = false;
 local _fAutoTokenScale;
 
 function onInit()
 	Token.onDrop = DeckedOutEvents.onCardDroppedOnToken;
 	Token.onDelete = CardTable.onCardDeletedFromImage;
 	Token.onDoubleClick = CardTable.onCardDoubleClicked;
+	Token.onDrag = CardTable.onCardTokenDragged;
 	ImageManager.registerDropCallback("shortcut", CardTable.onCardDroppedOnImage);
 
 	_fAutoTokenScale = TokenManager.autoTokenScale;
@@ -96,7 +101,7 @@ end
 ---Event for when a card token is deleted from an image. Discards the card
 ---@param token tokeninstance token being deleted
 function onCardDeletedFromImage(token)
-	if _bFlipping then
+	if _bFlipping or _bGrabbing then
 		return false;
 	end
 
@@ -127,6 +132,21 @@ function onCardDoubleClicked(token, image)
 	CardTable.flipCardOnTable(token, image, cardnode, "gm");
 
 	return true;
+end
+
+---Event for when a token is dragged. This will only apply to card tokens on images
+---@param token tokeninstance
+---@param button number
+---@param x number
+---@param y number
+---@param dragdata dragdata
+function onCardTokenDragged(token, button, x, y, dragdata)
+	local cardnode = CardTable.getCardFromToken(token)
+	if not cardnode then
+		return
+	end
+
+	Debug.chat('card dragged');
 end
 
 function autoTokenScale(tokenMap)
@@ -169,9 +189,9 @@ function playCardOnTable(vCard, bFacedown, token, tEventTrace)
 	-- Save the location of the card (imagenode path and token id)
 	-- so that we can get it back later
 	CardTable.updateCardOnTable(tablecard, imagenode, nId, bFacedown);
+	CardTable.updateTokenRadialMenu(tablecard);
 	
 	tEventTrace = DeckedOutEvents.raiseOnCardAddedToImageEvent(tablecard, tEventTrace);
-
 	return tablecard;
 end
 
@@ -194,10 +214,9 @@ end
 
 ---Flips a card face up or face down
 ---@param token tokeninstance
----@param image imagecontrol
 ---@param cardnode databasenode
 ---@param sIdentity string identity (or 'gm') of the person doing the flipping
-function flipCardOnTable(token, image, cardnode, sIdentity)
+function flipCardOnTable(token, cardnode, sIdentity)
 	_bFlipping = true;
 
 	local nScale = token.getScale()
@@ -210,7 +229,6 @@ function flipCardOnTable(token, image, cardnode, sIdentity)
 	-- Have to be careful here, because deleting a tokeninstance will trigger the discard
 	-- and there's no other way to change the token's prototype after it's on an image
 	local x, y = token.getPosition();
-	-- local newToken = image.addToken(sNewToken, x, y);
 	local newToken = Token.addToken(DB.getPath(token.getContainerNode()), sNewToken, x, y);
 	newToken.setScale(nScale)
 	newToken.setOrientation(token.getOrientation());
@@ -220,8 +238,32 @@ function flipCardOnTable(token, image, cardnode, sIdentity)
 	-- This is crucial, because the new token has a new id, and we need to update
 	-- the DB with the new token id.
 	CardTable.setCardTokenId(cardnode, newToken.getId());
+	CardTable.updateTokenRadialMenu(cardnode);
 	
 	_bFlipping = false;
+end
+
+---Grabs a card from an image and puts it elsewhere
+---@param vCard databasenode|string
+---@param sReceivingIdentity string
+---@param tEventTrace table
+function grabCardFromTable(vCard, sReceivingIdentity, tEventTrace)
+	-- Only grab cards on tables
+	if not CardTable.isCardOnTable(vCard) then
+		return;
+	end
+
+	Debug.chat('grabCardFromTable()');
+	_bGrabbing = true
+
+	local bFacedown = CardsManager.isCardFaceDown(vCard);
+	CardTable.deleteCardToken(vCard)
+
+	tEventTrace = DeckedOutEvents.addEventTrace(tEventTrace, DeckedOutEvents.DECKEDOUT_EVENT_IMAGE_CARD_PICKED_UP);
+	local card = CardsManager.addCardToHand(vCard, sReceivingIdentity, bFacedown, tEventTrace);
+	DeckedOutEvents.raiseOnCardPickedUpFromImageEvent(card, sReceivingIdentity, tEventTrace)
+
+	_bGrabbing = false
 end
 
 ------------------------------------------
@@ -397,5 +439,82 @@ function updateTokenName(vCard, token)
 		token.setName(CardsManager.getDeckNameFromCard(vCard));
 	else
 		token.setName(CardsManager.getCardName(vCard));
+	end
+end
+
+function deleteCardToken(vCard)
+	local sImageNode = CardTable.getCardImage(vCard);
+	local nTokenId = CardTable.getCardTokenId(vCard);
+
+	Debug.chat('deleteCardToken', sImageNode, nTokenId)
+	local token = Token.getToken(sImageNode, nTokenId)
+	if not token then
+		return
+	end
+
+	Debug.chat('token', token)
+	token.delete();
+end
+
+---Updates a tokeninstance's radial menu on an image
+---@param vCard databasenode|string
+function updateTokenRadialMenu(vCard)
+	vCard = DeckedOutUtilities.validateCard(vCard);
+	if not vCard then return end
+
+	Debug.chat('updateTokenRadialMenu()')
+	local sImageNode = CardTable.getCardImage(vCard)
+	local nTokenId = CardTable.getCardTokenId(vCard)
+	Debug.chat(sImageNode, nTokenId)
+	local token = Token.getToken(sImageNode, nTokenId)
+	if not token then
+		return
+	end
+
+	local bFacedown = CardsManager.isCardFaceDown(vCard);
+
+	token.registerMenuItem(Interface.getString("card_menu_pickup"), "deal", 5)
+	if bFacedown then
+		token.registerMenuItem(Interface.getString("card_menu_peek"), "peek", 2)
+		token.registerMenuItem(Interface.getString("card_menu_flip_facedown"), "flip", 3)
+	else
+		token.registerMenuItem(Interface.getString("card_menu_flip_facedown"), "flip", 3)
+	end
+	token.registerMenuItem(Interface.getString("card_menu_reshuffle"), "reshuffle_card", 6)
+	token.registerMenuItem(Interface.getString("card_menu_discard_card"), "discard_card", 7)
+
+	token.onMenuSelection = CardTable.onCardTokenMenuSelected
+end
+
+---Menu selection event for card tokens
+---@param token tokeninstance
+---@param selection number
+function onCardTokenMenuSelected(token, selection)
+	Debug.chat('onCardTokenMenuSelected()', token, selection)
+
+	local cardnode = CardTable.getCardFromToken(token)
+	if not cardnode then
+		return;
+	end
+
+	local bFacedown = CardsManager.isCardFaceDown(vCard);
+	local tEventTrace = {} -- Top level operation with empty trace
+	local sReceivingIdentity = ""
+	if Session.IsHost then
+		sReceivingIdentity = "gm"
+	else
+
+	end
+
+	if selection == 1 then
+		CardTrable.grabCardFromTable(vCcardnodeard, sReceivingIdentity, tEventTrace)
+	elseif selection == 2 then
+		DesktopManager.peekCard(cardnode);
+	elseif selection == 3 then
+		CardTable.onCardDoubleClicked(token, CardTable.getCardImage(cardnode));
+	elseif selection == 6 then
+		CardsManager.putCardBackInDeck(cardnode, bFacedown or DeckedOutUtilities.getFacedownHotkey(), tEventTrace);
+	elseif selection == 7 then
+		CardTable.discardCardFromTable(cardnode, {})
 	end
 end

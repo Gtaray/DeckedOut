@@ -121,6 +121,7 @@ function getCardOriginNode(vCard)
 	local vCard = DeckedOutUtilities.validateCard(vCard);
 	if not vCard then return end
 
+	Debug.chat('origin path', CardStorage.getCardOrigin(vCard))
 	return DB.findNode(CardStorage.getCardOrigin(vCard));
 end
 
@@ -133,4 +134,27 @@ function isCardOriginADiscardPile(vCard)
 
 	local sOrigin = CardStorage.getCardOrigin(vCard);
 	return string.find(sOrigin, "." .. DeckManager.DECK_DISCARD_PATH .. ".") ~= nil;
+end
+
+---Checks if the origin for a card in storage is a discard pile
+---@param vCard databasenode|string
+---@return boolean
+function isCardOriginADiscardPile(vCard)
+	local vCard = DeckedOutUtilities.validateCard(vCard);
+	if not vCard then return end
+
+	local sOrigin = CardStorage.getCardOrigin(vCard);
+	return string.find(sOrigin, "." .. DeckManager.DECK_DISCARD_PATH .. ".") ~= nil;
+end
+
+---Checks if the origin for a card in storage is on an image (i.e. a card table)
+---@param vCard databasenode|string
+---@return boolean
+function isCardOriginACardTable(vCard)
+	local vCard = DeckedOutUtilities.validateCard(vCard);
+	Debug.chat('isCardOriginACardTable', vCard)
+	if not vCard then return end
+
+	local sOrigin = CardStorage.getCardOrigin(vCard);
+	return string.find(sOrigin, CardTable.CARD_TABLE_PATH .. ".") ~= nil;
 end

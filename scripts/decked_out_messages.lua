@@ -18,6 +18,7 @@ function onInit()
 	DeckedOutEvents.registerEvent(DeckedOutEvents.DECKEDOUT_EVENT_CARD_FLIPPED, { fCallback = printCardFlippedMessage, sTarget = "host" });
 	DeckedOutEvents.registerEvent(DeckedOutEvents.DECKEDOUT_EVENT_CARD_PEEK, { fCallback = printPeekCardMessage, sTarget = "host" });
 	DeckedOutEvents.registerEvent(DeckedOutEvents.DECKEDOUT_EVENT_IMAGE_CARD_ADDED, { fCallback = printCardPlayedMessage, sTarget = "host" });
+	DeckedOutEvents.registerEvent(DeckedOutEvents.DECKEDOUT_EVENT_IMAGE_CARD_PICKED_UP, { fCallback = printCardPickedUpMessage, sTarget = "host" });
 
 	-- These oob messages are needed because cards are printed to chat. the GM must copy referenced cards to card storage
 	-- Before sending the message to chat. Clients can't copy to storage.
@@ -381,6 +382,35 @@ function printMultipleCardsDealtMessage(tEventArgs, tEventTrace)
 
 	sendMessageToGm(msg);
 	sendMessageToClients(msg);
+end
+
+function printCardPickedUpMessage(tEventArgs, tEventTrace)
+	Debug.chat('printCardPickedUpMessage()', tEventArgs)
+	local vCard = DeckedOutUtilities.validateCard(tEventArgs.sCardNode);
+	if not vCard then return end
+
+	local sCardSource = CardsManager.getCardSource(vCard);
+	if (not sCardSource) or sCardSource == "storage" then
+		return;
+	end
+
+	local bFacedown = tEventArgs.bFacedown == "true";
+
+	local msg = {};
+	msg.type = DeckedOutMessages.OOB_MSGTYPE_DECKEDOUT_STANDARD;
+	msg.sender = tEventArgs.sIdentity;
+	msg.card_link = vCard.getNodeName();
+	msg.action = "deal";
+	msg.facedown = tEventArgs.bFacedown;
+	if bFacedown then
+		msg.text = Interface.getString("chat_msg_pick_up_facedown");
+	else
+		msg.text = Interface.getString("chat_msg_pick_up");
+	end
+	msg.text = string.format(msg.text, "[SENDER]", "[CARDNAME]");
+	msg.icon = "deal";
+
+	Comm.deliverOOBMessage(msg, "");
 end
 -----------------------------------------------------
 -- FLIPPING AND PEEKING

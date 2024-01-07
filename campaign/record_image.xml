@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<!-- 
+  Please see the license.html file included with this distribution for 
+  attribution and copyright information.
+-->
+
+<root>
+	<windowclass name="imagewindow" merge="join">
+		<script>
+			function onInit()
+				super.onInit()
+
+				local tokens = image.getTokens()
+				for id, token in ipairs(tokens) do
+					local cardnode = CardTable.getCardFromToken(token)
+					if cardnode then
+						CardTable.updateTokenRadialMenu(cardnode)
+					end
+				end
+			end
+		</script>
+	</windowclass>
+</root>

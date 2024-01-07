@@ -21,8 +21,9 @@ DECKEDOUT_EVENT_HAND_PUT_BACK_IN_DECK = "handputbackindeck"
 DECKEDOUT_EVENT_DECK_CREATED = "deckcreated";
 DECKEDOUT_EVENT_DECK_DELETED = "deckdeleted";
 
-DECKEDOUT_EVENT_IMAGE_CARD_ADDED = "cardaddedtoimage"; -- Currently not used
-DECKEDOUT_EVENT_IMAGE_CARD_DELETED = "carddeletedfromimage"; -- Currently not used
+DECKEDOUT_EVENT_IMAGE_CARD_ADDED = "cardaddedtoimage";
+DECKEDOUT_EVENT_IMAGE_CARD_DELETED = "carddeletedfromimage";
+DECKEDOUT_EVENT_IMAGE_CARD_PICKED_UP = "cardpickedupfromimage";
 
 DECKEDOUT_EVENT_DECK_SETTING_CHANGED = "decksettingchanged";
 
@@ -510,7 +511,7 @@ end
 ---@param sSettingKey string Settings key that was changed
 ---@param sPreviousValue string Previous value
 ---@param sCurrentValue string Current value
----@param tEventTrace table. Event trace table
+---@param tEventTrace table Event trace table
 ---@return table tEventTrace Event trace table
 function raiseOnDeckSettingChangedEvent(vDeck, sSettingKey, sPreviousValue, sCurrentValue, tEventTrace)
 	return DeckedOutEvents.raiseEvent(
@@ -520,7 +521,10 @@ function raiseOnDeckSettingChangedEvent(vDeck, sSettingKey, sPreviousValue, sCur
 	);
 end
 
--- Not used currently. Will be used if we add full cards on images support
+---Raises the onCardAddedToImage event
+---@param vCard databasenode Node of card that's added to image
+---@param tEventTrace table Event trace table
+---@return table tEventTrace Event trace table
 function raiseOnCardAddedToImageEvent(vCard, tEventTrace)
 	local tArgs = { sCardNode = DB.getPath(vCard) };
 	tArgs.sImageNode = CardTable.getCardImage(vCard);
@@ -538,11 +542,36 @@ function raiseOnCardAddedToImageEvent(vCard, tEventTrace)
 	);
 end
 
--- Not used currently. Will be used if we add full cards on images support
+---Raises the onCardDeletedFromImage event
+---@param vCard databasenode Node of card that is deleted
+---@param tEventTrace table Event trace table
+---@return table tEventTrace Event trace table
 function raiseOnCardDeletedFromImageEvent(vCard, tEventTrace)
 	return DeckedOutEvents.raiseEvent(
 		DeckedOutEvents.DECKEDOUT_EVENT_IMAGE_CARD_DELETED, 
 		{ sCardNode = DB.getPath(vCard) },
+		tEventTrace,
+		true
+	);
+end
+
+---Raises the onCardPickedUpFromTable event
+---@param vCard databasenode Node of card that is picked up
+---@param tEventTrace table Event trace table
+---@return table tEventTrace Event trace table
+function raiseOnCardPickedUpFromImageEvent(vCard, sIdentity, tEventTrace)
+	local tArgs = { sCardNode = DB.getPath(vCard) };
+	tArgs.sIdentity = sIdentity;
+	tArgs.sImageNode = CardTable.getCardImage(vCard);
+	tArgs.nTokenId = CardTable.getCardTokenId(vCard);
+	tArgs.bFacedown = "false";
+	if CardsManager.isCardFaceDown(vCard) then
+		tArgs.bFacedown = "true";
+	end
+
+	return DeckedOutEvents.raiseEvent(
+		DeckedOutEvents.DECKEDOUT_EVENT_IMAGE_CARD_PICKED_UP, 
+		tArgs,
 		tEventTrace,
 		true
 	);

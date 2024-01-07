@@ -73,6 +73,7 @@
 	<string name="deckbox_settings_header_misc">Miscellaneous</string>
 	<string name="deckbox_settings_label_discard_to_deck">Put discarded cards back into the deck?</string>
 	<string name="deckbox_setting_label_allow_picking_from_discard">Allow players to grab discarded cards from chat?</string>
+	<string name="deckbox_setting_label_allow_picking_from_table">Allow players to grab cards from images?</string>
 
 	<string name="deckbox_settings_option_gm">The GM</string>
 	<string name="deckbox_settings_option_everyone">Everyone</string>
@@ -123,6 +124,7 @@
 	<string name="card_menu_flip_faceup">Flip card face up</string>
 	<string name="card_menu_flip_facedown">Flip card face down</string>
 	<string name="card_menu_peek">Peek at this this card without flipping it</string>
+	<string name="card_menu_pickup">Pick up this card and put it in your hand</string>
 
 	<string name="deck_label_cardback">Card Back</string>
 	<string name="deck_label_cards">Cards</string>
@@ -173,6 +175,8 @@
 	<string name="chat_msg_not_enough_cards_in_deck">There are not enough cards in %s to deal</string>
 	<string name="chat_msg_card_flipped">%s flipped %s %s</string>
 	<string name="chat_msg_peek">%s peeked at %s</string>
+	<string name="chat_msg_pick_up">%s picked up %s</string>
+	<string name="chat_msg_pick_up_facedown">%s picked up %s facedown</string>
 
 	<!-- GAME OPTIONS -->
 	<string name="option_header_deckedout">Decked Out</string>

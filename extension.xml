@@ -12,6 +12,7 @@
 		<includefile source="campaign/record_char.xml" />
 		<includefile source="campaign/record_deck.xml" />
 		<includefile source="campaign/record_card.xml" />
+		<includefile source="campaign/record_image.xml" />
 		<includefile source="common/card_tooltip.xml" />
 		<includefile source="common/deck_templates.xml" />
 
