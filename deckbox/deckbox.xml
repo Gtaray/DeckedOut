@@ -14,7 +14,7 @@
 			<windowtitlebar name="title">
 				<resource>deckbox_title</resource>
 			</windowtitlebar>
-			<anchor_title_partysheet name="contentanchor" />
+			<anchor_content_partysheet_top name="contentanchor" />
 
 			<sub_ps name="main">
 				<class>deckbox_main</class>
@@ -25,7 +25,7 @@
 			</sub_ps>
 
 			<resize_partysheet />
-			<close_partysheet />
+			<windowmenubar_partysheet name="menubar" />
 		</sheetdata>
 	</windowclass>
 

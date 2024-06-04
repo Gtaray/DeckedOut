@@ -54,7 +54,7 @@
 			</filter>
 
 			<resize_partysheet />
-			<close_partysheet />
+			<windowmenubar_partysheet name="menubar" />
 		</sheetdata>
 	</windowclass>
 

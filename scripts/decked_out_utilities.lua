@@ -89,7 +89,7 @@ end
 function validateParameter(vParam, sDisplayName)
 	if not vParam then
 		Debug.console("ERROR: " .. sDisplayName .. " was nil or not found.");
-		printstack();
+		Debug.printstack();
 		return false;
 	end
 
@@ -153,7 +153,7 @@ function validateHandNode(sIdentity)
 	local handNode = CardsManager.getHandNode(sIdentity);
 	if handNode == nil then
 		Debug.console("ERROR: Could not resolve hand node for user identity" .. sIdentity);
-		printstack();
+		Debug.printstack();
 		return;
 	end
 	return handNode;
@@ -164,7 +164,7 @@ end
 function validateHost()
 	if not Session.IsHost then
 		Debug.console("ERROR: This function can only be called by the session host");
-		printstack();
+			Debug.printstack();
 		return false;
 	end
 	return true;
