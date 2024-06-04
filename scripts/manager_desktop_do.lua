@@ -5,6 +5,7 @@ function onInit()
 	Interface.onDesktopInit = onDesktopInit;
 
 	fOnShortcutDropOnPortrait = CharacterListManager.onShortcutDrop;
+	CharacterListManager.onShortcutDrop = onShortcutDropOnPortrait
 	CharacterListManager.registerDropHandler("shortcut", onShortcutDropOnPortrait);
 
 	-- 2E doesn't use a sidebar, it uses better menus, so we don't configure the sidebar menu here.
@@ -73,16 +74,15 @@ function toggleHandVisibility(bShow)
 	end
 end
 
-function onShortcutDropOnPortrait(sIdentity, draginfo)
-	local sClass, sRecord = draginfo.getShortcutData();
-	local nodeSource = draginfo.getDatabaseNode();
+function onShortcutDropOnPortrait(tDropData, draginfo)
+	local sClass = draginfo.getShortcutData();
 
 	if sClass == "deckedout_card" then
-		CardsManager.onDropCard(draginfo, DB.getPath("charsheet", sIdentity));
-		return;
+		CardsManager.onDropCard(draginfo, tDropData.sPath);
+		return true;
 	end
 
-	fOnShortcutDropOnPortrait(sIdentity, draginfo);
+	return fOnShortcutDropOnPortrait(tDropData, draginfo);
 end
 
 ------------------------------------------

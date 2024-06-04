@@ -142,6 +142,9 @@ function drawCard(vDeck)
 	if not vDeck then return end
 
 	local aCards = DeckManager.getRandomCardsInDeck(vDeck, 1);
+	if not aCards then
+		return
+	end
 	return aCards[1];
 end
 
