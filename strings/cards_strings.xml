@@ -74,7 +74,7 @@
 	<string name="deckbox_settings_label_discard_to_deck">Put discarded cards back into the deck?</string>
 	<string name="deckbox_setting_label_allow_picking_from_discard">Allow players to grab discarded cards from chat?</string>
 
-	<string name="deckbox_settings_label_tooltip_facing">Which side of the card is shown when hovering over a card?</string>
+	<string name="deckbox_settings_label_tooltip_facing">Which side of the card is shown in the tooltip?</string>
 	<string name="deckbox_settings_option_facing">Front if face up, back if face down</string>
 	<string name="deckbox_settings_option_front">Always show the card's front</string>
 	<string name="deckbox_settings_option_back">Always show the card's back</string>
