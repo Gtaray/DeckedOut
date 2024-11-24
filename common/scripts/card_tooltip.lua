@@ -14,6 +14,20 @@ function updateToken()
 		return;
 	end
 
+	local decknode = CardsManager.getDeckNodeFromCard(node);
+	local sFacingRule = DeckManager.getDeckSetting(decknode, DeckManager.DECK_SETTING_CARD_TOOLTIP_FACING)
+
+	if sFacingRule == "front" then
+		image.setPrototype(CardsManager.getCardFront(node));
+		return;
+	end
+
+	if sFacingRule == "back" then
+		image.setPrototype(CardsManager.getCardBack(node));
+		return;
+	end
+	
+	-- If we're here, then we want to base the image on the card's facing
 	if CardsManager.isCardFaceUp(node) then
 		image.setPrototype(CardsManager.getCardFront(node));
 	else

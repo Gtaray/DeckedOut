@@ -29,7 +29,7 @@ DECKEDOUT_EVENT_DECK_SETTING_CHANGED = "decksettingchanged";
 OOB_MSGTYPE_DECKEDOUTEVENT = "deckedoutevent";
 
 function onInit()
-	DeckedOutEvents.registerEvent(DeckedOutEvents.DECKEDOUT_EVENT_DECK_DELETED, { fCallback = deleteCardsFromDecksThatAreDeleted, target="host" });
+	DeckedOutEvents.registerEvent(DeckedOutEvents.DECKEDOUT_EVENT_DECK_DELETED, { fCallback = deleteCardsFromDecksThatAreDeleted, sTarget="host" });
 
 	OOBManager.registerOOBMsgHandler(OOB_MSGTYPE_DECKEDOUTEVENT, DeckedOutEvents.raiseEventHandler);
 	ChatManager.registerDropCallback("shortcut", DeckedOutEvents.onCardDroppedInChat);

@@ -329,6 +329,10 @@ DECK_SETTING_DISCARD_TO_DECK = "discardtodeck";
 -- Are players allowed to grab discarded cards from chat and drag them to their hand
 -- Default: no
 DECK_SETTING_PLAYERS_CAN_GRAB_DISCARDS = "playerscangrabdiscards"
+-- Which side of the card is shown when hovering over the card in a hand
+-- Default: front
+DECK_SETTING_CARD_TOOLTIP_FACING = "tooltipfacing"
+
 
 local _tSettingOptions = {
 	[DECK_SETTING_DEFAULT_DEAL_FACING] = {
@@ -420,6 +424,14 @@ local _tSettingOptions = {
 		options = {
 			{ sTextRes = "deckbox_setting_option_yes", sValue = "yes" },
 			{ sTextRes = "deckbox_setting_option_no", sValue = "no" },
+		}
+	},
+	[DECK_SETTING_CARD_TOOLTIP_FACING] = {
+		default = "facing",
+		options = {
+			{ sTextRes = "deckbox_settings_option_facing", sValue = "facing" },
+			{ sTextRes = "deckbox_settings_option_front", sValue = "front" },
+			{ sTextRes = "deckbox_settings_option_back", sValue = "back" },
 		}
 	}
 }

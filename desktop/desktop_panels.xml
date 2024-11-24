@@ -3,7 +3,7 @@
 	<panel name="handpanel">
 		<anchored height="150" width="450">
 			<bottom offset="-35" />
-			<right parent="shortcutsanchor" anchor="left" />
+			<right parent="shortcuts" anchor="left" offset="-5" />
 		</anchored>
 		<class>desktop_hand</class>
 		<dynamic />
