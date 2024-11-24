@@ -3,7 +3,7 @@
 	<windowclass name="deckbox_settings">
 		<frame>recordsheet</frame>
 		<placement>
-			<size width="700" height="550" />
+			<size width="700" height="650" />
 		</placement>
 		<script file="deckbox/scripts/deckbox_settings.lua" />
 		<sheetdata>
