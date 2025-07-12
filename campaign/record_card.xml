@@ -1,71 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <root>
-	<windowclass name="deckedout_card">
-		<frame>recordsheet</frame>
-		<placement>
-			<size width="320" height="457" />
-		</placement>
-		<minimize>minimized_item</minimize>
-		<sharable />
-		<tooltip field="name" />
-		<script file="common/scripts/record_window.lua" />
-		<sheetdata>
-			<sub_record_header name="header">
-				<class>deckedout_card_header</class>
-			</sub_record_header>
-
-			<frame_record_content name="contentframe" />
-
-			<subwindow_record name="main">
-				<class>deckedout_card_main</class>
-				<activate />
-				<fastinit />
-			</subwindow_record>
-
-			<close_recordsheet />
-		</sheetdata>
+	<windowclass name="deckedout_card" copy="record_window">
+		<windowmenu>
+			<nolock />
+		</windowmenu>
 	</windowclass>
+	<windowclass name="deckedout_card_header" copy="record_header">
+		<script>
+			function update()
+				super.update();
 
-	<windowclass name="deckedout_card_header">
-		<margins control="0,0,0,7" />
-		<script file="common/scripts/record_header.lua" />
-		<sheetdata>
-			<link_record_header name="link" />
-			
-			<anchor_record_header_right name="rightanchor" />
-			<icon_record_locked>
-				<script>
-					function onInit()
-						local node = window.getDatabaseNode();
-						local bIsInHand = CardsManager.isCardInHand(node);
-						local bIsInStorage = CardStorage.isCardInStorage(node);
-						setVisible(not Session.IsHost or bIsInHand or bIsInStorage);
-
-						-- AND is here so clients don't try to create nodes outside of
-						-- their own hand, which could happen if the GM shares a deck with players
-						if not Session.IsHost and bIsInHand then
-							DB.setValue(node, "locked", "number", 1);
-						end
-					end
-				</script>
-			</icon_record_locked>
-			<button_record_locked>
-				<script>
-					function onInit()
-						local node = window.getDatabaseNode();
-						local bIsInHand = CardsManager.isCardInHand(node);
-						local bIsInStorage = CardStorage.isCardInStorage(node);
-						setVisible(Session.IsHost and not (bIsInHand or bIsInStorage));
-
-						if super and super.onInit then
-							super.onInit();
-						end
-					end
-				</script>
-			</button_record_locked>
-
-			<string_record_name name="name" />
-		</sheetdata>
+				local node = getDatabaseNode();
+				local bIsInHand = CardsManager.isCardInHand(node);
+				local bIsInStorage = CardStorage.isCardInStorage(node);
+				
+				name.setReadOnly(bIsInHand or bIsInStorage);
+			end
+		</script>
 	</windowclass>
 
 	<windowclass name="deckedout_card_main">

@@ -1,48 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <root>
-	<windowclass name="deckedout_deck">
-		<frame>recordsheet</frame>
-		<placement>
-			<size width="320" height="480" />
-		</placement>
-		<sizelimits>
-			<minimum width="320" height="480" />
-			<dynamic />
-		</sizelimits>
-		<minimize>minimized_item</minimize>
-		<sharable />
-		<tooltip field="name" />
-		<script file="common/scripts/record_window.lua" />
-		<sheetdata>
-			<sub_record_header name="header">
-				<class>deckedout_deck_header</class>
-			</sub_record_header>
-
-			<frame_record_content name="contentframe" />
-
-			<subwindow_record name="main">
-				<class>deckedout_deck_main</class>
-				<activate />
-			</subwindow_record>
-
-			<close_recordsheet />
-			<resize_recordsheet />
-		</sheetdata>
-	</windowclass>
-
-	<windowclass name="deckedout_deck_header">
-		<margins control="0,0,0,7" />
-		<script file="common/scripts/record_header.lua" />
-		<sheetdata>
-			<link_record_header name="link" />
-			
-			<anchor_record_header_right name="rightanchor" />
-			<icon_record_locked />
-			<button_record_locked />
-
-			<string_record_name name="name" />
-		</sheetdata>
-	</windowclass>
+	<windowclass name="deckedout_deck" copy="record_window" />
+	<windowclass name="deckedout_deck_header" copy="record_header" />
 
 	<windowclass name="deckedout_deck_main">
 		<script>
@@ -54,7 +13,7 @@
 				back.setReadOnly(bReadOnly)
 				for k,v in pairs(cards.getWindows()) do
 					v.image.setReadOnly(bReadOnly);
-					v.idelete.setVisibility(not bReadOnly)
+					v.idelete.setVisible(not bReadOnly)
 				end
 			end
 		</script>
