@@ -11,6 +11,14 @@ function onInit()
 		self.updateHand(CardsManager.getHandNode("gm"));
 	end
 
+	-- I think the bug where cards don't show up at all has to do with the player selecting their identity while this window is closed
+	-- Because when they do that, there's no handler to update when their cards change.
+	-- I should add a bit here that checks if the player has a current identity, and to populate the hand with that identity if so
+	local sCurIdentity = User.getCurrentIdentity(User.getUsername());
+	if sCurIdentity then
+		self.initializeHandNode(sCurIdentity, true);
+	end
+
 	registerMenuItem(Interface.getString("hand_menu_discard_hand"), "discard_hand", 8);
 	registerMenuItem(Interface.getString("hand_menu_discard_random"), "discard_random", 8, 7);
 	registerMenuItem(Interface.getString("hand_menu_discard_hand_confirm"), "discard_hand", 8, 8);
@@ -56,21 +64,26 @@ function onIdentityStateChange(sIdentity, sUsername, sStateName, vState)
 	if Session.IsHost then
 		return;
 	end
-	
+
 	-- Only grab state change events for when the user changes their
 	-- current identity
-	if sStateName == "current" then
-		if vState then
-			self.addPlayerCardHandler(sIdentity);
-			self.updateHand(CardsManager.getHandNode(sIdentity))
+	local handnode = CardsManager.getHandNode(sIdentity);
+	if sStateName == "current" and vState and DB.isOwner(handnode) then
+		self.initializeHandNode(sIdentity, vState)
+	end
+end
 
-			-- If we just activated a character and that character
-			-- has cards in their hand, auto-open up the hand window
-			-- If there's no cards in hand, close the window
-			DesktopManager.setHandVisibility(hand.getWindowCount() > 0);
-		else
-			self.clearPlayerCardHandler(sIdentity);
-		end
+function initializeHandNode(sIdentity, bEnable)
+	if bEnable then
+		self.addPlayerCardHandler(sIdentity);
+		self.updateHand(CardsManager.getHandNode(sIdentity))
+
+		-- If we just activated a character and that character
+		-- has cards in their hand, auto-open up the hand window
+		-- If there's no cards in hand, close the window
+		DesktopManager.setHandVisibility(hand.getWindowCount() > 0);
+	else
+		self.clearPlayerCardHandler(sIdentity);
 	end
 end
 
