@@ -31,7 +31,7 @@
 	<string name="deckbox_button_shuffle_discard">Shuffle Discard back into Deck</string>
 
 	<!-- DECKBOX SETTINGS -->
-	<string name="deckbox_settings_title">Settings - %s</string>
+	<string name="deckbox_settings_title">Settings</string>
 	<string name="deckbox_settings_header_card_visibility">Action Visibility</string>
 
 	<string name="deckbox_settings_label_default_deal_facing">Are cards dealt face up or face down by default?</string>

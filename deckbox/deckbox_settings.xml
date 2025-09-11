@@ -1,32 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <root>
-	<windowclass name="deckbox_settings">
-		<frame>recordsheet</frame>
+	<windowclass name="deckbox_settings" copy="charsheethelper_base">
 		<placement>
 			<size width="700" height="650" />
 		</placement>
-		<script file="deckbox/scripts/deckbox_settings.lua" />
 		<sheetdata>
-			<windowtitlebar name="title">
-				<resource>deckbox_settings_title</resource>
-			</windowtitlebar>
+			<windowtitlebar_charsheethelper name="title">
+				<prefix>deckbox_settings_title</prefix>
+				<field>name</field>
+			</windowtitlebar_charsheethelper>
 
-			<frame_record_content name="contentframe">
-				<anchored>
-					<top parent="" anchor="top" offset="55" />
-				</anchored>
-			</frame_record_content>
-
-			<subwindow_record name="main">
+			<sub_content_framed_groupbox name="main">
 				<class>deckbox_settings_main</class>
-				<activate />
-			</subwindow_record>
-
-			<scrollbar_record>
-				<target>main</target>
-			</scrollbar_record>
-
-			<close_recordsheet />
+			</sub_content_framed_groupbox>
+			<scrollbar_content_main />
 		</sheetdata>
 	</windowclass>
 
